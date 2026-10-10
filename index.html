@@ -128,7 +128,7 @@
   <div class="card">
     <div class="catface">🐱</div>
     <h1>ねこだるま<br>おとし</h1>
-    <p class="sub">ねこを落とさずに、だるまを全部たたき出そう！</p>
+    <p class="sub">ねこを落とさずに、お菓子を全部たたき出そう！</p>
     <div class="best">ハイスコア <b id="titleBest">0</b></div>
     <button class="btn" id="startBtn">▶ スタート</button>
     <div class="row">
@@ -143,7 +143,7 @@
   <div class="card">
     <h2>あそびかた</h2>
     <ul class="howto">
-      <li data-i="👆">画面の<b>左半分</b>をタップで左から、<b>右半分</b>をタップで右からハンマーで一番下のだるまをたたくよ。</li>
+      <li data-i="👆">画面の<b>左半分</b>をタップで左から、<b>右半分</b>をタップで右からハンマーで一番下のお菓子をたたくよ。</li>
       <li data-i="🎯">下のパワーメーターの<b>まんなか</b>で止めるほど上手にぬける！
         <div class="zones">
           <span style="flex:12;background:#9aa7b8"></span>
@@ -156,15 +156,27 @@
         </div>
         <div class="zl"><span>よわい</span><span>PERFECT</span><span>つよすぎ</span></div>
       </li>
-      <li data-i="〰️">たたくと積み木が<b>ぐらぐら</b>ゆれるよ。たたいた側と<b>反対側</b>に押されるので、かたむいている側からたたくと揺れをおさえられる！</li>
+      <li data-i="〰️">たたくとお菓子の山が<b>ぐらぐら</b>ゆれるよ。たたいた側と<b>反対側</b>に押されるので、かたむいている側からたたくと揺れをおさえられる！</li>
       <li data-i="⏱">時間内にぜんぶ抜いて、ねこが床にすわればクリア！</li>
       <li data-i="📈">クリアするたびに段数が増えるよ（最大30段）。</li>
-      <li data-i="⭐">金色のだるまは得点3倍！ PERFECT・GOODを続けるとコンボボーナス！</li>
+      <li data-i="🔥">PERFECT・GOODを続けるとコンボボーナス！</li>
       <li data-i="🪑">ねこが座っている一番上の段は、ときどき<b>形や幅が変わる</b>よ。せまいと揺れやすい！</li>
       <li data-i="🐱">ねこがときどき<b>座り直して</b>場所がずれるよ。はしに寄ると傾きやすい！</li>
       <li data-i="💨">STAGE 2から、ときどき<b>風</b>がふいて押されるよ。</li>
       <li data-i="🐈">STAGE 3から、ときどき<b>のらねこが乱入</b>して段をずらしてくる！ ずれた段はたたき出すと元にもどるよ。</li>
     </ul>
+    <h2 style="margin-top:14px">おかし図鑑</h2>
+    <ul class="howto">
+      <li data-i="🍩"><b>ドーナツ</b>：判定が広くてぬけやすい</li>
+      <li data-i="🍬"><b>マカロン</b>：かるいので、たたいても揺れにくい</li>
+      <li data-i="🍰"><b>ショートケーキ</b>：ふわふわで大きく揺れる。得点2倍</li>
+      <li data-i="🍫"><b>板チョコ</b>（STAGE 3〜）：かたくて2回たたかないとぬけない。得点2倍</li>
+      <li data-i="🍮"><b>プリン</b>（STAGE 3〜）：積んであるあいだ揺れがおさまりにくい。得点1.5倍</li>
+      <li data-i="🍡"><b>おもち</b>（STAGE 4〜）：ねばって判定がせまい。得点2倍</li>
+      <li data-i="✨"><b>金のカステラ</b>：たまに出るレアなお菓子。得点3倍</li>
+      <li data-i="🎂">ねこの段は<b>ホールケーキ・マシュマロ・ジャンボプリン・いちご大福</b>に変身するよ</li>
+    </ul>
+    <p class="sub" style="margin-top:8px">画面下の「つぎ：〇〇」で、次にたたくお菓子がわかるよ。</p>
     <button class="btn" id="howClose">わかった！</button>
   </div>
 </div>
@@ -362,6 +374,9 @@ const SFX = {
   tick() { tone(1200, 1200, 0.04, 'square', 0.05); },
   build(i) { tone(400 + i * 25, 400 + i * 25, 0.04, 'triangle', 0.07); },
   go() { tone(784, 784, 0.1, 'square', 0.08); tone(1175, 1175, 0.2, 'square', 0.08, 0.1); },
+  crack() { noise(0.07, 0.35, 3800); tone(1900, 900, 0.05, 'square', 0.08); },
+  mochi() { tone(220, 130, 0.18, 'sine', 0.18, 0.02); },
+  purun() { tone(320, 640, 0.08, 'sine', 0.12, 0.02); tone(640, 380, 0.12, 'sine', 0.1, 0.1); },
   boing() { tone(220, 520, 0.12, 'sine', 0.14); tone(520, 330, 0.16, 'sine', 0.1, 0.11); },
   warn() { tone(880, 880, 0.07, 'square', 0.07); tone(880, 880, 0.07, 'square', 0.07, 0.12); },
   push() { tone(180, 120, 0.12, 'triangle', 0.3); noise(0.12, 0.25, 500); },
@@ -416,7 +431,35 @@ let intr = null;         // 乱入ねこ
 let streaks = [];        // 風のすじ
 let evTimer = 0, reseatTimer = 0, morphTimer = 0;
 let lastCause = '', lastCauseT = -99;
-const SEAT_SHAPES = 4;   // 0:ふつう 1:まる 2:台形 3:ドーム
+const SEAT_SHAPES = 4;   // 0:ホールケーキ 1:マシュマロ 2:プリン 3:いちご大福
+const SEAT_NAMES = ['ホールケーキ', 'マシュマロ', 'ジャンボプリン', 'いちご大福'];
+
+// お菓子の段：zone=判定の広さ imp=揺れやすさ pts=得点倍率
+const SWEETS = {
+  donut:    { name: 'ドーナツ',       tip: 'ぬけやすい',   desc: '判定が広くてぬけやすい',               zone: 1.35, imp: 1,    pts: 1,   minStage: 1, weight: 3 },
+  macaron:  { name: 'マカロン',       tip: 'ゆれにくい',   desc: 'かるいので、たたいても揺れにくい',     zone: 1,    imp: 0.6,  pts: 1,   minStage: 1, weight: 3 },
+  cake:     { name: 'ショートケーキ', tip: 'ぐらつく・2倍', desc: 'ふわふわで大きく揺れる。得点2倍',     zone: 1,    imp: 1.15, pts: 2,   minStage: 1, weight: 2 },
+  choco:    { name: '板チョコ',       tip: 'かたい・2回',  desc: 'かたくて2回たたかないとぬけない。得点2倍', zone: 1, imp: 1,  pts: 2,   minStage: 3, weight: 1.5, hp: 2 },
+  pudding:  { name: 'プリン',         tip: 'ぷるぷる',     desc: '積んであるあいだ揺れがおさまりにくい。得点1.5倍', zone: 1, imp: 1, pts: 1.5, minStage: 3, weight: 1.5 },
+  mochi:    { name: 'おもち',         tip: 'きびしい・2倍', desc: 'ねばって判定がせまい。得点2倍',       zone: 0.75, imp: 1,    pts: 2,   minStage: 4, weight: 1.5 },
+  castella: { name: '金のカステラ',   tip: '3倍！',        desc: 'たまに出るレアなお菓子。得点3倍',     zone: 1,    imp: 1,    pts: 3,   minStage: 1, weight: 0 },
+};
+const SEAT_SWEET = { name: '', tip: 'ねこの段', zone: 1, imp: 1, pts: 1 };
+function sweetOf(b) { return b.seat ? SEAT_SWEET : SWEETS[b.kind] || SWEETS.donut; }
+function pickKind() {
+  const list = Object.entries(SWEETS).filter(([, v]) => v.weight > 0 && stage >= v.minStage);
+  let r = Math.random() * list.reduce((a, [, v]) => a + v.weight, 0);
+  for (const [k, v] of list) { r -= v.weight; if (r <= 0) return k; }
+  return list[0][0];
+}
+// 一番下の段に合わせた判定ゾーン
+function zonesFor(P) {
+  const b = blocks[0];
+  const z = b ? sweetOf(b).zone : 1;
+  const perfect = Math.min(0.4, P.perfect * z);
+  const good = Math.min(P.ok - 0.05, Math.max(perfect + 0.06, P.good * z));
+  return { perfect, good, ok: P.ok };
+}
 const CAT_PAL = { body: '#f8ad55', stripe: '#e0832e', white: '#fff8ee' };
 const INTRUDER_PALS = [
   { body: '#a3abb5', stripe: '#6d7681', white: '#f6f6f6' },
@@ -484,10 +527,12 @@ function makeBlocks(n) {
   const arr = [];
   let last = -1;
   for (let i = 0; i < n; i++) {
-    let c;
-    do { c = Math.floor(Math.random() * BLOCK_COLORS.length); } while (c === last);
-    last = c;
-    arr.push({ color: BLOCK_COLORS[c], gold: i < n - 1 && Math.random() < 0.08 + Math.min(stage, 30) * 0.002, pattern: Math.floor(Math.random() * 3), dx: 0 });
+    let k;
+    do { k = pickKind(); } while (k === last && Math.random() < 0.6);
+    last = k;
+    if (i < n - 1 && Math.random() < 0.06 + Math.min(stage, 30) * 0.002) k = 'castella';
+    const sw = SWEETS[k];
+    arr.push({ kind: k, variant: Math.floor(Math.random() * 4), seed: Math.floor(Math.random() * 1e6), hp: sw.hp || 1, dx: 0 });
   }
   const top = arr[n - 1];
   top.seat = true;
@@ -540,15 +585,18 @@ function strike(side) {
   hammer = { side, t: 0 };
   cooldown = 0.2;
 
+  const Z = zonesFor(P);
+  const bottom = blocks[0];
+  const sweet = sweetOf(bottom);
   let grade;
-  if (dist < P.perfect) grade = 'perfect';
-  else if (dist < P.good) grade = 'good';
-  else if (dist < P.ok) grade = 'ok';
+  if (dist < Z.perfect) grade = 'perfect';
+  else if (dist < Z.good) grade = 'good';
+  else if (dist < Z.ok) grade = 'ok';
   else grade = p < 0.5 ? 'weak' : 'strong';
 
   const bx = G.cx + side * (G.blockW / 2);
   const by = G.groundY - G.blockH / 2 - drop;
-  const sm = seatMul();
+  const sm = seatMul() * sweet.imp;
 
   if (grade === 'weak') {
     wob.v += dir * 1.2 * P.imp * sm;
@@ -561,6 +609,21 @@ function strike(side) {
   }
 
   const mags = { perfect: 0.8, good: 1.7, ok: 2.6, strong: 4.2 };
+
+  // 板チョコ：1回目はヒビが入るだけ
+  if (bottom.hp > 1) {
+    bottom.hp--;
+    wob.v += dir * mags[grade] * 0.35 * P.imp * sm * rand(0.85, 1.15);
+    nudge = { dir, t: 0 };
+    if (grade === 'perfect' || grade === 'good') { combo++; maxCombo = Math.max(maxCombo, combo); }
+    else { combo = 0; if (grade === 'strong') { missesThisStage++; shake = 8; } }
+    score += 10;
+    addPopup('パキッ！ あと1回', G.cx - dir * G.blockW * 0.1, by - 30, '#ffe0b0', 22);
+    for (let i = 0; i < 8; i++) particles.push({ x: G.cx - dir * G.blockW / 2, y: by, vx: dir * rand(40, 260), vy: rand(-260, 0), life: rand(0.4, 0.7), t: 0, color: '#6b3e26', size: rand(2, 4) });
+    SFX.crack();
+    cooldown = 0.25;
+    return;
+  }
   wob.v += dir * mags[grade] * P.imp * sm * rand(0.85, 1.15);
 
   const b = blocks.shift();
@@ -580,19 +643,22 @@ function strike(side) {
   else { combo = 0; base = 10; label = 'つよすぎ!'; color = '#ff5a4f'; missesThisStage++; shake = 10; }
   maxCombo = Math.max(maxCombo, combo);
   const mult = 1 + Math.min(4, Math.floor(combo / 5)) * 0.5;
-  let pts = Math.round(base * mult * (b.gold ? 3 : 1));
+  const sp = sweetOf(b).pts;
+  let pts = Math.round(base * mult * sp);
   score += pts;
 
   const tx = G.cx - dir * (G.blockW * 0.1);
   addPopup(label, tx, by - 34, color, grade === 'perfect' ? 30 : 26);
-  addPopup('+' + pts + (b.gold ? ' ⭐x3' : ''), tx, by - 6, b.gold ? '#ffcc00' : '#fff', 20);
+  addPopup('+' + pts + (sp > 1 ? ' x' + sp : ''), tx, by - 6, b.kind === 'castella' ? '#ffcc00' : sp > 1 ? '#ffe08a' : '#fff', 20);
   if (combo >= 3) addPopup(combo + ' COMBO' + (mult > 1 ? ' x' + mult : ''), G.cx, G.groundY - G.blockH * blocks.length - G.catSize - 30 - drop, '#ffd23f', 20);
 
   const sparkN = grade === 'perfect' ? 18 : grade === 'good' ? 10 : 5;
   for (let i = 0; i < sparkN; i++) {
     particles.push({ x: G.cx - dir * G.blockW / 2, y: by, vx: dir * rand(50, 350), vy: rand(-350, 50), life: rand(0.4, 0.8), t: 0,
-      color: b.gold ? '#ffd23f' : (grade === 'perfect' ? '#ff9ac6' : '#fff7c2'), size: rand(3, 6), star: grade === 'perfect' || b.gold });
+      color: b.kind === 'castella' ? '#ffd23f' : (grade === 'perfect' ? '#ff9ac6' : '#fff7c2'), size: rand(3, 6), star: grade === 'perfect' || b.kind === 'castella' });
   }
+  if (b.kind === 'mochi') SFX.mochi();
+  else if (b.kind === 'pudding') SFX.purun();
   if (grade === 'perfect') { cat.mood = 'happy'; cat.moodT = 0.6; flash = 0.15; }
   SFX.hit(grade);
 }
@@ -716,7 +782,10 @@ function update(dt) {
     updateEvents(dt, P);
     // ゆれ物理（減衰ばね）＋重心のかたより＋風
     const windAcc = wind && wind.phase === 'blow' ? wind.cur * wind.force : 0;
-    const a = -P.k * (wob.w - balanceBias()) - P.c * wob.v + windAcc;
+    let puddings = 0;
+    for (const b of blocks) if (b.kind === 'pudding') puddings++;
+    const damp = P.c * Math.max(0.6, 1 - puddings * 0.05);
+    const a = -P.k * (wob.w - balanceBias()) - damp * wob.v + windAcc;
     wob.v += a * dt;
     wob.w += wob.v * dt;
     if (Math.abs(wob.w) > 0.7 && cat.mood !== 'happy') { cat.mood = 'scared'; cat.moodT = 0.3; }
@@ -854,7 +923,7 @@ function updateEvents(dt, P) {
       sb.nextShape = sh;
       sb.morph = 0;
       SFX.boing();
-      addPopup(sb.swT < 0.75 ? 'せまくなった！' : 'ぐにゃ～ん', G.cx, catWorldTop() - G.catSize * 1.25, '#a77bff', 18);
+      addPopup((sb.swT < 0.75 ? 'ほそい' : '') + SEAT_NAMES[sh] + 'に！', G.cx, catWorldTop() - G.catSize * 1.25, '#a77bff', 18);
     }
     if (sb.morph !== undefined && sb.morph < 1) {
       sb.morph = Math.min(1, sb.morph + dt / 0.5);
@@ -1033,23 +1102,6 @@ function shade(hex, amt) {
   return `rgb(${r | 0},${g | 0},${b | 0})`;
 }
 
-const gradCache = new Map();
-function blockGrad(x, w, color) {
-  const key = color + '|' + Math.round(w);
-  let g = gradCache.get(key);
-  if (!g) {
-    if (gradCache.size > 300) gradCache.clear();
-    g = ctx.createLinearGradient(-w / 2, 0, w / 2, 0);
-    if (color === 'gold') {
-      g.addColorStop(0, '#b8860b'); g.addColorStop(0.3, '#ffe066'); g.addColorStop(0.5, '#fff6c0'); g.addColorStop(0.7, '#ffd23f'); g.addColorStop(1, '#a0700a');
-    } else {
-      g.addColorStop(0, shade(color, -0.35)); g.addColorStop(0.35, shade(color, 0.15)); g.addColorStop(0.5, shade(color, 0.35)); g.addColorStop(0.7, color); g.addColorStop(1, shade(color, -0.4));
-    }
-    gradCache.set(key, g);
-  }
-  return g;
-}
-
 // 角を丸めた多角形
 function roundPoly(pts, r) {
   const n = pts.length;
@@ -1084,47 +1136,208 @@ function blockPath(x, y, w, h, r, shape) {
   roundRect(x, y, w, h, r);
 }
 
-// 中心(0,0)基準でだるまを描く
+// ---------- お菓子の描画 ----------
+const DONUT_ICING = ['#ff8fb8', '#7b4a2e', '#fff3f7', '#8fd3ff'];
+const MACARON_COL = ['#ffb3c7', '#b8e6c9', '#c9b8ff', '#ffe39a'];
+const MOCHI_COL = ['#fbf7f0', '#ffd6df', '#d3eab8', '#fbf7f0'];
+const SPRINKLE_COL = ['#ff5a4f', '#3fa7ff', '#ffd23f', '#5ccf6a', '#ffffff', '#a77bff'];
+
+function seeded(seed) {
+  let x = seed % 2147483647 || 1;
+  return () => (x = (x * 16807) % 2147483647) / 2147483647;
+}
+
+// 円柱っぽい横方向の陰影
+const shadeCache = new Map();
+function cylShade(w) {
+  const key = Math.round(w);
+  let g = shadeCache.get(key);
+  if (!g) {
+    if (shadeCache.size > 300) shadeCache.clear();
+    g = ctx.createLinearGradient(-w / 2, 0, w / 2, 0);
+    g.addColorStop(0, 'rgba(60,30,10,0.32)');
+    g.addColorStop(0.3, 'rgba(255,255,255,0.10)');
+    g.addColorStop(0.45, 'rgba(255,255,255,0.28)');
+    g.addColorStop(0.7, 'rgba(0,0,0,0)');
+    g.addColorStop(1, 'rgba(60,30,10,0.38)');
+    shadeCache.set(key, g);
+  }
+  return g;
+}
+
+function wavyBand(x, y0, w, amp, n, h) {
+  // 上端 y0 からの「たれ」を描くパス（下端が波打つ）
+  ctx.beginPath();
+  ctx.moveTo(x - 2, y0 - 2);
+  ctx.lineTo(x + w + 2, y0 - 2);
+  ctx.lineTo(x + w + 2, y0 + h);
+  const seg = w / n;
+  for (let i = n; i > 0; i--) {
+    const xa = x + i * seg, xb = x + (i - 1) * seg;
+    const deep = (i % 2 === 0 ? 1 : 0.45) * amp;
+    ctx.quadraticCurveTo((xa + xb) / 2, y0 + h + deep * 2, xb, y0 + h);
+  }
+  ctx.closePath();
+}
+
+// 中心(0,0)基準でお菓子の段を描く
 function drawBlockCentered(w, h, b) {
   const x = -w / 2, y = -h / 2;
-  const r = Math.min(h * 0.35, 12);
-  const shape = b.shape || 0;
-  ctx.fillStyle = blockGrad(x, w, b.gold ? 'gold' : b.color);
-  blockPath(x, y, w, h, r, shape);
-  ctx.fill();
-  ctx.save();
-  blockPath(x, y, w, h, r, shape);
-  ctx.clip();
-  // 模様
-  if (h > 12) {
+  const lw = h < 14 ? 1.8 : 2.5;
+  const small = h < 13;
+  const rnd = seeded(b.seed || 1);
+  let path;
+
+  if (b.seat) {
+    const shape = b.shape || 0;
+    const r = Math.min(h * 0.35, 12);
+    path = () => blockPath(x, y, w, h, r, shape);
     ctx.save();
-    ctx.globalAlpha = 0.35;
-    ctx.fillStyle = '#fff';
-    if (b.pattern === 0) {
-      ctx.fillRect(x, y + h * 0.42, w, h * 0.16);
-    } else if (b.pattern === 1) {
-      for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.arc(i * w * 0.18, 0, h * 0.13, 0, Math.PI * 2); ctx.fill(); }
-    } else {
-      ctx.fillRect(x, y + h * 0.25, w, h * 0.08);
-      ctx.fillRect(x, y + h * 0.67, w, h * 0.08);
+    path(); ctx.clip();
+    if (shape === 0) { // ホールケーキ
+      ctx.fillStyle = '#f7d58b'; ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = '#fffaf2'; ctx.fillRect(x, y, w, h * 0.42);
+      ctx.fillStyle = '#fffaf2'; ctx.fillRect(x, y + h * 0.62, w, h * 0.1);
+      ctx.fillStyle = '#ff4f6a';
+      const n = Math.max(3, Math.round(w / Math.max(16, h * 0.9)));
+      for (let i = 0; i < n; i++) { ctx.beginPath(); ctx.arc(x + (i + 0.5) * w / n, y + h * 0.42, h * 0.13, 0, Math.PI * 2); ctx.fill(); }
+    } else if (shape === 1) { // マシュマロ
+      ctx.fillStyle = '#ffe4ee'; ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillRect(x, y + h * 0.45, w, h * 0.1);
+    } else if (shape === 2) { // ジャンボプリン
+      ctx.fillStyle = '#ffd66b'; ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = '#8f4f1a'; wavyBand(x, y, w, h * 0.08, 8, h * 0.22); ctx.fill();
+    } else { // いちご大福
+      ctx.fillStyle = '#fbf3f0'; ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = '#ff4f6a';
+      ctx.beginPath(); ctx.moveTo(-h * 0.25, y + h * 0.12); ctx.lineTo(h * 0.25, y + h * 0.12); ctx.lineTo(0, y - h * 0.05); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      for (let i = 0; i < 10; i++) { ctx.beginPath(); ctx.arc(x + rnd() * w, y + h * (0.4 + rnd() * 0.5), 1.2, 0, Math.PI * 2); ctx.fill(); }
     }
+    ctx.fillStyle = cylShade(w); ctx.fillRect(x, y, w, h);
     ctx.restore();
+  } else {
+    switch (b.kind) {
+      case 'macaron': {
+        const c = MACARON_COL[b.variant % 4];
+        // クリーム
+        ctx.fillStyle = '#fff6e0';
+        roundRect(x + w * 0.05, y + h * 0.34, w * 0.9, h * 0.32, h * 0.12); ctx.fill();
+        ctx.lineWidth = lw * 0.7; ctx.strokeStyle = INK; ctx.stroke();
+        // 上下の生地
+        for (const [sy, sh] of [[y, h * 0.4], [y + h * 0.6, h * 0.4]]) {
+          ctx.fillStyle = c;
+          roundRect(x, sy, w, sh, sh * 0.5); ctx.fill();
+          ctx.save(); roundRect(x, sy, w, sh, sh * 0.5); ctx.clip();
+          ctx.fillStyle = cylShade(w); ctx.fillRect(x, sy, w, sh);
+          ctx.restore();
+          ctx.lineWidth = lw; ctx.strokeStyle = INK;
+          roundRect(x, sy, w, sh, sh * 0.5); ctx.stroke();
+        }
+        path = null;
+        break;
+      }
+      case 'cake': {
+        path = () => roundRect(x, y, w, h, Math.min(h * 0.18, 6));
+        ctx.save(); path(); ctx.clip();
+        ctx.fillStyle = '#f7d58b'; ctx.fillRect(x, y, w, h);
+        ctx.fillStyle = '#fffaf2'; ctx.fillRect(x, y, w, h * 0.16); ctx.fillRect(x, y + h * 0.42, w, h * 0.18);
+        ctx.fillStyle = '#ff4f6a';
+        const n = Math.max(3, Math.round(w / Math.max(14, h * 0.8)));
+        for (let i = 0; i < n; i++) {
+          ctx.beginPath(); ctx.ellipse(x + (i + 0.5) * w / n, y + h * 0.51, Math.max(2, h * 0.16), Math.max(1.5, h * 0.09), 0, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.fillStyle = cylShade(w); ctx.fillRect(x, y, w, h);
+        ctx.restore();
+        break;
+      }
+      case 'choco': {
+        path = () => roundRect(x, y, w, h, Math.min(h * 0.15, 5));
+        ctx.save(); path(); ctx.clip();
+        ctx.fillStyle = '#6b3e26'; ctx.fillRect(x, y, w, h);
+        const n = Math.max(3, Math.round(w / Math.max(18, h * 1.1)));
+        ctx.lineWidth = Math.max(1, h * 0.06);
+        for (let i = 1; i < n; i++) {
+          const lx = x + i * w / n;
+          ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.moveTo(lx, y); ctx.lineTo(lx, y + h); ctx.stroke();
+          ctx.strokeStyle = 'rgba(255,200,160,0.25)'; ctx.beginPath(); ctx.moveTo(lx + ctx.lineWidth, y); ctx.lineTo(lx + ctx.lineWidth, y + h); ctx.stroke();
+        }
+        ctx.fillStyle = 'rgba(255,220,190,0.25)'; ctx.fillRect(x, y + h * 0.1, w, h * 0.12);
+        if (b.hp < (SWEETS.choco.hp || 2)) { // ヒビ
+          ctx.strokeStyle = '#fff3e0'; ctx.lineWidth = Math.max(1.5, h * 0.07);
+          ctx.beginPath(); ctx.moveTo(x + w * 0.3, y);
+          ctx.lineTo(x + w * 0.38, y + h * 0.35); ctx.lineTo(x + w * 0.3, y + h * 0.6); ctx.lineTo(x + w * 0.42, y + h);
+          ctx.moveTo(x + w * 0.66, y); ctx.lineTo(x + w * 0.6, y + h * 0.45); ctx.lineTo(x + w * 0.7, y + h);
+          ctx.stroke();
+        }
+        ctx.fillStyle = cylShade(w); ctx.fillRect(x, y, w, h);
+        ctx.restore();
+        break;
+      }
+      case 'pudding': {
+        const ins = w * 0.09;
+        path = () => roundPoly([[x + ins, y], [x + w - ins, y], [x + w, y + h], [x, y + h]], Math.min(h * 0.3, 8));
+        ctx.save(); path(); ctx.clip();
+        ctx.fillStyle = '#ffd66b'; ctx.fillRect(x, y, w, h);
+        ctx.fillStyle = '#8f4f1a'; wavyBand(x, y, w, h * 0.07, 8, h * 0.24); ctx.fill();
+        ctx.fillStyle = cylShade(w); ctx.fillRect(x, y, w, h);
+        ctx.restore();
+        break;
+      }
+      case 'mochi': {
+        path = () => roundRect(x, y, w, h, h * 0.48);
+        ctx.save(); path(); ctx.clip();
+        ctx.fillStyle = MOCHI_COL[b.variant % 4]; ctx.fillRect(x, y, w, h);
+        if (!small) {
+          ctx.fillStyle = 'rgba(255,255,255,0.85)';
+          for (let i = 0; i < 12; i++) { ctx.beginPath(); ctx.arc(x + rnd() * w, y + rnd() * h * 0.6, 1.1, 0, Math.PI * 2); ctx.fill(); }
+        }
+        ctx.fillStyle = cylShade(w); ctx.fillRect(x, y, w, h);
+        ctx.restore();
+        break;
+      }
+      case 'castella': {
+        path = () => roundRect(x, y, w, h, Math.min(h * 0.12, 5));
+        ctx.save(); path(); ctx.clip();
+        const g = ctx.createLinearGradient(0, y, 0, y + h);
+        g.addColorStop(0, '#ffe066'); g.addColorStop(1, '#f5b81c');
+        ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+        ctx.fillStyle = '#8b4a1f'; ctx.fillRect(x, y, w, h * 0.24); ctx.fillRect(x, y + h * 0.9, w, h * 0.1);
+        ctx.fillStyle = 'rgba(255,255,255,0.45)';
+        const sh = (gtime * 0.6) % 1.6 - 0.3;
+        ctx.beginPath(); ctx.moveTo(x + w * sh, y); ctx.lineTo(x + w * (sh + 0.12), y); ctx.lineTo(x + w * (sh + 0.04), y + h); ctx.lineTo(x + w * (sh - 0.08), y + h); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = cylShade(w); ctx.fillRect(x, y, w, h);
+        ctx.restore();
+        break;
+      }
+      default: { // donut
+        path = () => roundRect(x, y, w, h, h * 0.5);
+        ctx.save(); path(); ctx.clip();
+        const g = ctx.createLinearGradient(0, y, 0, y + h);
+        g.addColorStop(0, '#f2b872'); g.addColorStop(1, '#c47b38');
+        ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+        ctx.fillStyle = DONUT_ICING[b.variant % 4];
+        wavyBand(x, y, w, h * 0.09, 10, h * 0.42); ctx.fill();
+        if (!small) {
+          for (let i = 0; i < Math.round(w / 9); i++) {
+            ctx.save();
+            ctx.translate(x + rnd() * w, y + h * (0.08 + rnd() * 0.3));
+            ctx.rotate(rnd() * Math.PI);
+            ctx.fillStyle = SPRINKLE_COL[Math.floor(rnd() * SPRINKLE_COL.length)];
+            ctx.fillRect(-2.5, -1, 5, 2);
+            ctx.restore();
+          }
+        }
+        ctx.fillStyle = cylShade(w); ctx.fillRect(x, y, w, h);
+        ctx.restore();
+      }
+    }
   }
-  // ハイライト
-  ctx.globalAlpha = 0.35;
-  ctx.fillStyle = '#fff';
-  roundRect(x + w * 0.08, y + h * (shape === 3 ? 0.3 : 0.12), w * 0.84, Math.max(2, h * 0.16), h * 0.08);
-  ctx.fill();
-  ctx.restore();
-  ctx.globalAlpha = 1;
-  ctx.lineWidth = 2.5;
-  ctx.strokeStyle = INK;
-  blockPath(x, y, w, h, r, shape);
-  ctx.stroke();
-  if (b.gold) {
-    const s = Math.min(h * 0.35, 9);
-    drawStar(0, 0, s, '#fff', 1);
+  if (path) {
+    ctx.lineWidth = lw; ctx.strokeStyle = INK;
+    path(); ctx.stroke();
   }
+  if (b.kind === 'castella') drawStar(0, h * 0.08, Math.min(h * 0.3, 8), '#fff', 0.9);
 }
 
 function drawStar(x, y, r, color, alpha) {
@@ -1236,7 +1449,9 @@ function drawStack() {
     }
     ctx.save();
     ctx.translate(x, y);
-    drawBlockCentered(state === 'title' ? bw : blockWidth(b), (bh - 1) * hs, b);
+    let ww = state === 'title' ? bw : blockWidth(b);
+    if (b.kind === 'pudding') ww *= 1 + Math.sin(gtime * 16 + i) * 0.04 * Math.min(1, Math.abs(wob.v) + 0.15);
+    drawBlockCentered(ww, (bh - 1) * hs, b);
     ctx.restore();
   }
   if (!cat.free) {
@@ -1603,7 +1818,7 @@ function drawHUD() {
 
 function drawMeter() {
   if (state === 'title' || state === 'falling' || state === 'over') return;
-  const P = params();
+  let P = params();
   const { mX, mY, mW, mH } = G;
 
   // かたむきゲージ
@@ -1621,7 +1836,9 @@ function drawMeter() {
   ctx.font = `bold 11px ${FONT}`; ctx.fillStyle = INK; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
   ctx.fillText('ぐらぐら', tx - 8, ty);
 
-  // パワーメーター
+  // パワーメーター（一番下のお菓子で判定の広さが変わる）
+  const ZP = zonesFor(P);
+  P = { ...P, perfect: ZP.perfect, good: ZP.good };
   const zones = [
     [0, 0.5 - P.ok / 2, '#9aa7b8'],
     [0.5 - P.ok / 2, 0.5 - P.good / 2, '#ffd166'],
@@ -1661,8 +1878,24 @@ function drawMeter() {
   if (G.hintY < H - SAB - 4) {
     ctx.globalAlpha = 0.75;
     ctx.font = `bold 13px ${FONT}`; ctx.fillStyle = INK; ctx.textBaseline = 'middle';
-    ctx.textAlign = 'left'; ctx.fillText('◀ 左をタップ', 14, G.hintY);
-    ctx.textAlign = 'right'; ctx.fillText('右をタップ ▶', W - 14, G.hintY);
+    ctx.textAlign = 'left'; ctx.fillText('◀ 左', 14, G.hintY);
+    ctx.textAlign = 'right'; ctx.fillText('右 ▶', W - 14, G.hintY);
+    const b0 = blocks[0];
+    if (b0) {
+      const sw = sweetOf(b0);
+      const name = b0.seat ? SEAT_NAMES[b0.shape] : sw.name;
+      const tip = sw.hp && b0.hp < sw.hp ? 'あと1回' : sw.tip;
+      ctx.globalAlpha = 1;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = INK;
+      // 左右の「◀ 左」「右 ▶」と重ならない大きさにする
+      const maxW = W - 120;
+      let text = `つぎ：${name}（${tip}）`;
+      ctx.font = `bold 14px ${FONT}`;
+      if (ctx.measureText(text).width > maxW) ctx.font = `bold 12px ${FONT}`;
+      if (ctx.measureText(text).width > maxW) text = `${name}（${tip}）`;
+      ctx.fillText(text, W / 2, G.hintY);
+    }
     ctx.globalAlpha = 1;
   }
 }
