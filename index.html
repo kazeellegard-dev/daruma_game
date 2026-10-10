@@ -162,8 +162,8 @@
       <li data-i="⭐">金色のだるまは得点3倍！ PERFECT・GOODを続けるとコンボボーナス！</li>
       <li data-i="🪑">ねこが座っている一番上の段は、ときどき<b>形や幅が変わる</b>よ。せまいと揺れやすい！</li>
       <li data-i="🐱">ねこがときどき<b>座り直して</b>場所がずれるよ。はしに寄ると傾きやすい！</li>
-      <li data-i="💨">STAGE 3から、ときどき<b>風</b>がふいて押されるよ。</li>
-      <li data-i="🐈">STAGE 4から、ときどき<b>のらねこが乱入</b>して段をずらしてくる！ ずれた段はたたき出すと元にもどるよ。</li>
+      <li data-i="💨">STAGE 2から、ときどき<b>風</b>がふいて押されるよ。</li>
+      <li data-i="🐈">STAGE 3から、ときどき<b>のらねこが乱入</b>して段をずらしてくる！ ずれた段はたたき出すと元にもどるよ。</li>
     </ul>
     <button class="btn" id="howClose">わかった！</button>
   </div>
@@ -429,13 +429,13 @@ function params() {
   const s = Math.min(stage, MAX_TIER);
   const extra = Math.max(0, stage - MAX_TIER);
   return {
-    k: 16 - s * 0.12,
-    c: Math.max(0.5, 1.15 - s * 0.022),
-    speed: Math.min(3.2, 0.85 + s * 0.055 + extra * 0.03),
-    perfect: Math.max(0.06, 0.17 - s * 0.0037 - extra * 0.001),
-    good: Math.max(0.26, 0.46 - s * 0.0065),
-    ok: 0.76,
-    imp: 1 + s * 0.012 + extra * 0.01,
+    k: Math.max(10, 15 - s * 0.15),
+    c: Math.max(0.35, 0.85 - s * 0.016),
+    speed: Math.min(3.4, 1.0 + s * 0.07 + extra * 0.03),
+    perfect: Math.max(0.05, 0.12 - s * 0.0025 - extra * 0.001),
+    good: Math.max(0.2, 0.36 - s * 0.005),
+    ok: 0.7,
+    imp: 1 + s * 0.02 + extra * 0.01,
   };
 }
 function meterValue() {
@@ -465,13 +465,13 @@ function catLimit() {
 // 一番上の段がせまいほど揺れやすい
 function seatMul() {
   const sb = seatBlock();
-  return sb ? clamp(1 + (1 - sb.sw) * 0.6, 0.85, 1.35) : 1;
+  return sb ? clamp(1 + (1 - sb.sw) * 0.9, 0.8, 1.5) : 1;
 }
 // ねこのずれ・段のずれによる重心のかたより
 function balanceBias() {
   let m = catOff * 0.6;
   for (const b of blocks) m += (b.dx || 0) * 0.35;
-  return clamp(m / (G.blockW * 0.5) * 0.4, -0.45, 0.45);
+  return clamp(m / (G.blockW * 0.5) * 0.6, -0.55, 0.55);
 }
 // 積み木のローカル座標 → 画面座標
 function stackToWorld(lx, ly) {
@@ -510,7 +510,7 @@ function setupStage() {
   blocks = makeBlocks(stageBlocks);
   wob.w = 0; wob.v = 0;
   drop = 0; dropV = 0;
-  timeMax = 6 + stageBlocks * 1.25;
+  timeMax = 4 + stageBlocks * 0.95;
   timeLeft = timeMax;
   meterPhase = Math.random() * 2;
   cooldown = 0;
@@ -551,7 +551,7 @@ function strike(side) {
   const sm = seatMul();
 
   if (grade === 'weak') {
-    wob.v += dir * 0.9 * P.imp * sm;
+    wob.v += dir * 1.2 * P.imp * sm;
     combo = 0; missesThisStage++;
     nudge = { dir, t: 0 };
     addPopup('よわい…', bx, by - 20, '#7d8aa0', 22);
@@ -560,7 +560,7 @@ function strike(side) {
     return;
   }
 
-  const mags = { perfect: 0.5, good: 1.25, ok: 2.25, strong: 3.9 };
+  const mags = { perfect: 0.8, good: 1.7, ok: 2.6, strong: 4.2 };
   wob.v += dir * mags[grade] * P.imp * sm * rand(0.85, 1.15);
 
   const b = blocks.shift();
@@ -871,7 +871,7 @@ function updateEvents(dt, P) {
   if (stage >= 2 && sb && !reseat) {
     reseatTimer -= dt;
     if (reseatTimer <= 0) {
-      reseatTimer = rand(4, 7.5);
+      reseatTimer = rand(3, 6);
       let to = rand(-1, 1) * lim * 0.9;
       if (Math.abs(to - catOff) < lim * 0.4) to = catOff > 0 ? -rand(0.3, 0.9) * lim : rand(0.3, 0.9) * lim;
       reseat = { t: 0, from: catOff, to, dur: 0.55 };
@@ -884,18 +884,18 @@ function updateEvents(dt, P) {
     catOff = lerp(reseat.from, reseat.to, k * k * (3 - 2 * k));
     if (reseat.t >= 1) {
       cat.squash = 1;
-      wob.v += Math.sign(reseat.to - reseat.from) * 0.5 * P.imp;
+      wob.v += Math.sign(reseat.to - reseat.from) * 0.8 * P.imp;
       SFX.land();
       reseat = null;
     }
   }
 
   // ②③ 風 / 乱入ねこ
-  if (stage >= 3 && !wind && !intr) {
+  if (stage >= 2 && !wind && !intr) {
     evTimer -= dt;
     if (evTimer <= 0) {
-      evTimer = Math.max(3.5, rand(5, 9) - Math.min(stage, MAX_TIER) * 0.08);
-      if (stage >= 4 && blocks.length >= 3 && Math.random() < 0.5) startIntruder();
+      evTimer = Math.max(2.5, rand(4, 7) - Math.min(stage, MAX_TIER) * 0.1);
+      if (stage >= 3 && blocks.length >= 3 && Math.random() < 0.5) startIntruder();
       else startWind();
     }
   }
@@ -904,7 +904,7 @@ function updateEvents(dt, P) {
 function startWind() {
   const dir = Math.random() < 0.5 ? -1 : 1;
   wind = { phase: 'warn', t: 0, dir, cur: 0,
-    force: Math.min(4.5, 2.2 + Math.min(stage, MAX_TIER) * 0.08) * rand(0.85, 1.15),
+    force: Math.min(6, 3 + Math.min(stage, MAX_TIER) * 0.1) * rand(0.85, 1.15),
     dur: rand(2.2, 3.4) };
   SFX.warn();
 }
@@ -989,8 +989,8 @@ function updateIntruder(dt, P) {
     if (!it.pushed && it.t > 0.17) {
       it.pushed = true;
       const b = it.target;
-      b.dx = clamp((b.dx || 0) - it.side * rand(0.08, 0.15) * G.blockW, -G.blockW * 0.3, G.blockW * 0.3);
-      wob.v += -it.side * rand(0.8, 1.3) * P.imp;
+      b.dx = clamp((b.dx || 0) - it.side * rand(0.12, 0.2) * G.blockW, -G.blockW * 0.35, G.blockW * 0.35);
+      wob.v += -it.side * rand(1.4, 2.0) * P.imp;
       shake = 6;
       lastCause = 'intruder'; lastCauseT = gtime;
       cat.mood = 'scared'; cat.moodT = 0.6;
@@ -1257,7 +1257,7 @@ function drawHammers() {
   if (state !== 'play' && state !== 'ready' && state !== 'build') return;
   const P = params();
   let rec = 0;
-  if (state === 'play' && stage <= 5) {
+  if (state === 'play' && stage <= 2) {
     const s = wob.w + wob.v * 0.18;
     if (Math.abs(s) > 0.3) rec = s > 0 ? 1 : -1;
   }
@@ -1952,7 +1952,8 @@ window.__neko = { get state() { return state; }, get score() { return score; }, 
   get wob() { return wob; }, strike, meterValue, setMeter(v) { meterPhase = v; }, startGame, nextStage,
   startWind, startIntruder, reseatNow() { reseatTimer = 0; }, morphNow() { morphTimer = 0; },
   get catOff() { return catOff; }, get wind() { return wind; }, get intr() { return intr; }, get seat() { return seatBlock(); },
-  get bias() { return balanceBias(); }, get dxs() { return blocks.map(b => b.dx); } };
+  get bias() { return balanceBias(); }, get dxs() { return blocks.map(b => b.dx); },
+  tick(dt) { update(dt); }, get cooldown() { return cooldown; }, get timeLeft() { return timeLeft; }, params };
 })();
 </script>
 </body>
