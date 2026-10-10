@@ -159,3 +159,15 @@ iPhone の Safari で開き、共有ボタン →「ホーム画面に追加」�
 | `privacy.html` | プライバシーポリシー（App Store の申請に使う） |
 
 アプリ版では、セーブデータを localStorage に加えて端末の設定領域（Capacitor Preferences）にも保存し、iOS に消されないようにしています。
+ダイナミックアイランドやホームバーの大きさは、iOS 側（`ios/App/App/MainViewController.swift` の SafeArea）からゲームに渡しています。
+
+### 広告（AdMob）
+
+アプリ版だけ、画面のいちばん下に AdMob のバナー広告を常に表示します（Web 版には出ません）。いまは **Google のテスト用 ID** なので「Test Ad」と書かれた広告が出ます。本番の広告に切り替えるときは次の 2 か所を AdMob の管理画面で発行した ID に書き換えます。
+
+| 場所 | 中身 |
+|---|---|
+| `index.html` の `ADMOB.bannerId`（と `testing: false`） | 広告ユニット ID（`ca-app-pub-XXXX/YYYY`） |
+| `ios/App/App/Info.plist` の `GADApplicationIdentifier` | アプリ ID（`ca-app-pub-XXXX~ZZZZ`） |
+
+広告の分だけ下のすき間（`--sab`）を広げて、ゲームの画面が広告に隠れないようにしています。

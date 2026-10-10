@@ -139,6 +139,16 @@
     animation: pop .45s cubic-bezier(.2,1.6,.4,1);
   }
   .title-screen .menu .best { margin: 0 0 2px; }
+  /* 縦が足りないとき（広告つきのアプリ版・小さい画面）はロゴとメニューを小さくして、ねこの場所をあける */
+  .title-screen.compact { padding-top: calc(var(--sat) + 46px); }
+  .title-screen.compact .logo-row { font-size: clamp(28px, 9vw, 46px); }
+  .title-screen.compact .logo-row.big { font-size: clamp(38px, 12.5vw, 62px); }
+  .title-screen.compact .logo-row span { -webkit-text-stroke-width: 6px; text-shadow: 0 4px 0 var(--ink); }
+  .title-screen.compact .tagline { margin-top: 4px; }
+  .title-screen.compact .menu { padding: 6px 14px 8px; }
+  .title-screen.compact .menu .btn { margin-top: 7px; padding-top: 10px; padding-bottom: 10px; font-size: 18px; }
+  .title-screen.compact .menu .btn.sec { font-size: 16px; padding-top: 8px; padding-bottom: 8px; }
+  .title-screen.compact .menu .tiny { margin-top: 5px; }
   .title-screen .menu .tiny { margin-top: 8px; }
   .logo { text-align: center; }
   .logo-row { display: block; white-space: nowrap; font-size: clamp(34px, 11.5vw, 60px); line-height: 1.2; }
@@ -2390,8 +2400,12 @@ const tcake = { j: 0, jv: 0 };
 const JUMP_TOTAL = 0.85;
 // transform アニメの影響を受けないよう offset で測る
 function measureTitle() {
-  const lg = $('titleLogo'), mn = $('titleMenu');
-  if (mn.offsetHeight > 0) { G.titleTop = lg.offsetTop + lg.offsetHeight + 6; G.titleBase = mn.offsetTop - 14; }
+  const ts = $('titleScreen'), lg = $('titleLogo'), mn = $('titleMenu');
+  if (!(mn.offsetHeight > 0)) return;
+  // ねこを置くすき間が足りなければ、ロゴとメニューを小さくする
+  ts.classList.remove('compact');
+  if (mn.offsetTop - (lg.offsetTop + lg.offsetHeight) < 170) ts.classList.add('compact');
+  G.titleTop = lg.offsetTop + lg.offsetHeight + 6; G.titleBase = mn.offsetTop - 14;
 }
 function startTitleJump(big) {
   if (tcat.jumpT >= 0) return;
@@ -3694,11 +3708,17 @@ window.__neko = { get state() { return state; }, get score() { return score; }, 
   tick(dt) { update(dt); }, jiggle(p) { jiggleAll(p); }, get blocksArr() { return blocks; }, zones() { return zonesFor(params()); }, coll() { return coll; }, get reward() { return reward; }, unlockAll() { CATS.forEach(c => unlockItem({ type: 'cat', id: c.id })); HAMMERS.forEach(h => unlockItem({ type: 'hammer', id: h.id })); }, get bgm() { return { song: BGM.song, running: !!BGM.timer, step: BGM.step, on: BGM.on }; }, get cooldown() { return cooldown; }, get timeLeft() { return timeLeft; }, get timeMax() { return timeMax; }, get tcat() { return tcat; }, spawnDrop, catchDrop, tapDrop, dropPos, get drops() { return drops; }, get buffs() { return buffs; }, get parade() { return parade; }, get horde() { return horde; }, get intr() { return intr; }, get wind() { return wind; }, get titleTaps() { return titleTaps; }, titleLayout, params, renderIcon };
 };
 
-// ===================== 起動 =====================
+// ===================== アプリ起動 =====================
+// AdMob（アプリ版の広告）。いまはGoogleのテスト用IDなので本物の広告は出ない
+const ADMOB = {
+  bannerId: 'ca-app-pub-3940256099942544/2435281174', // iOS アダプティブバナー（テスト用）
+  testing: true,
+};
+
 (() => {
   const cap = window.Capacitor;
-  const P = cap && cap.isNativePlatform && cap.isNativePlatform() && cap.Plugins && cap.Plugins.Preferences;
-  if (!P) {
+  const native = !!(cap && cap.isNativePlatform && cap.isNativePlatform() && cap.nativePromise);
+  if (!native) {
     nekoMain();
     // Web版：オフラインでも遊べるように（ホーム画面に追加したとき用）
     if ('serviceWorker' in navigator && location.protocol === 'https:') {
@@ -3706,27 +3726,73 @@ window.__neko = { get state() { return state; }, get score() { return score; }, 
     }
     return;
   }
-  // アプリ版：セーブデータを端末の設定領域にも保存して、iOSに消されないようにする
+  const has = name => (cap.PluginHeaders || []).some(h => h.name === name);
+  const call = (plugin, method, opts) => cap.nativePromise(plugin, method, opts || {});
+  const listen = (plugin, ev, fn) => cap.addListener(plugin, ev, d => { if (d) fn(d); });
+
+  // --- 画面のすき間（ダイナミックアイランド・ホームバー）と広告の高さ ---
+  // iOS から受け取った値を CSS 変数にのせる。広告はホームバーのすぐ上に出るので、下のすき間に足す
+  const rootStyle = document.documentElement.style;
+  let safe = null, adH = 0;
+  const applyInsets = () => {
+    if (safe) {
+      rootStyle.setProperty('--sat', safe.top + 'px');
+      rootStyle.setProperty('--sal', safe.left + 'px');
+      rootStyle.setProperty('--sar', safe.right + 'px');
+    }
+    if (safe || adH) rootStyle.setProperty('--sab', ((safe ? safe.bottom : 0) + adH) + 'px');
+    window.dispatchEvent(new Event('resize'));
+  };
+  if (has('SafeArea')) {
+    const update = v => {
+      const n = { top: +v.top || 0, right: +v.right || 0, bottom: +v.bottom || 0, left: +v.left || 0 };
+      if (safe && n.top === safe.top && n.right === safe.right && n.bottom === safe.bottom && n.left === safe.left) return;
+      safe = n; applyInsets();
+    };
+    const poll = () => call('SafeArea', 'get').then(update).catch(() => {});
+    listen('SafeArea', 'change', update);
+    poll();
+    [300, 1000, 2500].forEach(t => setTimeout(poll, t)); // 起動直後は値が決まっていないことがある
+    window.addEventListener('orientationchange', () => setTimeout(poll, 300));
+  }
+
+  // --- 広告（画面のいちばん下にバナーを常に表示） ---
+  if (has('AdMob')) {
+    listen('AdMob', 'bannerAdSizeChanged', size => { adH = Math.max(0, +size.height || 0); applyInsets(); });
+    call('AdMob', 'initialize', { initializeForTesting: ADMOB.testing, maxAdContentRating: 'General' })
+      .then(() => call('AdMob', 'showBanner', { adId: ADMOB.bannerId, adSize: 'ADAPTIVE_BANNER', position: 'BOTTOM_CENTER', margin: 0 }))
+      .catch(e => console.warn('AdMob', e));
+  }
+
+  // --- セーブデータを端末の設定領域にも保存して、iOSに消されないようにする ---
+  if (!has('Preferences')) { nekoMain(); return; }
   const PREFIX = 'nekoDaruma.';
   const LS = window.localStorage;
   const set = Storage.prototype.setItem, del = Storage.prototype.removeItem;
   const mine = (st, k) => st === LS && String(k).startsWith(PREFIX);
   Storage.prototype.setItem = function (k, v) {
     set.call(this, k, v);
-    if (mine(this, k)) P.set({ key: String(k), value: String(v) }).catch(() => {});
+    if (mine(this, k)) call('Preferences', 'set', { key: String(k), value: String(v) }).catch(() => {});
   };
   Storage.prototype.removeItem = function (k) {
     del.call(this, k);
-    if (mine(this, k)) P.remove({ key: String(k) }).catch(() => {});
+    if (mine(this, k)) call('Preferences', 'remove', { key: String(k) }).catch(() => {});
   };
   let started = false;
   const go = () => { if (!started) { started = true; nekoMain(); } };
   setTimeout(go, 1500); // 読み込みに失敗しても遊べるように
-  P.keys()
-    .then(({ keys }) => Promise.all(keys.filter(k => k.startsWith(PREFIX)).map(k =>
-      P.get({ key: k }).then(({ value }) => { if (value != null && !started) set.call(LS, k, value); }))))
+  call('Preferences', 'keys')
+    .then(({ keys }) => Promise.all((keys || []).filter(k => k.startsWith(PREFIX)).map(k =>
+      call('Preferences', 'get', { key: k }).then(({ value }) => { if (value != null && !started) set.call(LS, k, value); }))))
     .catch(() => {})
-    .then(go);
+    .then(() => {
+      // 前のバージョン（端末の設定領域に保存していなかった頃）のデータを引き継ぐ
+      for (let i = 0; i < LS.length; i++) {
+        const k = LS.key(i);
+        if (k && k.startsWith(PREFIX)) call('Preferences', 'set', { key: k, value: LS.getItem(k) }).catch(() => {});
+      }
+      go();
+    });
 })();
 </script>
 </body>
