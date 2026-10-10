@@ -494,6 +494,7 @@ const SFX = {
   pop() { noise(0.15, 0.35, 1200); tone(300, 900, 0.15, 'sine', 0.15); },
   drum() { for (let i = 0; i < 10; i++) tone(180, 140, 0.05, 'triangle', 0.12, i * 0.09); },
   crack() { noise(0.07, 0.35, 3800); tone(1900, 900, 0.05, 'square', 0.08); },
+  clack() { tone(2400, 2000, 0.04, 'square', 0.05); tone(1500, 1400, 0.06, 'triangle', 0.12); },
   mochi() { tone(220, 130, 0.18, 'sine', 0.18, 0.02); },
   purun() { tone(320, 640, 0.08, 'sine', 0.12, 0.02); tone(640, 380, 0.12, 'sine', 0.1, 0.1); },
   boing() { tone(220, 520, 0.12, 'sine', 0.14); tone(520, 330, 0.16, 'sine', 0.1, 0.11); },
@@ -709,18 +710,24 @@ const SEAT_NAMES = ['ホールケーキ', 'マシュマロ', 'ジャンボプリ
 
 // お菓子の段：zone=判定の広さ imp=揺れやすさ pts=得点倍率 center=パーフェクトの位置（0:よわい〜1:つよい）
 const SWEETS = {
-  donut:    { name: 'ドーナツ',       tip: 'ぬけやすい',   desc: '判定が広くてぬけやすい',               zone: 1.35, imp: 1,    pts: 1,   center: 0.5,  minStage: 1, weight: 3 },
-  macaron:  { name: 'マカロン',       tip: 'ゆれにくい',   desc: 'かるいので、たたいても揺れにくい',     zone: 1,    imp: 0.6,  pts: 1,   center: 0.42, minStage: 1, weight: 3 },
-  cake:     { name: 'ショートケーキ', tip: 'ぐらつく・2倍', desc: 'ふわふわで大きく揺れる。得点2倍',     zone: 1,    imp: 1.15, pts: 2,   center: 0.36, minStage: 1, weight: 2 },
-  choco:    { name: '板チョコ',       tip: 'かたい・2回',  desc: 'かたくて2回たたかないとぬけない。得点2倍', zone: 1, imp: 1,  pts: 2,   center: 0.72, minStage: 3, weight: 1.5, hp: 2 },
-  pudding:  { name: 'プリン',         tip: 'ぷるぷる',     desc: '積んであるあいだ揺れがおさまりにくい。得点1.5倍', zone: 1, imp: 1, pts: 1.5, center: 0.3, minStage: 3, weight: 1.5 },
-  mochi:    { name: 'おもち',         tip: 'きびしい・2倍', desc: 'ねばって判定がせまい。得点2倍',       zone: 0.75, imp: 1,    pts: 2,   center: 0.62, minStage: 4, weight: 1.5 },
-  castella: { name: '金のカステラ',   tip: '3倍！',        desc: 'たまに出るレアなお菓子。得点3倍',     zone: 1,    imp: 1,    pts: 3,   center: 0.56, minStage: 1, weight: 0 },
+  donut:    { name: 'ドーナツ',       tip: 'ぬけやすい',   desc: '判定が広くてぬけやすい',               zone: 1.35, imp: 1,    pts: 1,   center: 0.5,  soft: 0.4, minStage: 1, weight: 3 },
+  macaron:  { name: 'マカロン',       tip: 'ゆれにくい',   desc: 'かるいので、たたいても揺れにくい',     zone: 1,    imp: 0.6,  pts: 1,   center: 0.42, soft: 0.3, minStage: 1, weight: 3 },
+  cake:     { name: 'ショートケーキ', tip: 'ぐらつく・2倍', desc: 'ふわふわで大きく揺れる。得点2倍',     zone: 1,    imp: 1.15, pts: 2,   center: 0.36, soft: 0.7, minStage: 1, weight: 2 },
+  choco:    { name: '板チョコ',       tip: 'かたい・2回',  desc: 'かたくて2回たたかないとぬけない。得点2倍', zone: 1, imp: 1,  pts: 2,   center: 0.72, soft: 0, minStage: 3, weight: 1.5, hp: 2 },
+  pudding:  { name: 'プリン',         tip: 'ぷるぷる',     desc: '積んであるあいだ揺れがおさまりにくい。得点1.5倍', zone: 1, imp: 1, pts: 1.5, center: 0.3, soft: 1, minStage: 3, weight: 1.5 },
+  mochi:    { name: 'おもち',         tip: 'きびしい・2倍', desc: 'ねばって判定がせまい。得点2倍',       zone: 0.75, imp: 1,    pts: 2,   center: 0.62, soft: 0.85, minStage: 4, weight: 1.5 },
+  castella: { name: '金のカステラ',   tip: '3倍！',        desc: 'たまに出るレアなお菓子。得点3倍',     zone: 1,    imp: 1,    pts: 3,   center: 0.56, soft: 0.2, minStage: 1, weight: 0 },
 };
 const SEAT_CENTERS = [0.4, 0.3, 0.3, 0.55]; // ホールケーキ・マシュマロ・ジャンボプリン・いちご大福
+const SEAT_SOFT = [0.6, 0.9, 1, 0.75];      // やわらかさ（0:かたい〜1:ぷるぷる）
+const SWEET_WORDS = {
+  donut: ['もふっ'], macaron: ['さくっ'], cake: ['ふわっ', 'ふわん'], choco: ['カチッ', 'コツン'],
+  pudding: ['ぷるんっ', 'ぷるるん', 'ぷるっ'], mochi: ['もちっ', 'むにゅ〜'], castella: ['ふかっ'],
+  seat0: ['ふわっ'], seat1: ['ぽよん'], seat2: ['ぷるるんっ'], seat3: ['もちっ'],
+};
 const SEAT_SWEET = { name: '', tip: 'ねこの段', zone: 1, imp: 1, pts: 1, center: 0.5 };
 function sweetOf(b) {
-  if (b.seat) return { ...SEAT_SWEET, center: SEAT_CENTERS[b.shape || 0] };
+  if (b.seat) return { ...SEAT_SWEET, center: SEAT_CENTERS[b.shape || 0], soft: SEAT_SOFT[b.shape || 0] };
   return SWEETS[b.kind] || SWEETS.donut;
 }
 
@@ -940,6 +947,9 @@ function strike(side) {
     wob.v += dir * 1.2 * P.imp * sm;
     combo = 0; missesThisStage++;
     nudge = { dir, t: 0 };
+    bottom.jv = (bottom.jv || 0) + 5 * softOf(bottom);
+    bottom.shv = (bottom.shv || 0) + dir * 5 * softOf(bottom);
+    if (softOf(bottom) >= 0.7) sweetWord(bottom, G.cx - side * (G.blockW / 2 + 30), by - 44);
     addPopup('よわい…', bx, by - 20, '#7d8aa0', 22);
     SFX.weak();
     cooldown = 0.3;
@@ -1083,6 +1093,7 @@ function update(dt) {
   if (paused) return;
   stateT += dt;
   if (reward) updateReward(dt);
+  updateJiggle(dt);
   shake = Math.max(0, shake - dt * 40);
   flash = Math.max(0, flash - dt);
   if (hammer.t < 1) hammer.t = Math.min(1, hammer.t + dt / 0.2);
@@ -1137,7 +1148,7 @@ function update(dt) {
   if (drop > 0) {
     dropV += 2800 * dt;
     drop -= dropV * dt;
-    if (drop <= 0) { drop = 0; dropV = 0; cat.squash = 1; SFX.land(); }
+    if (drop <= 0) { drop = 0; dropV = 0; cat.squash = 1; onStackLand(); }
   }
 
   if (state === 'play' && blocks.length === 0 && drop === 0) stageClear();
@@ -1166,7 +1177,7 @@ function update(dt) {
 
   // 飛んでいくだるま
   for (const f of flying) {
-    f.vy += 900 * dt; f.x += f.vx * dt; f.y += f.vy * dt; f.rot += f.vr * dt;
+    f.vy += 900 * dt; f.x += f.vx * dt; f.y += f.vy * dt; f.rot += f.vr * dt; f.t = (f.t || 0) + dt;
   }
   flying = flying.filter(f => f.x > -300 && f.x < W + 300 && f.y < H + 200);
 
@@ -1299,6 +1310,7 @@ function updateEvents(dt, P) {
       cat.squash = 1;
       wob.v += Math.sign(reseat.to - reseat.from) * 0.8 * P.imp;
       SFX.land();
+      if (sb) sb.jv = (sb.jv || 0) + 4 * softOf(sb);
       reseat = null;
     }
   }
@@ -1403,6 +1415,8 @@ function updateIntruder(dt, P) {
     if (!it.pushed && it.t > 0.17) {
       it.pushed = true;
       const b = it.target;
+      b.shv = (b.shv || 0) - it.side * 6 * softOf(b);
+      b.jv = (b.jv || 0) + 2 * softOf(b);
       const ik = catT('intruder');
       b.dx = clamp((b.dx || 0) - it.side * rand(0.12, 0.2) * G.blockW * ik, -G.blockW * 0.35, G.blockW * 0.35);
       wob.v += -it.side * rand(1.4, 2.0) * P.imp * ik;
@@ -1422,6 +1436,44 @@ function updateIntruder(dt, P) {
     if (it.y >= G.groundY) { it.y = G.groundY; it.vy = 0; }
     if (it.x < -120 || it.x > W + 120) intr = null;
   }
+}
+
+// ===================== やわらかさ（ぷるぷる） =====================
+function softOf(b) { return sweetOf(b).soft || 0; }
+function updateJiggle(dt) {
+  const shearT = clamp(-wob.v * 0.05, -0.25, 0.25);
+  for (const b of blocks) {
+    const sf = softOf(b);
+    if (sf < 0.05) { b.j = 0; b.jv = 0; b.sh = 0; b.shv = 0; continue; }
+    const om = lerp(30, 15, sf), ze = lerp(0.4, 0.1, sf);
+    b.jv = (b.jv || 0) + (-om * om * (b.j || 0) - 2 * ze * om * b.jv) * dt;
+    b.j = clamp((b.j || 0) + b.jv * dt, -0.3, 0.42);
+    b.shv = (b.shv || 0) + (-om * om * ((b.sh || 0) - shearT * sf) - 2 * (ze + 0.05) * om * b.shv) * dt;
+    b.sh = clamp((b.sh || 0) + b.shv * dt, -0.5, 0.5);
+  }
+}
+function jiggleAll(power) {
+  const n = blocks.length;
+  blocks.forEach((b, i) => { b.jv = (b.jv || 0) + power * softOf(b) * (1.2 - 0.6 * i / Math.max(1, n)) * rand(0.8, 1.2) * 3.5; });
+}
+let lastWordT = -9;
+function sweetWord(b, x, y) {
+  if (gtime - lastWordT < 0.5) return;
+  lastWordT = gtime;
+  const list = SWEET_WORDS[b.seat ? 'seat' + (b.shape || 0) : b.kind] || ['ぽん'];
+  const sf = softOf(b);
+  addPopup(list[Math.floor(Math.random() * list.length)], clamp(x, 40, W - 40), y, sf >= 0.7 ? '#ff8fc0' : sf < 0.1 ? '#c9a27e' : '#fff3c4', 17);
+}
+// だるま落としで山が着地したとき
+function onStackLand() {
+  jiggleAll(1);
+  const b = blocks[0];
+  if (!b) { SFX.land(); return; }
+  const sf = softOf(b);
+  const wx = G.cx + blockWidth(b) / 2 + 34, wy = G.groundY - G.blockH * 0.8;
+  if (sf >= 0.7) { SFX.purun(); sweetWord(b, wx, wy); }
+  else if (sf < 0.1) { SFX.clack(); sweetWord(b, wx, wy); }
+  else SFX.land();
 }
 
 // ===================== ごほうび演出 =====================
@@ -1733,6 +1785,39 @@ function cylShade(w) {
   return g;
 }
 
+// つやつや（やわらかいお菓子）
+function gloss(x, y, w, h, k) {
+  ctx.save();
+  ctx.globalAlpha = 0.6 * k;
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.ellipse(x + w * 0.27, y + h * 0.36, w * 0.13, Math.max(1.5, h * 0.11), -0.12, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = 0.8 * k;
+  ctx.beginPath(); ctx.arc(x + w * 0.45, y + h * 0.33, Math.max(1, h * 0.06), 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+// ふんわり光（もち・マシュマロ）
+function softGlow(x, y, w, h) {
+  const g = ctx.createRadialGradient(x + w * 0.4, y + h * 0.35, 1, x + w * 0.4, y + h * 0.35, Math.max(w, h) * 0.55);
+  g.addColorStop(0, 'rgba(255,255,255,0.55)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+}
+// カチッとしたふちの光（かたいお菓子）
+function hardEdge(x, y, w, h) {
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x, y + 1, w, Math.max(1.2, h * 0.06));
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(x, y + h - Math.max(1.5, h * 0.08), w, Math.max(1.5, h * 0.08));
+}
+// キラッ
+function glint(x, y, r, a) {
+  ctx.save();
+  ctx.globalAlpha = a;
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.moveTo(x, y - r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.quadraticCurveTo(x, y, x, y + r);
+  ctx.quadraticCurveTo(x, y, x - r, y); ctx.quadraticCurveTo(x, y, x, y - r);
+  ctx.fill();
+  ctx.restore();
+}
+
 function wavyBand(x, y0, w, amp, n, h) {
   // 上端 y0 からの「たれ」を描くパス（下端が波打つ）
   ctx.beginPath();
@@ -1772,10 +1857,13 @@ function drawBlockCentered(w, h, b) {
     } else if (shape === 1) { // マシュマロ
       ctx.fillStyle = '#ffe4ee'; ctx.fillRect(x, y, w, h);
       ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillRect(x, y + h * 0.45, w, h * 0.1);
+      softGlow(x, y, w, h);
     } else if (shape === 2) { // ジャンボプリン
       ctx.fillStyle = '#ffd66b'; ctx.fillRect(x, y, w, h);
       ctx.fillStyle = '#8f4f1a'; wavyBand(x, y, w, h * 0.08, 8, h * 0.22); ctx.fill();
+      gloss(x, y, w, h, 1);
     } else { // いちご大福
+      softGlow(x, y, w, h);
       ctx.fillStyle = '#fbf3f0'; ctx.fillRect(x, y, w, h);
       ctx.fillStyle = '#ff4f6a';
       ctx.beginPath(); ctx.moveTo(-h * 0.25, y + h * 0.12); ctx.lineTo(h * 0.25, y + h * 0.12); ctx.lineTo(0, y - h * 0.05); ctx.closePath(); ctx.fill();
@@ -1838,6 +1926,7 @@ function drawBlockCentered(w, h, b) {
           ctx.moveTo(x + w * 0.66, y); ctx.lineTo(x + w * 0.6, y + h * 0.45); ctx.lineTo(x + w * 0.7, y + h);
           ctx.stroke();
         }
+        hardEdge(x, y, w, h);
         ctx.fillStyle = cylShade(w); ctx.fillRect(x, y, w, h);
         ctx.restore();
         break;
@@ -1847,8 +1936,13 @@ function drawBlockCentered(w, h, b) {
         path = () => roundPoly([[x + ins, y], [x + w - ins, y], [x + w, y + h], [x, y + h]], Math.min(h * 0.3, 8));
         ctx.save(); path(); ctx.clip();
         ctx.fillStyle = '#ffd66b'; ctx.fillRect(x, y, w, h);
+        // すけるような明るさ
+        const pg = ctx.createLinearGradient(0, y, 0, y + h);
+        pg.addColorStop(0, 'rgba(255,250,210,0)'); pg.addColorStop(1, 'rgba(255,170,40,0.35)');
+        ctx.fillStyle = pg; ctx.fillRect(x, y, w, h);
         ctx.fillStyle = '#8f4f1a'; wavyBand(x, y, w, h * 0.07, 8, h * 0.24); ctx.fill();
         ctx.fillStyle = cylShade(w); ctx.fillRect(x, y, w, h);
+        gloss(x, y, w, h, 1);
         ctx.restore();
         break;
       }
@@ -1856,6 +1950,7 @@ function drawBlockCentered(w, h, b) {
         path = () => roundRect(x, y, w, h, h * 0.48);
         ctx.save(); path(); ctx.clip();
         ctx.fillStyle = MOCHI_COL[b.variant % 4]; ctx.fillRect(x, y, w, h);
+        softGlow(x, y, w, h);
         if (!small) {
           ctx.fillStyle = 'rgba(255,255,255,0.85)';
           for (let i = 0; i < 12; i++) { ctx.beginPath(); ctx.arc(x + rnd() * w, y + rnd() * h * 0.6, 1.1, 0, Math.PI * 2); ctx.fill(); }
@@ -1874,6 +1969,7 @@ function drawBlockCentered(w, h, b) {
         ctx.fillStyle = 'rgba(255,255,255,0.45)';
         const sh = (gtime * 0.6) % 1.6 - 0.3;
         ctx.beginPath(); ctx.moveTo(x + w * sh, y); ctx.lineTo(x + w * (sh + 0.12), y); ctx.lineTo(x + w * (sh + 0.04), y + h); ctx.lineTo(x + w * (sh - 0.08), y + h); ctx.closePath(); ctx.fill();
+        hardEdge(x, y, w, h);
         ctx.fillStyle = cylShade(w); ctx.fillRect(x, y, w, h);
         ctx.restore();
         break;
@@ -1901,9 +1997,18 @@ function drawBlockCentered(w, h, b) {
       }
     }
   }
+  const sf = softOf(b);
   if (path) {
-    ctx.lineWidth = lw; ctx.strokeStyle = INK;
+    // やわらかいものは太くまるい線、かたいものは細くシャープな線
+    ctx.lineWidth = lw * (sf >= 0.6 ? 1.15 : sf < 0.15 ? 0.85 : 1);
+    ctx.lineJoin = sf < 0.15 ? 'miter' : 'round';
+    ctx.strokeStyle = INK;
     path(); ctx.stroke();
+    ctx.lineJoin = 'round';
+  }
+  if (sf < 0.25 && h > 10) {
+    const ph = (gtime * 0.5 + ((b.seed || 0) % 1000) / 1000 * 3) % 3;
+    if (ph < 0.4) glint(x + w * (0.15 + ((b.seed || 0) % 7) / 10), y + h * 0.3, Math.min(h * 0.45, 9), Math.sin(ph / 0.4 * Math.PI));
   }
   if (b.kind === 'castella') drawStar(0, h * 0.08, Math.min(h * 0.3, 8), '#fff', 0.9);
 }
@@ -2069,6 +2174,7 @@ function drawBackground() {
 
 // ---------- タイトルのねこ ----------
 const tcat = { t: 0, jumpT: -1, nextJump: 1.2, big: false };
+const tcake = { j: 0, jv: 0 };
 const JUMP_TOTAL = 0.85;
 // transform アニメの影響を受けないよう offset で測る
 function measureTitle() {
@@ -2081,6 +2187,8 @@ function startTitleJump(big) {
 }
 function updateTitleCat(dt) {
   tcat.t += dt;
+  tcake.jv += (-18 * 18 * tcake.j - 2 * 0.14 * 18 * tcake.jv) * dt;
+  tcake.j = clamp(tcake.j + tcake.jv * dt, -0.3, 0.4);
   if (tcat.jumpT < 0) {
     tcat.nextJump -= dt;
     if (tcat.nextJump <= 0) startTitleJump(false);
@@ -2088,6 +2196,7 @@ function updateTitleCat(dt) {
     const prev = tcat.jumpT;
     tcat.jumpT += dt;
     if (prev < 0.69 && tcat.jumpT >= 0.69) {
+      tcake.jv += tcat.big ? 5 : 3.2;
       const L = titleLayout();
       for (let i = 0; i < 10; i++) {
         particles.push({ x: L.cx + rand(-L.s * 0.4, L.s * 0.4), y: L.feet, vx: rand(-160, 160), vy: rand(-260, -80), life: rand(0.4, 0.7), t: 0,
@@ -2143,7 +2252,9 @@ function drawTitleScene() {
 
   // ホールケーキ
   ctx.save();
-  ctx.translate(cx, base - cakeH / 2 - 2);
+  ctx.translate(cx, base - 2);
+  ctx.scale(1 + tcake.j * 0.6, 1 - tcake.j);
+  ctx.translate(0, -cakeH / 2);
   drawBlockCentered(cakeW, cakeH, { seat: true, shape: 0, sw: 1, seed: 7 });
   ctx.restore();
 
@@ -2165,7 +2276,7 @@ function drawTitleScene() {
     sq = Math.max(0, Math.sin(tcat.t * 4.8)) * 0.12; // ゆらゆら弾む
     lift = Math.sin(tcat.t * 2.4 + 1) * 0.25;
   }
-  const feet = L.feet - jumpY;
+  const feet = L.feet + cakeH * tcake.j - jumpY;
 
   // かげ
   ctx.fillStyle = 'rgba(120,40,70,0.18)';
@@ -2211,32 +2322,36 @@ function drawStack() {
   ctx.save();
   ctx.translate(G.cx, G.groundY);
   ctx.rotate(angle);
-  let topSquash = 0;
+  // やわらかいお菓子はつぶれたり（j）ゆがんだり（sh）する。上の段はその上に乗る
+  let yb = -drop, accX = 0;
   for (let i = 0; i < list.length; i++) {
     const b = list[i];
-    let x = bendAt(i, list.length) + (b.dx || 0);
-    let y = -(i + 0.5) * bh - (state === 'title' ? 0 : drop);
+    let x = bendAt(i, list.length) + (b.dx || 0) + accX;
     if (i === 0 && nudge.t < 1) x += nudge.dir * Math.sin(nudge.t * Math.PI) * bw * 0.12;
     let hs = 1;
-    if (b.seat && b.morph !== undefined && b.morph < 1) {
-      hs = 1 - Math.sin(b.morph * Math.PI) * 0.35;
-      topSquash = (1 - hs) * (bh - 1);
-      y += topSquash / 2;
-    }
+    if (b.seat && b.morph !== undefined && b.morph < 1) hs = 1 - Math.sin(b.morph * Math.PI) * 0.35;
+    const sf = softOf(b);
+    // いちばんやわらかいお菓子は、じっとしていてもぷるぷる
+    const idle = sf >= 0.85 ? Math.sin(gtime * 9 + ((b.seed || 0) % 100)) * 0.03 * sf : 0;
+    const j = (b.j || 0) + idle, sh = b.sh || 0;
+    const sy = hs * (1 - j);
     ctx.save();
-    ctx.translate(x, y);
-    let ww = state === 'title' ? bw : blockWidth(b);
-    if (b.kind === 'pudding') ww *= 1 + Math.sin(gtime * 16 + i) * 0.04 * Math.min(1, Math.abs(wob.v) + 0.15);
-    drawBlockCentered(ww, (bh - 1) * hs, b);
+    ctx.translate(x, yb);
+    if (sh) ctx.transform(1, 0, -sh, 1, 0, 0);
+    ctx.scale(1 + j * 0.6, sy);
+    ctx.translate(0, -(bh - 1) / 2);
+    drawBlockCentered(blockWidth(b), bh - 1, b);
     ctx.restore();
+    accX += sh * (bh - 1) * sy;
+    yb -= bh * sy;
   }
   if (!cat.free) {
-    const top = -list.length * bh - (state === 'title' ? 0 : drop) + topSquash;
+    const top = yb;
     let hop = 0;
     if (state === 'clear') hop = Math.abs(Math.sin(stateT * 7)) * G.catSize * 0.25;
     if (reseat) hop += Math.sin(Math.PI * Math.min(1, reseat.t)) * G.catSize * 0.35;
     const last = list[list.length - 1];
-    const cx = (list.length ? bendAt(list.length - 1, list.length) + (last.dx || 0) : 0) + (state === 'title' ? 0 : catOff);
+    const cx = (list.length ? bendAt(list.length - 1, list.length) + (last.dx || 0) + accX : 0) + catOff;
     drawCat(cx, top - hop, state === 'title' ? G.catSize * 1.1 : G.catSize, 0);
   }
   ctx.restore();
@@ -2293,6 +2408,8 @@ function drawHammers() {
 function drawFlying() {
   for (const f of flying) {
     ctx.save(); ctx.translate(f.x, f.y); ctx.rotate(f.rot);
+    const sf = softOf(f.b);
+    if (sf > 0.05) { const k = Math.sin((f.t || 0) * 28) * 0.24 * sf * Math.exp(-(f.t || 0) * 2.5); ctx.scale(1 + k, 1 - k); }
     drawBlockCentered(f.w, f.h - 1, f.b);
     ctx.restore();
   }
@@ -3156,7 +3273,7 @@ window.__neko = { get state() { return state; }, get score() { return score; }, 
   startWind, startIntruder, reseatNow() { reseatTimer = 0; }, morphNow() { morphTimer = 0; },
   get catOff() { return catOff; }, get wind() { return wind; }, get intr() { return intr; }, get seat() { return seatBlock(); },
   get bias() { return balanceBias(); }, get dxs() { return blocks.map(b => b.dx); },
-  tick(dt) { update(dt); }, zones() { return zonesFor(params()); }, coll() { return coll; }, get reward() { return reward; }, unlockAll() { CATS.forEach(c => unlockItem({ type: 'cat', id: c.id })); HAMMERS.forEach(h => unlockItem({ type: 'hammer', id: h.id })); }, get bgm() { return { song: BGM.song, running: !!BGM.timer, step: BGM.step, on: BGM.on }; }, get cooldown() { return cooldown; }, get timeLeft() { return timeLeft; }, params };
+  tick(dt) { update(dt); }, jiggle(p) { jiggleAll(p); }, get blocksArr() { return blocks; }, zones() { return zonesFor(params()); }, coll() { return coll; }, get reward() { return reward; }, unlockAll() { CATS.forEach(c => unlockItem({ type: 'cat', id: c.id })); HAMMERS.forEach(h => unlockItem({ type: 'hammer', id: h.id })); }, get bgm() { return { song: BGM.song, running: !!BGM.timer, step: BGM.step, on: BGM.on }; }, get cooldown() { return cooldown; }, get timeLeft() { return timeLeft; }, params };
 })();
 </script>
 </body>
