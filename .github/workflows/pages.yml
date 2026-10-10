@@ -28,7 +28,7 @@ jobs:
       - name: Build site
         run: |
           mkdir -p _site
-          cp index.html _site/
+          cp -r index.html manifest.webmanifest sw.js icons privacy.html _site/
           touch _site/.nojekyll
 
       - uses: actions/configure-pages@v5

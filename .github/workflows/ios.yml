@@ -1,0 +1,122 @@
+name: iOS アプリ
+
+# ・ios/ などを変更して push したとき：署名なしでビルドできるかだけ確認（シミュレーター用）
+# ・Actions 画面の「Run workflow」：ビルドして TestFlight にアップロード
+on:
+  push:
+    branches:
+      - main
+      - claude/jolly-rubin-n62bdw
+    paths:
+      - 'ios/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'capacitor.config.json'
+      - 'scripts/**'
+      - '.github/workflows/ios.yml'
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: 'TestFlight にアップロードする'
+        type: boolean
+        default: true
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 45
+    env:
+      UPLOAD: ${{ github.event_name == 'workflow_dispatch' && inputs.upload }}
+      PROJECT: ios/App/App.xcodeproj
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Web ファイルをアプリにコピー
+        run: |
+          npm ci
+          npm run sync
+
+      - name: Xcode のバージョン
+        run: xcodebuild -version
+
+      - name: ビルド確認（署名なし・シミュレーター用）
+        if: env.UPLOAD != 'true'
+        run: |
+          xcodebuild -project "$PROJECT" -scheme App -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO build -quiet
+
+      - name: App Store Connect API キーを用意
+        if: env.UPLOAD == 'true'
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          for v in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8 APPLE_TEAM_ID; do
+            if [ -z "${!v}" ]; then echo "::error::GitHub の Secrets に $v が登録されていません"; exit 1; fi
+          done
+          KEY_PATH="$RUNNER_TEMP/AuthKey_$ASC_KEY_ID.p8"
+          printf '%s\n' "$ASC_KEY_P8" > "$KEY_PATH"
+          {
+            echo "KEY_PATH=$KEY_PATH"
+            echo "ASC_KEY_ID=$ASC_KEY_ID"
+            echo "ASC_ISSUER_ID=$ASC_ISSUER_ID"
+            echo "APPLE_TEAM_ID=$APPLE_TEAM_ID"
+          } >> "$GITHUB_ENV"
+
+      - name: アーカイブ（署名つきビルド）
+        if: env.UPLOAD == 'true'
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "バージョン $VERSION（ビルド ${{ github.run_number }}）"
+          xcodebuild -project "$PROJECT" -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
+            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            archive -quiet
+
+      - name: TestFlight にアップロード
+        if: env.UPLOAD == 'true'
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          echo "アップロードしました。App Store Connect で処理が終わると TestFlight に出てきます（10〜30分ほど）"
+
+      - name: API キーを削除
+        if: always()
+        run: rm -f "$RUNNER_TEMP"/AuthKey_*.p8

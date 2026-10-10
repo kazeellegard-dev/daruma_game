@@ -9,6 +9,9 @@
 <meta name="apple-mobile-web-app-title" content="ねこだるま">
 <meta name="theme-color" content="#ffd6e6">
 <title>ねこだるまおとし</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐱</text></svg>">
 <style>
   :root {
@@ -360,7 +363,7 @@
 </div>
 
 <script>
-(() => {
+const nekoMain = () => {
 'use strict';
 
 // ===================== 基本設定 =====================
@@ -1772,6 +1775,42 @@ function drawReward() {
     ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(def.desc, cx, by + 37, W - 56);
   }
+}
+
+// ===================== アプリアイコン（ビルド用） =====================
+function renderIcon(sz, splash) {
+  const c = document.createElement('canvas');
+  c.width = c.height = sz;
+  const prev = ctx;
+  ctx = c.getContext('2d');
+  const g = ctx.createLinearGradient(0, 0, 0, sz);
+  g.addColorStop(0, '#ffc9de'); g.addColorStop(1, '#fff1f6');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, sz, sz);
+  // 虹
+  const rc = ['#ff8fab', '#ffc46b', '#fff07a', '#9be59b', '#8fd0ff', '#c9a7ff'];
+  ctx.lineWidth = sz * 0.035;
+  rc.forEach((col, i) => {
+    ctx.strokeStyle = col; ctx.globalAlpha = 0.55;
+    ctx.beginPath(); ctx.arc(sz / 2, sz * 0.86, sz * (0.62 - i * 0.035), Math.PI, Math.PI * 2); ctx.stroke();
+  });
+  ctx.globalAlpha = 1;
+  const k = splash ? 0.5 : 0.9;             // スプラッシュは小さめに真ん中へ
+  const ox = sz / 2, base = splash ? sz * 0.7 : sz * 0.9;
+  const bw = sz * 0.6 * k, bh = sz * 0.13 * k;
+  const cols = ['#3fa7ff', '#ffd23f', '#ff5a4f'];
+  ctx.lineWidth = sz * 0.014 * k; ctx.strokeStyle = INK;
+  cols.forEach((col, i) => {
+    const y = base - (i + 1) * bh, w = bw * (1 - i * 0.04);
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.roundRect(ox - w / 2, y, w, bh, bh * 0.32); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.beginPath(); ctx.roundRect(ox - w / 2 + bh * 0.25, y + bh * 0.16, w - bh * 0.5, bh * 0.2, bh * 0.1); ctx.fill();
+  });
+  const top = base - cols.length * bh;
+  drawHammerIcon(ox - sz * 0.25 * k, top - sz * 0.33 * k, sz * 0.3 * k, HAMMERS[0], -0.5);
+  drawCat(ox, top + sz * 0.01 * k, sz * 0.5 * k, 0, { pal: CATS[0].pal, mood: 'happy', squash: 0, blink: 0 });
+  ctx = prev;
+  return c;
 }
 
 // ===================== コレクション画面 =====================
@@ -3652,7 +3691,42 @@ window.__neko = { get state() { return state; }, get score() { return score; }, 
   startWind, startIntruder, reseatNow() { reseatTimer = 0; }, morphNow() { morphTimer = 0; },
   get catOff() { return catOff; }, get wind() { return wind; }, get intr() { return intr; }, get seat() { return seatBlock(); },
   get bias() { return balanceBias(); }, get dxs() { return blocks.map(b => b.dx); },
-  tick(dt) { update(dt); }, jiggle(p) { jiggleAll(p); }, get blocksArr() { return blocks; }, zones() { return zonesFor(params()); }, coll() { return coll; }, get reward() { return reward; }, unlockAll() { CATS.forEach(c => unlockItem({ type: 'cat', id: c.id })); HAMMERS.forEach(h => unlockItem({ type: 'hammer', id: h.id })); }, get bgm() { return { song: BGM.song, running: !!BGM.timer, step: BGM.step, on: BGM.on }; }, get cooldown() { return cooldown; }, get timeLeft() { return timeLeft; }, get timeMax() { return timeMax; }, get tcat() { return tcat; }, spawnDrop, catchDrop, tapDrop, dropPos, get drops() { return drops; }, get buffs() { return buffs; }, get parade() { return parade; }, get horde() { return horde; }, get intr() { return intr; }, get wind() { return wind; }, get titleTaps() { return titleTaps; }, titleLayout, params };
+  tick(dt) { update(dt); }, jiggle(p) { jiggleAll(p); }, get blocksArr() { return blocks; }, zones() { return zonesFor(params()); }, coll() { return coll; }, get reward() { return reward; }, unlockAll() { CATS.forEach(c => unlockItem({ type: 'cat', id: c.id })); HAMMERS.forEach(h => unlockItem({ type: 'hammer', id: h.id })); }, get bgm() { return { song: BGM.song, running: !!BGM.timer, step: BGM.step, on: BGM.on }; }, get cooldown() { return cooldown; }, get timeLeft() { return timeLeft; }, get timeMax() { return timeMax; }, get tcat() { return tcat; }, spawnDrop, catchDrop, tapDrop, dropPos, get drops() { return drops; }, get buffs() { return buffs; }, get parade() { return parade; }, get horde() { return horde; }, get intr() { return intr; }, get wind() { return wind; }, get titleTaps() { return titleTaps; }, titleLayout, params, renderIcon };
+};
+
+// ===================== 起動 =====================
+(() => {
+  const cap = window.Capacitor;
+  const P = cap && cap.isNativePlatform && cap.isNativePlatform() && cap.Plugins && cap.Plugins.Preferences;
+  if (!P) {
+    nekoMain();
+    // Web版：オフラインでも遊べるように（ホーム画面に追加したとき用）
+    if ('serviceWorker' in navigator && location.protocol === 'https:') {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+    return;
+  }
+  // アプリ版：セーブデータを端末の設定領域にも保存して、iOSに消されないようにする
+  const PREFIX = 'nekoDaruma.';
+  const LS = window.localStorage;
+  const set = Storage.prototype.setItem, del = Storage.prototype.removeItem;
+  const mine = (st, k) => st === LS && String(k).startsWith(PREFIX);
+  Storage.prototype.setItem = function (k, v) {
+    set.call(this, k, v);
+    if (mine(this, k)) P.set({ key: String(k), value: String(v) }).catch(() => {});
+  };
+  Storage.prototype.removeItem = function (k) {
+    del.call(this, k);
+    if (mine(this, k)) P.remove({ key: String(k) }).catch(() => {});
+  };
+  let started = false;
+  const go = () => { if (!started) { started = true; nekoMain(); } };
+  setTimeout(go, 1500); // 読み込みに失敗しても遊べるように
+  P.keys()
+    .then(({ keys }) => Promise.all(keys.filter(k => k.startsWith(PREFIX)).map(k =>
+      P.get({ key: k }).then(({ value }) => { if (value != null && !started) set.call(LS, k, value); }))))
+    .catch(() => {})
+    .then(go);
 })();
 </script>
 </body>

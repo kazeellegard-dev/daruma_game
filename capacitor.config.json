@@ -1,0 +1,10 @@
+{
+  "appId": "dev.kazeellegard.nekodaruma",
+  "appName": "ねこだるまおとし",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "never",
+    "scrollEnabled": false,
+    "backgroundColor": "#ffe3ee"
+  }
+}

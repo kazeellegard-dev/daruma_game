@@ -107,7 +107,7 @@ iPhone / Android のブラウザでは指で、PC ではマウスかキーボー
 
 ## 起動方法
 
-`index.html` 1 ファイルだけで動きます。外部ライブラリやビルドは不要です。
+ゲーム本体は `index.html` 1 ファイルだけで動きます。外部ライブラリやビルドは不要です。
 
 - ローカル: `index.html` をブラウザで開く
 
@@ -120,4 +120,42 @@ iPhone / Android のブラウザでは指で、PC ではマウスかキーボー
 3. **Actions** タブで「Deploy to GitHub Pages」を実行する（以降はプッシュごとに自動で実行）
 
 公開 URL は `https://kazeellegard-dev.github.io/daruma_game/` です。
-iPhone の Safari で開き、共有ボタン →「ホーム画面に追加」すると全画面で遊べます。
+iPhone の Safari で開き、共有ボタン →「ホーム画面に追加」すると全画面で遊べます（一度開けばオフラインでも遊べます）。
+
+## iPhone / iPad アプリ版（App Store）
+
+[Capacitor](https://capacitorjs.com/) で `index.html` をそのままアプリに入れています。**Mac は不要**で、ビルドと TestFlight へのアップロードは GitHub Actions（`.github/workflows/ios.yml`）の Mac 環境で行います。
+
+### ふだんの開発の流れ
+
+1. `index.html` を直して push → GitHub Pages の Web 版で動作確認（今まで通り）
+2. アプリに出したくなったら `package.json` の `version` を上げる（例 `1.0.0` → `1.1.0`）
+3. **Actions → iOS アプリ → Run workflow** を実行 → 10〜30 分ほどで TestFlight に届く
+4. TestFlight アプリで実機確認 → App Store Connect で審査に提出
+
+`ios/` などを変えて push したときは、署名なしでビルドできるかだけを自動で確認します。
+
+### 最初に 1 回だけ必要な設定
+
+| GitHub の Secret | 中身 |
+|---|---|
+| `ASC_KEY_ID` | App Store Connect API キーのキー ID |
+| `ASC_ISSUER_ID` | 同じ画面の Issuer ID |
+| `ASC_KEY_P8` | ダウンロードした `AuthKey_XXXX.p8` の中身（テキスト全体） |
+| `APPLE_TEAM_ID` | Apple Developer の Team ID |
+
+- API キーは App Store Connect の「ユーザとアクセス → 統合 → App Store Connect API → チームキー」で、アクセス権 **Admin** で作成します（署名用の証明書をクラウドで自動作成するため）。
+- App Store Connect の「アプリ」で新規アプリを作り、バンドル ID に `dev.kazeellegard.nekodaruma` を選びます（一覧に無いときは developer.apple.com の Identifiers で登録）。
+
+### ファイル
+
+| パス | 内容 |
+|---|---|
+| `capacitor.config.json` | アプリ名・バンドル ID など |
+| `ios/` | Xcode プロジェクト（Capacitor が生成） |
+| `scripts/build-web.mjs` | アプリに入れる Web ファイルを `www/` に集める |
+| `assets-src/` | アイコン・起動画面の元画像（`renderIcon` でゲームの絵から生成） |
+| `icons/`, `manifest.webmanifest`, `sw.js` | Web 版のホーム画面アイコンとオフライン対応 |
+| `privacy.html` | プライバシーポリシー（App Store の申請に使う） |
+
+アプリ版では、セーブデータを localStorage に加えて端末の設定領域（Capacitor Preferences）にも保存し、iOS に消されないようにしています。
