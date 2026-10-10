@@ -272,6 +272,7 @@
       <li data-i="🍫"><b>板チョコ</b>（STAGE 3〜）：かたくて2回たたかないとぬけない。得点2倍</li>
       <li data-i="🍮"><b>プリン</b>（STAGE 3〜）：積んであるあいだ揺れがおさまりにくい。得点1.5倍</li>
       <li data-i="🍡"><b>おもち</b>（STAGE 4〜）：ねばって判定がせまい。得点2倍</li>
+      <li data-i="🍞"><b>カステラ</b>（STAGE 2〜）：ずっしり重くて、積んであるあいだ揺れがおさまりやすい</li>
       <li data-i="✨"><b>金のカステラ</b>：たまに出るレアなお菓子。得点3倍</li>
       <li data-i="🎂">ねこの段は<b>ホールケーキ・マシュマロ・ジャンボプリン・いちご大福</b>に変身するよ</li>
     </ul>
@@ -716,13 +717,14 @@ const SWEETS = {
   choco:    { name: '板チョコ',       tip: 'かたい・2回',  desc: 'かたくて2回たたかないとぬけない。得点2倍', zone: 1, imp: 1,  pts: 2,   center: 0.72, soft: 0, minStage: 3, weight: 1.5, hp: 2 },
   pudding:  { name: 'プリン',         tip: 'ぷるぷる',     desc: '積んであるあいだ揺れがおさまりにくい。得点1.5倍', zone: 1, imp: 1, pts: 1.5, center: 0.3, soft: 1, minStage: 3, weight: 1.5 },
   mochi:    { name: 'おもち',         tip: 'きびしい・2倍', desc: 'ねばって判定がせまい。得点2倍',       zone: 0.75, imp: 1,    pts: 2,   center: 0.62, soft: 0.85, minStage: 4, weight: 1.5 },
+  kasutera: { name: 'カステラ',       tip: 'あんてい',     desc: 'ずっしり重くて、積んであるあいだ揺れがおさまりやすい', zone: 1, imp: 1, pts: 1, center: 0.48, soft: 0.5, minStage: 2, weight: 2 },
   castella: { name: '金のカステラ',   tip: '3倍！',        desc: 'たまに出るレアなお菓子。得点3倍',     zone: 1,    imp: 1,    pts: 3,   center: 0.56, soft: 0.2, minStage: 1, weight: 0 },
 };
 const SEAT_CENTERS = [0.4, 0.3, 0.3, 0.55]; // ホールケーキ・マシュマロ・ジャンボプリン・いちご大福
 const SEAT_SOFT = [0.6, 0.9, 1, 0.75];      // やわらかさ（0:かたい〜1:ぷるぷる）
 const SWEET_WORDS = {
   donut: ['もふっ'], macaron: ['さくっ'], cake: ['ふわっ', 'ふわん'], choco: ['カチッ', 'コツン'],
-  pudding: ['ぷるんっ', 'ぷるるん', 'ぷるっ'], mochi: ['もちっ', 'むにゅ〜'], castella: ['ふかっ'],
+  pudding: ['ぷるんっ', 'ぷるるん', 'ぷるっ'], mochi: ['もちっ', 'むにゅ〜'], castella: ['ふかっ'], kasutera: ['ふかっ', 'しっとり'],
   seat0: ['ふわっ'], seat1: ['ぽよん'], seat2: ['ぷるるんっ'], seat3: ['もちっ'],
 };
 const SEAT_SWEET = { name: '', tip: 'ねこの段', zone: 1, imp: 1, pts: 1, center: 0.5 };
@@ -1133,9 +1135,10 @@ function update(dt) {
     updateEvents(dt, P);
     // ゆれ物理（減衰ばね）＋重心のかたより＋風
     const windAcc = wind && wind.phase === 'blow' ? wind.cur * wind.force : 0;
-    let puddings = 0;
-    for (const b of blocks) if (b.kind === 'pudding') puddings++;
-    const damp = P.c * Math.max(0.6, 1 - puddings * 0.05) * catT('damp');
+    // プリンは揺れが長引き、カステラは揺れがおさまりやすい
+    let puddings = 0, kasuteras = 0;
+    for (const b of blocks) { if (b.kind === 'pudding') puddings++; else if (b.kind === 'kasutera') kasuteras++; }
+    const damp = P.c * clamp(1 - puddings * 0.05 + kasuteras * 0.04, 0.6, 1.4) * catT('damp');
     const a = -P.k * (wob.w - balanceBias()) - damp * wob.v + windAcc;
     wob.v += a * dt;
     wob.w += wob.v * dt;
@@ -1970,6 +1973,26 @@ function drawBlockCentered(w, h, b) {
         const sh = (gtime * 0.6) % 1.6 - 0.3;
         ctx.beginPath(); ctx.moveTo(x + w * sh, y); ctx.lineTo(x + w * (sh + 0.12), y); ctx.lineTo(x + w * (sh + 0.04), y + h); ctx.lineTo(x + w * (sh - 0.08), y + h); ctx.closePath(); ctx.fill();
         hardEdge(x, y, w, h);
+        ctx.fillStyle = cylShade(w); ctx.fillRect(x, y, w, h);
+        ctx.restore();
+        break;
+      }
+      case 'kasutera': { // ふつうのカステラ（底にザラメ）
+        path = () => roundRect(x, y, w, h, Math.min(h * 0.14, 5));
+        ctx.save(); path(); ctx.clip();
+        const g = ctx.createLinearGradient(0, y, 0, y + h);
+        g.addColorStop(0, '#ffd977'); g.addColorStop(1, '#efb043');
+        ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+        if (!small) {
+          ctx.fillStyle = 'rgba(190,120,30,0.35)';
+          for (let i = 0; i < Math.round(w / 5); i++) { ctx.beginPath(); ctx.arc(x + rnd() * w, y + h * (0.3 + rnd() * 0.5), 0.9, 0, Math.PI * 2); ctx.fill(); }
+        }
+        ctx.fillStyle = '#7a3f1a'; ctx.fillRect(x, y, w, h * 0.22);
+        ctx.fillStyle = '#9a5a2a'; ctx.fillRect(x, y + h * 0.86, w, h * 0.14);
+        if (!small) {
+          ctx.fillStyle = 'rgba(255,255,255,0.9)';
+          for (let i = 0; i < Math.round(w / 7); i++) ctx.fillRect(x + rnd() * w, y + h * (0.88 + rnd() * 0.08), 1.6, 1.6);
+        }
         ctx.fillStyle = cylShade(w); ctx.fillRect(x, y, w, h);
         ctx.restore();
         break;
