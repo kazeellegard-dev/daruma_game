@@ -285,7 +285,7 @@
       <li data-i="📈">クリアするたびに段数が増えるよ（最大30段）。</li>
       <li data-i="⏱">PERFECTを出すと残り時間が少し増える！</li>
       <li data-i="🔥">PERFECT・GOODを続けるとコンボボーナス！</li>
-      <li data-i="🍬">STAGE 7から、ときどき空から物がふってくる！<b>お菓子</b>をタップするといいことが、<b>お菓子じゃないもの</b>をタップしてしまうとわるいことが起きるよ</li>
+      <li data-i="🍬">STAGE 3から、ときどき空から物がふってくる！<b>お菓子</b>をタップするといいことが、<b>お菓子じゃないもの</b>をタップしてしまうとわるいことが起きるよ</li>
       <li data-i="🪑">ねこが座っている一番上の段は、ときどき<b>形や幅が変わる</b>よ。せまいと揺れやすい！</li>
       <li data-i="🐱">ねこがときどき<b>座り直して</b>場所がずれるよ。はしに寄ると傾きやすい！</li>
       <li data-i="💨">STAGE 2から、ときどき<b>風</b>がふいて押されるよ。</li>
@@ -737,8 +737,8 @@ let intr = null;         // 乱入ねこ
 let streaks = [];        // 風のすじ
 let evTimer = 0, reseatTimer = 0, morphTimer = 0;
 let lastCause = '', lastCauseT = -99;
-// ふってくるアイテム（STAGE 7〜）：お菓子はいいこと、お菓子じゃないものはわるいこと
-const DROP_STAGE = 7;
+// ふってくるアイテム（STAGE 3〜）：お菓子はいいこと、お菓子じゃないものはわるいこと
+const DROP_STAGE = 3;
 const DROPS = {
   candy:    { good: true,  name: 'キャンディ',     msg: 'メーターがゆっくりに！',   color: '#ff6fa5', buff: 'slow', dur: 6 },
   cookie:   { good: true,  name: 'クッキー',       msg: 'じかん +3びょう！',        color: '#e0913a' },
@@ -1510,7 +1510,7 @@ function updateIntruder(dt, P) {
 function dropR() { return clamp(W * 0.06, 20, 28); }
 function spawnDrop(kind) {
   if (!kind) {
-    const good = Math.random() < 0.5;
+    const good = Math.random() < 0.7; // お菓子（いいこと）が7割
     const ks = Object.keys(DROPS).filter(k => DROPS[k].good === good);
     kind = ks[Math.floor(Math.random() * ks.length)];
   }
