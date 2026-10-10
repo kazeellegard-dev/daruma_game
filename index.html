@@ -160,6 +160,10 @@
       <li data-i="⏱">時間内にぜんぶ抜いて、ねこが床にすわればクリア！</li>
       <li data-i="📈">クリアするたびに段数が増えるよ（最大30段）。</li>
       <li data-i="⭐">金色のだるまは得点3倍！ PERFECT・GOODを続けるとコンボボーナス！</li>
+      <li data-i="🪑">ねこが座っている一番上の段は、ときどき<b>形や幅が変わる</b>よ。せまいと揺れやすい！</li>
+      <li data-i="🐱">ねこがときどき<b>座り直して</b>場所がずれるよ。はしに寄ると傾きやすい！</li>
+      <li data-i="💨">STAGE 3から、ときどき<b>風</b>がふいて押されるよ。</li>
+      <li data-i="🐈">STAGE 4から、ときどき<b>のらねこが乱入</b>して段をずらしてくる！ ずれた段はたたき出すと元にもどるよ。</li>
     </ul>
     <button class="btn" id="howClose">わかった！</button>
   </div>
@@ -305,16 +309,19 @@ function tone(f1, f2, dur, type = 'sine', vol = 0.2, delay = 0) {
   o.start(t); o.stop(t + dur + 0.03);
 }
 let noiseBuf = null;
-function noise(dur, vol = 0.2, freq = 1500, delay = 0) {
-  if (muted) return;
-  const a = audio(); if (!a) return;
+function getNoiseBuf(a) {
   if (!noiseBuf) {
-    noiseBuf = a.createBuffer(1, a.sampleRate * 0.5, a.sampleRate);
+    noiseBuf = a.createBuffer(1, a.sampleRate * 3, a.sampleRate);
     const d = noiseBuf.getChannelData(0);
     for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
   }
+  return noiseBuf;
+}
+function noise(dur, vol = 0.2, freq = 1500, delay = 0) {
+  if (muted) return;
+  const a = audio(); if (!a) return;
   const t = a.currentTime + delay;
-  const s = a.createBufferSource(); s.buffer = noiseBuf;
+  const s = a.createBufferSource(); s.buffer = getNoiseBuf(a);
   const f = a.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = 1.2;
   const g = a.createGain();
   g.gain.setValueAtTime(vol, t);
@@ -355,6 +362,25 @@ const SFX = {
   tick() { tone(1200, 1200, 0.04, 'square', 0.05); },
   build(i) { tone(400 + i * 25, 400 + i * 25, 0.04, 'triangle', 0.07); },
   go() { tone(784, 784, 0.1, 'square', 0.08); tone(1175, 1175, 0.2, 'square', 0.08, 0.1); },
+  boing() { tone(220, 520, 0.12, 'sine', 0.14); tone(520, 330, 0.16, 'sine', 0.1, 0.11); },
+  warn() { tone(880, 880, 0.07, 'square', 0.07); tone(880, 880, 0.07, 'square', 0.07, 0.12); },
+  push() { tone(180, 120, 0.12, 'triangle', 0.3); noise(0.12, 0.25, 500); },
+  whoosh(dur) {
+    if (muted) return;
+    const a = audio(); if (!a) return;
+    const t = a.currentTime;
+    const s = a.createBufferSource(); s.buffer = getNoiseBuf(a);
+    const f = a.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 0.8;
+    f.frequency.setValueAtTime(400, t);
+    f.frequency.linearRampToValueAtTime(900, t + dur * 0.5);
+    f.frequency.linearRampToValueAtTime(350, t + dur);
+    const g = a.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.22, t + dur * 0.4);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(a.destination);
+    s.start(t); s.stop(t + Math.min(dur, 2.9));
+  },
 };
 
 // ===================== ゲーム状態 =====================
@@ -382,6 +408,23 @@ let gtime = 0;
 const cat = { mood: 'normal', moodT: 0, squash: 0, blink: 0, blinkWait: 2,
   free: false, x: 0, y: 0, vx: 0, vy: 0, rot: 0, vr: 0, grounded: false };
 
+// おじゃまイベント
+let catOff = 0;          // 座っているねこの横ずれ(px)
+let reseat = null;       // 座り直しアニメ
+let wind = null;         // 風
+let intr = null;         // 乱入ねこ
+let streaks = [];        // 風のすじ
+let evTimer = 0, reseatTimer = 0, morphTimer = 0;
+let lastCause = '', lastCauseT = -99;
+const SEAT_SHAPES = 4;   // 0:ふつう 1:まる 2:台形 3:ドーム
+const CAT_PAL = { body: '#f8ad55', stripe: '#e0832e', white: '#fff8ee' };
+const INTRUDER_PALS = [
+  { body: '#a3abb5', stripe: '#6d7681', white: '#f6f6f6' },
+  { body: '#fdfbf7', stripe: '#e3d9cc', white: '#ffffff' },
+  { body: '#b98a5e', stripe: '#7f5a3a', white: '#fff3e0' },
+  { body: '#efe0c4', stripe: '#8a6a52', white: '#fffaf0' },
+];
+
 function params() {
   const s = Math.min(stage, MAX_TIER);
   const extra = Math.max(0, stage - MAX_TIER);
@@ -404,6 +447,39 @@ function maxAngle() {
   return clamp(90 / hgt, 0.09, 0.32);
 }
 
+function randSeatW() {
+  const mn = Math.max(0.45, 0.9 - Math.min(stage, MAX_TIER) * 0.016);
+  return rand(mn, 1.25);
+}
+function seatBlock() {
+  const b = blocks[blocks.length - 1];
+  return b && b.seat ? b : null;
+}
+function blockWidth(b) { return b.seat ? G.blockW * b.sw : G.blockW; }
+// ねこが座れる上面の幅
+function seatTopW(b) { return blockWidth(b) * (b.shape === 2 ? 0.66 : b.shape === 3 ? 0.78 : 1); }
+function catLimit() {
+  const sb = seatBlock();
+  return sb ? Math.max(0, seatTopW(sb) / 2 - G.catSize * 0.16) : 0;
+}
+// 一番上の段がせまいほど揺れやすい
+function seatMul() {
+  const sb = seatBlock();
+  return sb ? clamp(1 + (1 - sb.sw) * 0.6, 0.85, 1.35) : 1;
+}
+// ねこのずれ・段のずれによる重心のかたより
+function balanceBias() {
+  let m = catOff * 0.6;
+  for (const b of blocks) m += (b.dx || 0) * 0.35;
+  return clamp(m / (G.blockW * 0.5) * 0.4, -0.45, 0.45);
+}
+// 積み木のローカル座標 → 画面座標
+function stackToWorld(lx, ly) {
+  const a = wob.w * maxAngle();
+  const c = Math.cos(a), s = Math.sin(a);
+  return { x: G.cx + lx * c - ly * s, y: G.groundY + lx * s + ly * c };
+}
+
 function makeBlocks(n) {
   const arr = [];
   let last = -1;
@@ -411,8 +487,12 @@ function makeBlocks(n) {
     let c;
     do { c = Math.floor(Math.random() * BLOCK_COLORS.length); } while (c === last);
     last = c;
-    arr.push({ color: BLOCK_COLORS[c], gold: i < n - 1 && Math.random() < 0.08 + Math.min(stage, 30) * 0.002, pattern: Math.floor(Math.random() * 3) });
+    arr.push({ color: BLOCK_COLORS[c], gold: i < n - 1 && Math.random() < 0.08 + Math.min(stage, 30) * 0.002, pattern: Math.floor(Math.random() * 3), dx: 0 });
   }
+  const top = arr[n - 1];
+  top.seat = true;
+  top.shape = Math.floor(Math.random() * SEAT_SHAPES);
+  top.sw = top.swT = randSeatW();
   return arr;
 }
 
@@ -438,6 +518,9 @@ function setupStage() {
   buildCount = 0; buildAcc = 0;
   cat.free = false; cat.mood = 'normal'; cat.rot = 0;
   debris = [];
+  catOff = 0; reseat = null; wind = null; intr = null; streaks = [];
+  evTimer = rand(2.5, 5); reseatTimer = rand(2, 4); morphTimer = rand(2, 4);
+  lastCause = '';
   state = 'build'; stateT = 0;
 }
 
@@ -465,9 +548,10 @@ function strike(side) {
 
   const bx = G.cx + side * (G.blockW / 2);
   const by = G.groundY - G.blockH / 2 - drop;
+  const sm = seatMul();
 
   if (grade === 'weak') {
-    wob.v += dir * 0.9 * P.imp;
+    wob.v += dir * 0.9 * P.imp * sm;
     combo = 0; missesThisStage++;
     nudge = { dir, t: 0 };
     addPopup('よわい…', bx, by - 20, '#7d8aa0', 22);
@@ -477,11 +561,11 @@ function strike(side) {
   }
 
   const mags = { perfect: 0.5, good: 1.25, ok: 2.25, strong: 3.9 };
-  wob.v += dir * mags[grade] * P.imp * rand(0.85, 1.15);
+  wob.v += dir * mags[grade] * P.imp * sm * rand(0.85, 1.15);
 
   const b = blocks.shift();
   flying.push({
-    x: G.cx + wob.w * 0, y: by, w: G.blockW, h: G.blockH, b,
+    x: G.cx + (b.dx || 0), y: by, w: blockWidth(b), h: G.blockH, b,
     vx: dir * Math.max(W * 1.8, 900) * (grade === 'strong' ? 1.3 : 1), vy: -rand(80, 200),
     rot: maxAngle() * wob.w, vr: dir * rand(5, 9),
   });
@@ -521,6 +605,10 @@ function topple(reason) {
   fall.angle = maxAngle() * wob.w;
   fall.av = fall.dir * (0.6 + Math.abs(wob.v) * 0.2);
   fall.scattered = false;
+  if (reason !== 'じかんぎれ！' && gtime - lastCauseT < 1.6) {
+    if (lastCause === 'wind') reason = 'かぜでたおれちゃった！';
+    else if (lastCause === 'intruder') reason = 'のらねこにたおされた！';
+  }
   fall.reason = reason;
   cat.mood = 'scared';
   SFX.fall();
@@ -534,20 +622,22 @@ function scatter() {
   const cos = Math.cos(fall.angle), sin = Math.sin(fall.angle);
   const n = blocks.length;
   for (let i = 0; i < n; i++) {
-    const lx = bendAt(i, n), ly = -(i + 0.5) * bh - drop;
+    const lx = bendAt(i, n) + (blocks[i].dx || 0), ly = -(i + 0.5) * bh - drop;
     const x = G.cx + lx * cos - ly * sin;
     const y = G.groundY + lx * sin + ly * cos;
-    debris.push({ x, y, w: bw, h: bh, b: blocks[i], rot: fall.angle,
+    debris.push({ x, y, w: blockWidth(blocks[i]), h: bh, b: blocks[i], rot: fall.angle,
       vx: -ly * fall.av * 0.9 + rand(-60, 60), vy: rand(-220, -40) + ly * 0.4, vr: fall.dir * rand(2, 7) });
   }
   const ly = -n * bh - drop;
+  const lxc = (n ? bendAt(n - 1, n) + (blocks[n - 1].dx || 0) : 0) + catOff;
   cat.free = true;
-  cat.x = G.cx - ly * sin;
-  cat.y = G.groundY + ly * cos;
+  cat.x = G.cx + lxc * cos - ly * sin;
+  cat.y = G.groundY + lxc * sin + ly * cos;
   cat.vx = fall.dir * (160 + n * 6) + rand(-30, 30);
   cat.vy = -520;
   cat.rot = fall.angle; cat.vr = fall.dir * 9;
   cat.grounded = false;
+  reseat = null;
   blocks = [];
 }
 
@@ -575,6 +665,8 @@ function gameOver() {
 }
 
 function addPopup(text, x, y, color, size) {
+  // 上部の表示（スコア・タイマー）と重ならないように
+  y = Math.max(y, G.hudTop + G.hudH + 44);
   popups.push({ text, x, y, color, size, t: 0, life: 0.9 });
 }
 
@@ -621,8 +713,10 @@ function update(dt) {
     cooldown = Math.max(0, cooldown - dt);
     timeLeft -= dt;
     if (timeLeft <= 5 && Math.ceil(timeLeft) !== lastTick) { lastTick = Math.ceil(timeLeft); if (timeLeft > 0) SFX.tick(); }
-    // ゆれ物理（減衰ばね）
-    const a = -P.k * wob.w - P.c * wob.v;
+    updateEvents(dt, P);
+    // ゆれ物理（減衰ばね）＋重心のかたより＋風
+    const windAcc = wind && wind.phase === 'blow' ? wind.cur * wind.force : 0;
+    const a = -P.k * (wob.w - balanceBias()) - P.c * wob.v + windAcc;
     wob.v += a * dt;
     wob.w += wob.v * dt;
     if (Math.abs(wob.w) > 0.7 && cat.mood !== 'happy') { cat.mood = 'scared'; cat.moodT = 0.3; }
@@ -649,8 +743,14 @@ function update(dt) {
   }
 
   if (state === 'clear') {
+    catOff = lerp(catOff, 0, Math.min(1, dt * 5));
     if (stateT > 2.6) nextStage();
   }
+
+  if (wind) updateWind(dt);
+  if (intr) updateIntruder(dt, P);
+  for (const st of streaks) { st.t += dt; st.x += st.sp * dt; }
+  streaks = streaks.filter(st => st.t < st.life);
 
   // 飛んでいくだるま
   for (const f of flying) {
@@ -727,8 +827,185 @@ function newPetal(any) {
 }
 function updatePetals(dt) {
   for (const p of petals) {
-    p.y += p.vy * dt; p.ph += dt * p.sway; p.x += Math.sin(p.ph) * 20 * dt; p.rot += dt;
+    const wcur = wind && wind.phase === 'blow' ? wind.cur : 0;
+    p.y += p.vy * dt; p.ph += dt * p.sway; p.x += (Math.sin(p.ph) * 20 + wcur * 260) * dt; p.rot += dt * (1 + Math.abs(wcur) * 6);
+    if (p.x < -30) p.x = W + 20; else if (p.x > W + 30) p.x = -20;
     if (p.y > G.groundY) Object.assign(p, newPetal(false));
+  }
+}
+
+// ===================== おじゃまイベント =====================
+function catWorldTop() {
+  return G.groundY - blocks.length * G.blockH - drop;
+}
+
+function updateEvents(dt, P) {
+  const sb = seatBlock();
+  // ① 一番上の段の形・幅が変わる
+  if (sb) {
+    morphTimer -= dt;
+    if (morphTimer <= 0) {
+      morphTimer = rand(3, 5.5);
+      let w = randSeatW();
+      if (Math.abs(w - sb.swT) < 0.15) w = sb.swT > 0.85 ? rand(0.45, 0.7) : rand(1, 1.25);
+      sb.swT = clamp(w, 0.45, 1.25);
+      let sh;
+      do { sh = Math.floor(Math.random() * SEAT_SHAPES); } while (sh === sb.shape);
+      sb.nextShape = sh;
+      sb.morph = 0;
+      SFX.boing();
+      addPopup(sb.swT < 0.75 ? 'せまくなった！' : 'ぐにゃ～ん', G.cx, catWorldTop() - G.catSize * 1.25, '#a77bff', 18);
+    }
+    if (sb.morph !== undefined && sb.morph < 1) {
+      sb.morph = Math.min(1, sb.morph + dt / 0.5);
+      if (sb.morph >= 0.5 && sb.nextShape !== undefined) { sb.shape = sb.nextShape; sb.nextShape = undefined; }
+    }
+    sb.sw = lerp(sb.sw, sb.swT, Math.min(1, dt * 4));
+  }
+
+  // 座面からはみ出さないように、ねこがずれる
+  const lim = catLimit();
+  if (!reseat) catOff = lerp(catOff, clamp(catOff, -lim, lim), Math.min(1, dt * 6));
+
+  // ④ ねこが座り直す
+  if (stage >= 2 && sb && !reseat) {
+    reseatTimer -= dt;
+    if (reseatTimer <= 0) {
+      reseatTimer = rand(4, 7.5);
+      let to = rand(-1, 1) * lim * 0.9;
+      if (Math.abs(to - catOff) < lim * 0.4) to = catOff > 0 ? -rand(0.3, 0.9) * lim : rand(0.3, 0.9) * lim;
+      reseat = { t: 0, from: catOff, to, dur: 0.55 };
+      addPopup('よいしょ', G.cx + to, catWorldTop() - G.catSize * 1.2, '#ff9a3c', 17);
+    }
+  }
+  if (reseat) {
+    reseat.t += dt / reseat.dur;
+    const k = Math.min(1, reseat.t);
+    catOff = lerp(reseat.from, reseat.to, k * k * (3 - 2 * k));
+    if (reseat.t >= 1) {
+      cat.squash = 1;
+      wob.v += Math.sign(reseat.to - reseat.from) * 0.5 * P.imp;
+      SFX.land();
+      reseat = null;
+    }
+  }
+
+  // ②③ 風 / 乱入ねこ
+  if (stage >= 3 && !wind && !intr) {
+    evTimer -= dt;
+    if (evTimer <= 0) {
+      evTimer = Math.max(3.5, rand(5, 9) - Math.min(stage, MAX_TIER) * 0.08);
+      if (stage >= 4 && blocks.length >= 3 && Math.random() < 0.5) startIntruder();
+      else startWind();
+    }
+  }
+}
+
+function startWind() {
+  const dir = Math.random() < 0.5 ? -1 : 1;
+  wind = { phase: 'warn', t: 0, dir, cur: 0,
+    force: Math.min(4.5, 2.2 + Math.min(stage, MAX_TIER) * 0.08) * rand(0.85, 1.15),
+    dur: rand(2.2, 3.4) };
+  SFX.warn();
+}
+
+function updateWind(dt) {
+  wind.t += dt;
+  if (wind.phase === 'warn') {
+    if (wind.t > 1.1) { wind.phase = 'blow'; wind.t = 0; SFX.whoosh(wind.dur); }
+    return;
+  }
+  const k = wind.t / wind.dur;
+  if (k >= 1 || state === 'falling' || state === 'over') { wind = null; return; }
+  const env = Math.sin(Math.PI * k);
+  wind.cur = wind.dir * env * (0.8 + 0.4 * Math.sin(wind.t * 7));
+  if (state === 'play') { lastCause = 'wind'; lastCauseT = gtime; }
+  if (Math.random() < dt * 40 * env) {
+    streaks.push({ x: wind.dir > 0 ? rand(-120, W * 0.3) : rand(W * 0.7, W + 120), y: rand(G.hudTop + G.hudH + 10, G.groundY - 8),
+      len: rand(40, 130), sp: rand(700, 1100) * wind.dir, life: rand(0.6, 1.1), t: 0, ph: rand(0, 6) });
+  }
+}
+
+function startIntruder() {
+  const side = Math.random() < 0.5 ? -1 : 1;
+  const n = blocks.length;
+  // ねこの段以外の、上のほうの段をねらう
+  const idx = Math.floor(rand(Math.max(0, n * 0.35), n - 1));
+  intr = { side, phase: 'warn', t: 0, target: blocks[idx], pal: INTRUDER_PALS[Math.floor(Math.random() * INTRUDER_PALS.length)],
+    s: G.catSize * 0.78, x: side < 0 ? -70 : W + 70, y: G.groundY, x0: 0, y0: 0, vx: 0, vy: 0, pushed: false };
+  SFX.warn();
+  addPopup('のらねこ乱入！', W / 2, G.hudTop + G.hudH + 44, '#ff9a3c', 22);
+}
+
+function intruderSpot(it, idx, pushK) {
+  const b = it.target;
+  const n = blocks.length;
+  const lx = bendAt(idx, n) + (b.dx || 0) + it.side * (blockWidth(b) / 2 + it.s * 0.3 - pushK * it.s * 0.14);
+  const ly = -(idx + 0.5) * G.blockH - drop + it.s * 0.3;
+  return stackToWorld(lx, ly);
+}
+
+function intruderLeave(it) {
+  it.phase = 'leave';
+  it.vx = it.side * 430;
+  it.vy = it.y < G.groundY - 1 ? -280 : 0;
+}
+
+function updateIntruder(dt, P) {
+  const it = intr;
+  it.t += dt;
+  const idx = blocks.indexOf(it.target);
+  const alive = idx >= 0 && state === 'play';
+  if (it.phase === 'warn') {
+    if (it.t > 0.7) { it.phase = 'run'; it.t = 0; }
+    if (!alive) intr = null;
+    return;
+  }
+  if (it.phase === 'run') {
+    if (!alive) { intruderLeave(it); return; }
+    const stopX = G.cx + it.side * (G.blockW / 2 + it.s * 0.55);
+    const dirIn = -it.side;
+    it.x += dirIn * 540 * dt;
+    if ((dirIn > 0 && it.x >= stopX) || (dirIn < 0 && it.x <= stopX)) {
+      it.x = stopX; it.phase = 'jump'; it.t = 0; it.x0 = it.x; it.y0 = it.y;
+      tone(500, 900, 0.12, 'sine', 0.1);
+    }
+    return;
+  }
+  if (it.phase === 'jump') {
+    if (!alive) { intruderLeave(it); return; }
+    const p = intruderSpot(it, idx, 0);
+    const k = Math.min(1, it.t / 0.4);
+    it.x = lerp(it.x0, p.x, k);
+    it.y = lerp(it.y0, p.y, k) - Math.sin(Math.PI * k) * it.s * 0.8;
+    if (k >= 1) { it.phase = 'push'; it.t = 0; }
+    return;
+  }
+  if (it.phase === 'push') {
+    if (!alive) { intruderLeave(it); return; }
+    const pushK = Math.sin(Math.min(1, it.t / 0.35) * Math.PI);
+    const p = intruderSpot(it, idx, pushK);
+    it.x = p.x; it.y = p.y;
+    if (!it.pushed && it.t > 0.17) {
+      it.pushed = true;
+      const b = it.target;
+      b.dx = clamp((b.dx || 0) - it.side * rand(0.08, 0.15) * G.blockW, -G.blockW * 0.3, G.blockW * 0.3);
+      wob.v += -it.side * rand(0.8, 1.3) * P.imp;
+      shake = 6;
+      lastCause = 'intruder'; lastCauseT = gtime;
+      cat.mood = 'scared'; cat.moodT = 0.6;
+      SFX.push();
+      setTimeout(() => SFX.nya(true), 120);
+      addPopup('ずりっ！', p.x - it.side * it.s * 0.2, p.y - it.s * 1.1, '#ff5a4f', 20);
+    }
+    if (it.t > 0.45) intruderLeave(it);
+    return;
+  }
+  if (it.phase === 'leave') {
+    it.vy += 1600 * dt;
+    it.x += it.vx * dt; it.y += it.vy * dt;
+    if (it.y >= G.groundY) { it.y = G.groundY; it.vy = 0; }
+    if (it.x < -120 || it.x > W + 120) intr = null;
   }
 }
 
@@ -758,9 +1035,10 @@ function shade(hex, amt) {
 
 const gradCache = new Map();
 function blockGrad(x, w, color) {
-  const key = color + '|' + w.toFixed(1);
+  const key = color + '|' + Math.round(w);
   let g = gradCache.get(key);
   if (!g) {
+    if (gradCache.size > 300) gradCache.clear();
     g = ctx.createLinearGradient(-w / 2, 0, w / 2, 0);
     if (color === 'gold') {
       g.addColorStop(0, '#b8860b'); g.addColorStop(0.3, '#ffe066'); g.addColorStop(0.5, '#fff6c0'); g.addColorStop(0.7, '#ffd23f'); g.addColorStop(1, '#a0700a');
@@ -772,18 +1050,54 @@ function blockGrad(x, w, color) {
   return g;
 }
 
+// 角を丸めた多角形
+function roundPoly(pts, r) {
+  const n = pts.length;
+  ctx.beginPath();
+  ctx.moveTo((pts[0][0] + pts[1][0]) / 2, (pts[0][1] + pts[1][1]) / 2);
+  for (let i = 1; i <= n; i++) {
+    const a = pts[i % n], b = pts[(i + 1) % n];
+    ctx.arcTo(a[0], a[1], b[0], b[1], r);
+  }
+  ctx.closePath();
+}
+
+// 段の形のパス（shape: 0ふつう 1まる 2台形 3ドーム）
+function blockPath(x, y, w, h, r, shape) {
+  if (shape === 1) { roundRect(x, y, w, h, h / 2); return; }
+  if (shape === 2) {
+    const ins = w * 0.17;
+    roundPoly([[x + ins, y], [x + w - ins, y], [x + w, y + h], [x, y + h]], r);
+    return;
+  }
+  if (shape === 3) {
+    const cy = y + h * 0.55;
+    ctx.beginPath();
+    ctx.moveTo(x, cy);
+    ctx.ellipse(x + w / 2, cy, w / 2, h * 0.55, 0, Math.PI, Math.PI * 2);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.closePath();
+    return;
+  }
+  roundRect(x, y, w, h, r);
+}
+
 // 中心(0,0)基準でだるまを描く
 function drawBlockCentered(w, h, b) {
   const x = -w / 2, y = -h / 2;
   const r = Math.min(h * 0.35, 12);
+  const shape = b.shape || 0;
   ctx.fillStyle = blockGrad(x, w, b.gold ? 'gold' : b.color);
-  roundRect(x, y, w, h, r);
+  blockPath(x, y, w, h, r, shape);
   ctx.fill();
+  ctx.save();
+  blockPath(x, y, w, h, r, shape);
+  ctx.clip();
   // 模様
   if (h > 12) {
     ctx.save();
-    roundRect(x, y, w, h, r);
-    ctx.clip();
     ctx.globalAlpha = 0.35;
     ctx.fillStyle = '#fff';
     if (b.pattern === 0) {
@@ -799,12 +1113,13 @@ function drawBlockCentered(w, h, b) {
   // ハイライト
   ctx.globalAlpha = 0.35;
   ctx.fillStyle = '#fff';
-  roundRect(x + w * 0.08, y + h * 0.12, w * 0.84, Math.max(2, h * 0.16), h * 0.08);
+  roundRect(x + w * 0.08, y + h * (shape === 3 ? 0.3 : 0.12), w * 0.84, Math.max(2, h * 0.16), h * 0.08);
   ctx.fill();
+  ctx.restore();
   ctx.globalAlpha = 1;
   ctx.lineWidth = 2.5;
   ctx.strokeStyle = INK;
-  roundRect(x, y, w, h, r);
+  blockPath(x, y, w, h, r, shape);
   ctx.stroke();
   if (b.gold) {
     const s = Math.min(h * 0.35, 9);
@@ -907,20 +1222,30 @@ function drawStack() {
   ctx.save();
   ctx.translate(G.cx, G.groundY);
   ctx.rotate(angle);
+  let topSquash = 0;
   for (let i = 0; i < list.length; i++) {
-    let x = bendAt(i, list.length);
-    const y = -(i + 0.5) * bh - (state === 'title' ? 0 : drop);
+    const b = list[i];
+    let x = bendAt(i, list.length) + (b.dx || 0);
+    let y = -(i + 0.5) * bh - (state === 'title' ? 0 : drop);
     if (i === 0 && nudge.t < 1) x += nudge.dir * Math.sin(nudge.t * Math.PI) * bw * 0.12;
+    let hs = 1;
+    if (b.seat && b.morph !== undefined && b.morph < 1) {
+      hs = 1 - Math.sin(b.morph * Math.PI) * 0.35;
+      topSquash = (1 - hs) * (bh - 1);
+      y += topSquash / 2;
+    }
     ctx.save();
     ctx.translate(x, y);
-    drawBlockCentered(bw, bh - 1, list[i]);
+    drawBlockCentered(state === 'title' ? bw : blockWidth(b), (bh - 1) * hs, b);
     ctx.restore();
   }
   if (!cat.free) {
-    const top = -list.length * bh - (state === 'title' ? 0 : drop);
+    const top = -list.length * bh - (state === 'title' ? 0 : drop) + topSquash;
     let hop = 0;
     if (state === 'clear') hop = Math.abs(Math.sin(stateT * 7)) * G.catSize * 0.25;
-    const cx = list.length ? bendAt(list.length - 1, list.length) : 0;
+    if (reseat) hop += Math.sin(Math.PI * Math.min(1, reseat.t)) * G.catSize * 0.35;
+    const last = list[list.length - 1];
+    const cx = (list.length ? bendAt(list.length - 1, list.length) + (last.dx || 0) : 0) + (state === 'title' ? 0 : catOff);
     drawCat(cx, top - hop, state === 'title' ? G.catSize * 1.1 : G.catSize, 0);
   }
   ctx.restore();
@@ -946,7 +1271,8 @@ function drawHammers() {
     const hh = clamp(G.blockH * 1.2, 20, 40);
     const hw = hh * 1.5;
     const rest = G.cx + side * (G.blockW / 2 + hw / 2 + 34);
-    const contact = G.cx + side * (G.blockW / 2 + hw / 2 - 2);
+    const b0 = blocks[0];
+    const contact = G.cx + (b0 ? (b0.dx || 0) + side * blockWidth(b0) / 2 : side * G.blockW / 2) + side * (hw / 2 - 2);
     const x = lerp(rest, contact, off);
     const y = G.groundY - G.blockH / 2 - (active ? 0 : 0);
     ctx.save();
@@ -1009,17 +1335,65 @@ function drawFlying() {
   }
 }
 
+function drawIntruder() {
+  if (!intr) return;
+  const it = intr;
+  if (it.phase === 'warn') {
+    const ex = it.side < 0 ? 26 : W - 26;
+    ctx.save();
+    ctx.globalAlpha = 0.5 + 0.5 * Math.sin(gtime * 18);
+    outlinedText('!', ex, G.groundY - 40, 44, '#ff5a4f', 'center', '#fff');
+    ctx.restore();
+    return;
+  }
+  let bob = 0, rot = 0;
+  if (it.phase === 'run' || (it.phase === 'leave' && it.y >= G.groundY - 1)) {
+    bob = -Math.abs(Math.sin(it.t * 18)) * it.s * 0.1;
+    rot = (it.phase === 'run' ? -it.side : it.side) * 0.12;
+  }
+  if (it.phase === 'push') rot = -it.side * 0.2;
+  ctx.save();
+  ctx.translate(it.x, it.y + bob - it.s * 0.5);
+  ctx.rotate(rot);
+  drawCat(0, it.s * 0.5, it.s, 0, { pal: it.pal, mood: it.phase === 'push' || it.phase === 'jump' ? 'smug' : 'happy', squash: 0, blink: 0 });
+  ctx.restore();
+}
+
+function drawWind() {
+  if (!streaks.length) return;
+  ctx.save();
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineCap = 'round';
+  for (const st of streaks) {
+    const a = Math.sin(Math.PI * st.t / st.life);
+    ctx.globalAlpha = 0.7 * a;
+    ctx.lineWidth = 3;
+    const dir = Math.sign(st.sp);
+    ctx.beginPath();
+    for (let i = 0; i <= 8; i++) {
+      const px = st.x - dir * st.len * (i / 8);
+      const py = st.y + Math.sin(st.ph + i * 0.8 + st.t * 10) * 4;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 // ねこ：(x, y) は足元の中心
-function drawCat(x, y, s, extraRot) {
-  const mood = cat.mood;
+function drawCat(x, y, s, extraRot, o) {
+  o = o || {};
+  const mood = o.mood || cat.mood;
   const u = s / 100;
-  const sq = cat.squash;
+  const sq = o.squash !== undefined ? o.squash : cat.squash;
+  const blink = o.blink !== undefined ? o.blink : cat.blink;
+  const pal = o.pal || CAT_PAL;
   ctx.save();
   ctx.translate(x, y);
   if (extraRot) ctx.rotate(extraRot);
   ctx.scale(u * (1 + sq * 0.12), u * (1 - sq * 0.14));
 
-  const OR = '#f8ad55', ORD = '#e0832e', WH = '#fff8ee', PK = '#ff9fb2';
+  const OR = pal.body, ORD = pal.stripe, WH = pal.white, PK = '#ff9fb2';
   ctx.lineJoin = 'round'; ctx.lineCap = 'round';
 
   // しっぽ
@@ -1103,7 +1477,10 @@ function drawCat(x, y, s, extraRot) {
         if (a === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
       }
       ctx.lineWidth = 2; ctx.stroke(); ctx.lineWidth = 3;
-    } else if (cat.blink > 0) {
+    } else if (mood === 'smug') {
+      ctx.beginPath(); ctx.arc(ex, ey - 1, 5, 0.1 * Math.PI, 0.9 * Math.PI); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(ex - 6, ey - 1); ctx.lineTo(ex + 6, ey - 1); ctx.stroke();
+    } else if (blink > 0) {
       ctx.beginPath(); ctx.moveTo(ex - 5, ey); ctx.lineTo(ex + 5, ey); ctx.stroke();
     } else {
       ctx.fillStyle = INK;
@@ -1123,6 +1500,8 @@ function drawCat(x, y, s, extraRot) {
   } else if (mood === 'scared') {
     ctx.fillStyle = '#e8505b';
     ctx.beginPath(); ctx.ellipse(0, -50, 3.5, 4.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  } else if (mood === 'smug') {
+    ctx.beginPath(); ctx.moveTo(-6, -52); ctx.quadraticCurveTo(1, -48, 7, -54); ctx.stroke();
   } else {
     ctx.beginPath();
     ctx.moveTo(0, -56); ctx.quadraticCurveTo(-1, -51, -5, -51.5);
@@ -1315,6 +1694,22 @@ function drawBanner() {
       ctx.globalAlpha = 1;
     }
   }
+  if (wind && state === 'play') {
+    if (wind.phase === 'warn') {
+      ctx.save();
+      ctx.globalAlpha = 0.55 + 0.45 * Math.sin(gtime * 14);
+      outlinedText(wind.dir > 0 ? 'かぜがくるよ →' : '← かぜがくるよ', W / 2, H * 0.4, 26, '#7fd3ff');
+      ctx.restore();
+    } else {
+      // ぐらぐらゲージの横に風向きを表示
+      const tw = Math.min(160, G.mW * 0.5);
+      const x = W / 2 + tw / 2 + 34 + ((gtime * 40) % 8) * wind.dir;
+      ctx.save();
+      ctx.globalAlpha = 0.6 + 0.4 * Math.abs(wind.cur);
+      outlinedText(wind.dir > 0 ? 'かぜ≫' : '≪かぜ', x, G.tiltY, 14, '#bfe9ff');
+      ctx.restore();
+    }
+  }
   if (state === 'falling' && stateT > 0.4) {
     outlinedText(fall.reason, W / 2, H * 0.32, 32, '#ff5a4f', 'center', '#fff');
   }
@@ -1338,8 +1733,10 @@ function render() {
   if (shake > 0) ctx.translate(rand(-shake, shake) * 0.5, rand(-shake, shake) * 0.5);
   drawBackground();
   drawStack();
+  drawIntruder();
   drawHammers();
   drawFlying();
+  drawWind();
   drawParticles();
   drawPopups();
   ctx.restore();
@@ -1552,7 +1949,10 @@ requestAnimationFrame(loop);
 
 // テスト用フック
 window.__neko = { get state() { return state; }, get score() { return score; }, get stage() { return stage; }, get blocks() { return blocks.length; },
-  get wob() { return wob; }, strike, meterValue, setMeter(v) { meterPhase = v; }, startGame, nextStage };
+  get wob() { return wob; }, strike, meterValue, setMeter(v) { meterPhase = v; }, startGame, nextStage,
+  startWind, startIntruder, reseatNow() { reseatTimer = 0; }, morphNow() { morphTimer = 0; },
+  get catOff() { return catOff; }, get wind() { return wind; }, get intr() { return intr; }, get seat() { return seatBlock(); },
+  get bias() { return balanceBias(); }, get dxs() { return blocks.map(b => b.dx); } };
 })();
 </script>
 </body>
