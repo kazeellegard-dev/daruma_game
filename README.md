@@ -31,4 +31,14 @@ iPhone / Android のブラウザでは指で、PC ではマウスかキーボー
 `index.html` 1 ファイルだけで動きます。外部ライブラリやビルドは不要です。
 
 - ローカル: `index.html` をブラウザで開く
-- スマホで遊ぶ: GitHub Pages などで公開して、その URL を iPhone の Safari で開く（「ホーム画面に追加」で全画面で遊べます）
+
+## GitHub Pages で公開する
+
+`.github/workflows/pages.yml` で、プッシュするたびに GitHub Pages へ自動で公開されます。
+
+1. GitHub のリポジトリで **Settings → Pages** を開く
+2. **Build and deployment → Source** を **GitHub Actions** にする
+3. **Actions** タブで「Deploy to GitHub Pages」を実行する（以降はプッシュごとに自動で実行）
+
+公開 URL は `https://kazeellegard-dev.github.io/daruma_game/` です。
+iPhone の Safari で開き、共有ボタン →「ホーム画面に追加」すると全画面で遊べます。
