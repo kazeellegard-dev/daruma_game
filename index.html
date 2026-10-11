@@ -182,6 +182,26 @@
   .grid { display: grid; gap: 6px; }
   .grid.cats { grid-template-columns: repeat(5, 1fr); }
   .grid.hams { grid-template-columns: repeat(6, 1fr); }
+  .grid.bag { grid-template-columns: repeat(2, 1fr); max-width: 220px; margin: 8px auto 0; }
+  .bagbtn {
+    position: absolute; z-index: 20; top: calc(var(--sat) + 84px); left: calc(var(--sal) + 10px);
+    width: 50px; height: 50px; border-radius: 50%; padding: 0; cursor: pointer;
+    border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink); font-size: 24px; line-height: 1;
+    background: linear-gradient(135deg, #ffd6e7, #fff6c9 50%, #d6efff); touch-action: manipulation;
+    animation: pulse 1.3s ease-in-out infinite;
+  }
+  .bagbtn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+  .bagbtn span {
+    position: absolute; top: -6px; right: -6px; min-width: 20px; height: 20px; border-radius: 10px; padding: 0 4px;
+    background: #ff4d6d; color: #fff; border: 2px solid var(--ink); font-size: 12px; font-weight: bold; line-height: 16px;
+  }
+  .slot.cheat { background: linear-gradient(135deg, #ffe3f0, #fff6c9 50%, #dff3ff); }
+  .slot.empty { background: #f7f0f3; border-style: dashed; cursor: default; }
+  .slot .empty-mark { width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; font-size: 26px; opacity: .35; }
+  .mini-offer h2 { font-size: clamp(19px, 6vw, 24px); white-space: nowrap; }
+  .mini-icon { font-size: 54px; line-height: 1.1; margin: 4px 0 0; }
+  .mini-name { font-size: 22px; font-weight: 900; color: #ff5a7a; margin: 2px 0 4px; }
+  .mini-offer .mini-prize { font-size: 13px; background: #fff3dc; border: 2px dashed var(--ink); border-radius: 12px; padding: 6px 10px; }
   .slot {
     font: inherit; font-size: 10px; color: var(--ink); background: #fff; padding: 3px 1px 4px;
     border: 3px solid var(--ink); border-radius: 12px; cursor: pointer; position: relative;
@@ -213,6 +233,7 @@
   <button class="iconbtn" id="bgmBtn" aria-label="BGM">🎵</button>
   <button class="iconbtn" id="muteBtn" aria-label="効果音">🔊</button>
 </div>
+<button class="bagbtn hidden" id="bagBtn" aria-label="肉球バッグ">🐾<span id="bagCount"></span></button>
 
 <!-- タイトル -->
 <div class="overlay title-screen" id="titleScreen">
@@ -247,6 +268,35 @@
     <div class="tiny">5ステージクリアするごとに、新しいねこかハンマーがもらえるよ</div>
     <button class="btn" id="collClose">けってい</button>
     <button class="btn mini" id="resetBtn">🗑 データリセット</button>
+  </div>
+</div>
+
+<!-- ミニゲームのおさそい -->
+<div class="overlay hidden" id="miniOffer">
+  <div class="card confirm mini-offer">
+    <h2>🎮 ミニゲームチャンス！</h2>
+    <div class="mini-icon" id="miniIcon">🐟</div>
+    <div class="mini-name" id="miniName"></div>
+    <p id="miniRule"></p>
+    <p class="mini-prize">クリアすると、ふつうでは手に入らない<b>チートねこ</b>か<b>チートハンマー</b>がもらえるよ！<br><br>肉球バッグに入れて、<b>好きなステージで1回</b>使えるよ</p>
+    <div class="row">
+      <button class="btn sec" id="miniNo">やらない</button>
+      <button class="btn pulse" id="miniYes">やる！</button>
+    </div>
+  </div>
+</div>
+
+<!-- 肉球バッグ（ゲーム中） -->
+<div class="overlay hidden" id="bagScreen">
+  <div class="card confirm">
+    <h2>🐾 肉球バッグ</h2>
+    <p class="mini-prize">使うと<b>このステージのあいだだけ</b>効果がつづくよ。ステージが終わるとなくなる！</p>
+    <div class="grid bag" id="bagGrid"></div>
+    <div class="detail" id="bagDetail"></div>
+    <div class="row">
+      <button class="btn sec" id="bagClose">とじる</button>
+      <button class="btn pulse" id="bagUse">つかう！</button>
+    </div>
   </div>
 </div>
 
@@ -298,6 +348,7 @@
       <li data-i="📈">クリアするたびに段数が増えるよ（最大30段）。</li>
       <li data-i="⏱">PERFECTを出すと残り時間が少し増える！</li>
       <li data-i="🔥">PERFECT・GOODを続けるとコンボボーナス！</li>
+      <li data-i="🎮">3〜5ステージごとに<b>ミニゲーム</b>のチャンス！ やるかどうかは選べるよ。クリアすると<b>チートねこ・チートハンマー</b>がもらえて、<b>肉球バッグ</b>にねこ・ハンマー1つずつしまえる。左上の<b>🐾ボタン</b>から好きなときに使えて、効果は<b>そのステージのあいだだけ</b>（ゲームが終わるとバッグはからっぽ・ランキングに🐾がつくよ）</li>
       <li data-i="🍬">STAGE 3から、ときどき空から物がふってくる！<b>お菓子</b>をタップするといいことが、<b>お菓子じゃないもの</b>をタップしてしまうとわるいことが起きるよ</li>
       <li data-i="🪑">ねこが座っている一番上の段は、ときどき<b>形や幅が変わる</b>よ。せまいと揺れやすい！</li>
       <li data-i="🐱">ねこがときどき<b>座り直して</b>場所がずれるよ。はしに寄ると傾きやすい！</li>
@@ -824,16 +875,37 @@ const HAMMERS = [
   { id: 'paw', name: '肉球ハンマー', short: '肉球', desc: '3コンボごとにコンボ倍率アップ', comboStep: 3, handle: '#fff3f6' },
   { id: 'gold', name: 'ゴールドハンマー', short: 'ゴールド', desc: 'ひみつのハンマー：得点1.5倍・パーフェクトの幅1.1倍', score: 1.5, zone: 1.1, handle: '#e0a800', secret: true },
 ];
+// チートねこ・チートハンマー（ミニゲームのごほうび。そのゲームのあいだだけ、肉球バッグに1つずつ入る）
+const CHEAT_CATS = [
+  { id: 'niji', name: 'にじ', kind: 'チートねこ', desc: 'パーフェクトの幅が2倍！', zone: 2, cheat: true,
+    pal: { body: '#fff4fa', stripe: '#ffc1dc', white: '#ffffff', eye: '#ff6fa5', collar: true,
+      patches: { head: [[-22, -84, 11, 9, '#ff9fbd'], [22, -84, 11, 9, '#8fd0ff'], [0, -96, 9, 7, '#fff07a']], body: [[-18, -40, 11, 10, '#9be59b'], [18, -26, 11, 12, '#c9a7ff']] } } },
+  { id: 'robo', name: 'ロボ', kind: 'チートねこ', desc: '制限時間2倍・風とのらねこがきかない', time: 2, wind: 0, intruder: 0, cheat: true,
+    pal: { body: '#c9d3df', stripe: '#8d9bab', white: '#eef2f6', eye: '#ff4d6d', stripes: true, collar: true } },
+  { id: 'fuwa', name: 'ふわふわ', kind: 'チートねこ', desc: 'ほとんど揺れない（揺れ0.5倍・おさまり2倍）', imp: 0.5, damp: 2, cheat: true,
+    pal: { body: '#f1e9ff', stripe: '#dccfff', white: '#ffffff', eye: '#a77bff' } },
+];
+const CHEAT_HAMMERS = [
+  { id: 'thunder', name: 'いなずまハンマー', short: 'いなずま', desc: '得点3倍！', score: 3, cheat: true, handle: '#3fa7ff' },
+  { id: 'jumbo', name: 'ジャンボハンマー', short: 'ジャンボ', desc: 'パーフェクトの幅1.8倍・かたいチョコも1回', zone: 1.8, chocoOne: true, cheat: true, handle: '#a77bff' },
+  { id: 'tokei', name: 'とけいハンマー', short: 'とけい', desc: 'PERFECTで時間+2秒・揺れ0.7倍', perfTime: 2, imp: 0.7, cheat: true, handle: '#2ec4b6' },
+];
 const COLL_KEY = 'nekoDaruma.collection.v1';
 const defaultColl = () => ({ cats: ['tora'], hammers: ['wood'], cat: 'tora', hammer: 'wood', fresh: [] });
 let coll = defaultColl();
 try {
   const c = JSON.parse(localStorage.getItem(COLL_KEY) || 'null');
   if (c && Array.isArray(c.cats) && Array.isArray(c.hammers)) coll = Object.assign(coll, c);
+  delete coll.bag;
 } catch (e) {}
 function saveColl() { try { localStorage.setItem(COLL_KEY, JSON.stringify(coll)); } catch (e) {} }
-function curCat() { return CATS.find(c => c.id === coll.cat) || CATS[0]; }
-function curHammer() { return HAMMERS.find(h => h.id === coll.hammer) || HAMMERS[0]; }
+// 肉球バッグ（このゲームのあいだだけ。保存しない）と、このステージで使っているチートアイテム
+let bag = { cat: null, hammer: null };
+let cheatUse = { cat: null, hammer: null };
+function resetBag() { bag = { cat: null, hammer: null }; cheatUse = { cat: null, hammer: null }; }
+function curCat() { return (cheatUse.cat && CHEAT_CATS.find(c => c.id === cheatUse.cat)) || CATS.find(c => c.id === coll.cat) || CATS[0]; }
+function curHammer() { return (cheatUse.hammer && CHEAT_HAMMERS.find(h => h.id === cheatUse.hammer)) || HAMMERS.find(h => h.id === coll.hammer) || HAMMERS[0]; }
+function usingCheat() { return !!(curCat().cheat || curHammer().cheat); }
 function catT(k, d = 1) { const v = curCat()[k]; return v === undefined ? d : v; }
 function hamT(k, d = 1) { const v = curHammer()[k]; return v === undefined ? d : v; }
 function owns(type, id) { return (type === 'cat' ? coll.cats : coll.hammers).includes(id); }
@@ -948,6 +1020,7 @@ function makeBlocks(n) {
 
 function startGame() {
   stage = 1; score = 0; combo = 0; maxCombo = 0; maxTier = 3;
+  miniAt = randInt(3, 5); mini = null; usedCheat = false; resetBag();
   debris = []; flying = []; popups = []; particles = [];
   setupStage();
   $('pauseBtn').classList.remove('hidden');
@@ -974,6 +1047,7 @@ function setupStage() {
   dropTimer = rand(3, 7);
   evTimer = rand(2.5, 5); reseatTimer = rand(2, 4); morphTimer = rand(2, 4);
   lastCause = '';
+  cheatUse = { cat: null, hammer: null };   // 使ったチートアイテムはステージが終わるとなくなる
   state = 'build'; stateT = 0;
 }
 
@@ -1062,9 +1136,10 @@ function strike(side) {
   addPopup(label, tx, by - 34, color, grade === 'perfect' ? 30 : 26);
   addPopup('+' + pts + (sp > 1 ? ' x' + sp : ''), tx, by - 6, b.kind === 'castella' ? '#ffcc00' : sp > 1 ? '#ffe08a' : '#fff', 20);
   if (grade === 'perfect') {
-    timeLeft = Math.min(timeMax, timeLeft + PERFECT_TIME);
+    const pt = hamT('perfTime', PERFECT_TIME);
+    timeLeft = Math.min(timeMax, timeLeft + pt);
     timeGlow = 1;
-    addPopup('⏱+' + PERFECT_TIME + '秒', W / 2, G.hudTop + G.hudH + 44, '#3fb8ff', 18);
+    addPopup('⏱+' + pt + '秒', W / 2, G.hudTop + G.hudH + 44, '#3fb8ff', 18);
   }
   if (combo >= 3) addPopup(combo + ' COMBO' + (mult > 1 ? ' x' + mult : ''), G.cx, G.groundY - G.blockH * blocks.length - G.catSize - 30 - drop, '#ffd23f', 20);
 
@@ -1235,11 +1310,9 @@ function update(dt) {
 
   if (state === 'clear') {
     catOff = lerp(catOff, 0, Math.min(1, dt * 5));
-    if (stateT > 2.6) {
-      if (stage % 5 === 0) startReward(grantRandomReward(), 'game');
-      else nextStage();
-    }
+    if (stateT > 2.6) afterClear();
   }
+  if (state === 'mini' && mini && mini.phase !== 'offer') updateMini(dt);
 
   if (wind) updateWind(dt);
   if (intr) updateIntruder(dt, P);
@@ -1637,13 +1710,13 @@ function onStackLand() {
 // ===================== ごほうび演出 =====================
 let reward = null; // { item, t, phase: 'box'|'open'|'show', from: 'game'|'title' }
 function itemDef(it) {
-  if (it.type === 'cat') return CATS.find(c => c.id === it.id);
-  if (it.type === 'hammer') return HAMMERS.find(h => h.id === it.id);
+  if (it.type === 'cat') return CATS.find(c => c.id === it.id) || CHEAT_CATS.find(c => c.id === it.id);
+  if (it.type === 'hammer') return HAMMERS.find(h => h.id === it.id) || CHEAT_HAMMERS.find(h => h.id === it.id);
   return null;
 }
 function startReward(item, from) {
   reward = { item, t: 0, phase: from === 'title' ? 'open' : 'box', from };
-  if (from === 'game') { state = 'reward'; stateT = 0; SFX.drum(); }
+  if (from !== 'title') { state = 'reward'; stateT = 0; SFX.drum(); }
   else { hide('titleScreen'); rewardOpen(); }
 }
 function rewardOpen() {
@@ -1664,7 +1737,18 @@ function updateReward(dt) {
   if (reward.phase === 'box' && reward.t > 1.9) rewardOpen();
   else if (reward.phase === 'open' && reward.t > 0.55) {
     reward.phase = 'show'; reward.t = 0;
-    $('rewardUse').classList.toggle('hidden', reward.item.type === 'bonus');
+    const it = reward.item;
+    $('rewardUse').classList.toggle('hidden', it.type === 'bonus');
+    if (it.cheat) {
+      // 肉球バッグに同じ種類が入っていたら、交換するか聞く
+      reward.swap = bag[it.type] || null;
+      $('rewardUse').classList.toggle('hidden', !reward.swap);
+      $('rewardUse').textContent = '交換する';
+      $('rewardNext').textContent = reward.swap ? 'やめる' : 'バッグにしまう';
+    } else {
+      $('rewardUse').textContent = 'これをつかう！';
+      $('rewardNext').textContent = 'つぎへ';
+    }
     show('rewardUI');
   }
 }
@@ -1673,14 +1757,370 @@ function rewardTap() {
 }
 function finishReward(use) {
   if (!reward) return;
-  if (use) equipItem(reward.item);
+  const it = reward.item;
+  if (it.cheat) {
+    if (!reward.swap || use) putInBag(it);   // バッグにしまう／交換する
+  } else if (use) equipItem(it);
   const from = reward.from;
   reward = null;
   hide('rewardUI');
   updateCollBadge();
-  if (from === 'game') nextStage();
+  if (from === 'game') afterReward();
+  else if (from === 'mini') nextStage();
   else { show('titleScreen'); requestAnimationFrame(measureTitle); }
 }
+
+// ===================== ミニゲーム（3〜5ステージごと・やるかは選べる） =====================
+const MINI_GAMES = {
+  fish:   { icon: '🐟', name: 'おさかなキャッチ', rule: 'ふってくるおさかなを<b>8ひき</b>タップしてつかまえよう！', time: 10, need: 8 },
+  mouse:  { icon: '🐭', name: 'ねずみたたき', rule: 'あなから出てくるねずみを<b>10ぴき</b>タップしよう！', time: 12, need: 10 },
+  memory: { icon: '🐱', name: 'ねこあわせ', rule: 'おなじねこのカードを<b>3くみ</b>そろえよう！', time: 20, need: 3 },
+  mash:   { icon: '🐾', name: 'かつおぶしけずり', rule: '画面をれんだして、かつおぶしを<b>30回</b>けずろう！', time: 6, need: 30 },
+  drop:   { icon: '🧺', name: 'ねこドロップ', rule: 'タップでねこを落として、かごに<b>3回</b>入れよう！（5回まで）', time: 0, need: 3, tries: 5 },
+};
+let mini = null;   // { kind, phase: 'intro'|'play'|'result', t, got, ok, ... }
+let miniAt = 4;    // このステージをクリアしたらミニゲームのチャンス
+let usedCheat = false;
+const randInt = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+
+// ステージクリア後の流れ：5ステージごとのごほうび → ミニゲームのチャンス → つぎのステージ
+function afterClear() {
+  if (state !== 'clear') return;
+  if (stage % 5 === 0) startReward(grantRandomReward(), 'game');
+  else afterReward();
+}
+function afterReward() {
+  if (stage >= miniAt) offerMini();
+  else nextStage();
+}
+function offerMini() {
+  miniAt = stage + randInt(3, 5);
+  const kinds = Object.keys(MINI_GAMES);
+  const kind = kinds[Math.floor(Math.random() * kinds.length)];
+  const g = MINI_GAMES[kind];
+  state = 'mini'; stateT = 0;
+  mini = { kind, phase: 'offer', t: 0 };
+  $('miniIcon').textContent = g.icon;
+  $('miniName').textContent = g.name;
+  $('miniRule').innerHTML = g.rule + (g.time ? `（${g.time}びょう）` : '');
+  show('miniOffer');
+  SFX.lucky();
+}
+function miniArea() {
+  const top = SAT + 150, bottom = H - SAB - 24;
+  return { x: 16, y: top, w: W - 32, h: Math.max(200, bottom - top) };
+}
+function startMini(kind) {
+  hide('miniOffer');
+  state = 'mini'; stateT = 0;
+  const g = MINI_GAMES[kind];
+  mini = { kind, phase: 'intro', t: 0, got: 0, left: g.time, items: [], spawn: 0, fx: [] };
+  const A = miniArea();
+  if (kind === 'memory') {
+    const pals = CATS.slice().sort(() => Math.random() - 0.5).slice(0, 3);
+    const deck = [...pals, ...pals].sort(() => Math.random() - 0.5);
+    mini.cards = deck.map(c => ({ cat: c, up: true, done: false, flip: 1 }));
+    mini.open = []; mini.wait = 0;
+  } else if (kind === 'drop') {
+    mini.tries = g.tries; mini.cat = { x: A.x + A.w / 2, y: A.y + 40, falling: false, vy: 0, ph: 0 };
+    mini.basket = { ph: Math.random() * 6 };
+  }
+}
+function skipMini() {
+  hide('miniOffer');
+  mini = null;
+  nextStage();
+}
+function endMini(ok) {
+  mini.phase = 'result'; mini.t = 0; mini.ok = ok;
+  if (ok) { SFX.fanfare(); flash = 0.25; } else SFX.unlucky();
+}
+function finishMini() {
+  const ok = mini.ok;
+  mini = null;
+  if (ok) startReward(pickCheat(), 'mini');
+  else nextStage();
+}
+// ごほうびのチートアイテム（いまバッグに入っているものは出ない）
+function pickCheat() {
+  const pool = [
+    ...CHEAT_CATS.filter(c => bag.cat !== c.id).map(c => ({ type: 'cat', id: c.id, cheat: true })),
+    ...CHEAT_HAMMERS.filter(h => bag.hammer !== h.id).map(h => ({ type: 'hammer', id: h.id, cheat: true })),
+  ];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+// 肉球バッグに入れる（同じ種類が入っていたら入れかえ）
+function putInBag(it) { bag[it.type] = it.id; }
+
+function updateMini(dt) {
+  const M = mini, g = MINI_GAMES[M.kind], A = miniArea();
+  M.t += dt;
+  for (const f of M.fx) f.t += dt;
+  M.fx = M.fx.filter(f => f.t < 0.7);
+  if (M.phase === 'intro') {
+    if (M.kind === 'memory' && M.t > 1.6) M.cards.forEach(c => { c.up = false; });
+    if (M.t > 1.8) { M.phase = 'play'; M.t = 0; SFX.go(); }
+    return;
+  }
+  if (M.phase === 'result') {
+    if (M.t > 1.7) finishMini();
+    return;
+  }
+  if (g.time) {
+    M.left -= dt;
+    if (M.left <= 0) { M.left = 0; endMini(false); return; }
+  }
+  if (M.kind === 'fish') {
+    M.spawn -= dt;
+    if (M.spawn <= 0) {
+      M.spawn = rand(0.4, 0.65);
+      M.items.push({ x: rand(A.x + 30, A.x + A.w - 30), y: A.y - 20, vy: rand(0.32, 0.45) * A.h, wob: rand(0, 6), col: ['#3fa7ff', '#ff9a3c', '#ff6fa5', '#2ec4b6'][randInt(0, 3)], gold: Math.random() < 0.12 });
+    }
+    for (const f of M.items) { f.y += f.vy * dt; f.wob += dt * 6; }
+    M.items = M.items.filter(f => f.y < A.y + A.h + 30);
+  } else if (M.kind === 'mouse') {
+    M.spawn -= dt;
+    const holes = mouseHoles(A);
+    if (M.spawn <= 0 && M.items.length < 2) {
+      M.spawn = rand(0.45, 0.7);
+      const free = holes.map((h, i) => i).filter(i => !M.items.some(m => m.hole === i));
+      M.items.push({ hole: free[randInt(0, free.length - 1)], t: 0, life: rand(0.85, 1.15), hit: false });
+    }
+    for (const m of M.items) m.t += dt;
+    M.items = M.items.filter(m => m.t < m.life);
+  } else if (M.kind === 'memory') {
+    for (const c of M.cards) c.flip = clamp(c.flip + (c.up || c.done ? 1 : -1) * dt * 7, 0, 1);
+    if (M.wait > 0) {
+      M.wait -= dt;
+      if (M.wait <= 0) { M.open.forEach(c => { c.up = false; }); M.open = []; }
+    }
+  } else if (M.kind === 'mash') {
+    // なにもしない（タップで進む）
+  } else if (M.kind === 'drop') {
+    const c = M.cat, b = M.basket;
+    b.ph += dt * 1.4;
+    if (!c.falling) { c.ph += dt * 2.2; c.x = A.x + A.w / 2 + Math.sin(c.ph) * (A.w / 2 - 40); }
+    else {
+      c.vy += 1500 * dt; c.y += c.vy * dt;
+      const bx = basketX(A), by = A.y + A.h - 50, bw = Math.min(140, A.w * 0.36);
+      if (c.y >= by - 10) {
+        const hit = Math.abs(c.x - bx) < bw / 2 - 8;
+        if (hit) { M.got++; SFX.lucky(); M.fx.push({ t: 0, x: bx, y: by - 30, text: 'ナイス！', col: '#ffd23f' }); }
+        else { SFX.weak(); M.fx.push({ t: 0, x: c.x, y: by - 30, text: 'おしい…', col: '#fff' }); }
+        c.falling = false; c.vy = 0; c.y = A.y + 40;
+        if (M.got >= g.need) { endMini(true); return; }
+        if (M.tries <= 0) { endMini(false); return; }
+      }
+    }
+  }
+}
+function mouseHoles(A) {
+  const cols = 3, rows = 3, cw = A.w / cols, rh = Math.min(A.h / rows, cw * 1.05);
+  const oy = A.y + (A.h - rh * rows) / 2;
+  const out = [];
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) out.push({ x: A.x + cw * (c + 0.5), y: oy + rh * (r + 0.7), r: Math.min(cw, rh) * 0.34 });
+  return out;
+}
+function memoryRects(A) {
+  const cols = 3, rows = 2, gap = 12;
+  const cw = Math.min((A.w - gap * (cols - 1)) / cols, ((A.h - gap) / rows) * 0.75);
+  const ch = cw / 0.75;
+  const ox = A.x + (A.w - (cw * cols + gap * (cols - 1))) / 2, oy = A.y + (A.h - (ch * rows + gap)) / 2;
+  return mini.cards.map((c, i) => ({ x: ox + (i % cols) * (cw + gap), y: oy + Math.floor(i / cols) * (ch + gap), w: cw, h: ch }));
+}
+function basketX(A) { return A.x + A.w / 2 + Math.sin(mini.basket.ph) * (A.w / 2 - 80); }
+
+function miniTap(px, py) {
+  const M = mini;
+  if (!M || M.phase !== 'play') return;
+  const g = MINI_GAMES[M.kind], A = miniArea();
+  if (M.kind === 'fish') {
+    let best = null, bd = 44;
+    for (const f of M.items) { const d = Math.hypot(f.x - px, f.y - py); if (d < bd) { bd = d; best = f; } }
+    if (best) {
+      M.items = M.items.filter(f => f !== best);
+      M.got += best.gold ? 2 : 1;
+      SFX.pop();
+      M.fx.push({ t: 0, x: best.x, y: best.y, text: best.gold ? '+2' : '+1', col: best.gold ? '#ffd23f' : '#fff' });
+    }
+  } else if (M.kind === 'mouse') {
+    const holes = mouseHoles(A);
+    for (const m of M.items) {
+      const h = holes[m.hole];
+      if (!m.hit && Math.hypot(h.x - px, h.y - h.r * 0.6 - py) < h.r * 1.5) {
+        m.hit = true; m.life = Math.min(m.life, m.t + 0.25);
+        M.got++; SFX.hammer();
+        M.fx.push({ t: 0, x: h.x, y: h.y - h.r * 1.6, text: 'ポカッ！', col: '#fff' });
+        break;
+      }
+    }
+  } else if (M.kind === 'memory') {
+    if (M.wait > 0 || M.open.length >= 2) return;
+    const rs = memoryRects(A);
+    rs.forEach((r, i) => {
+      const c = M.cards[i];
+      if (c.up || c.done || px < r.x || px > r.x + r.w || py < r.y || py > r.y + r.h) return;
+      c.up = true; M.open.push(c); SFX.tick();
+      if (M.open.length === 2) {
+        const [a, b] = M.open;
+        if (a.cat.id === b.cat.id) {
+          a.done = b.done = true; M.open = []; M.got++; SFX.nya(true);
+          M.fx.push({ t: 0, x: r.x + r.w / 2, y: r.y, text: 'そろった！', col: '#ffd23f' });
+        } else M.wait = 0.7;
+      }
+    });
+  } else if (M.kind === 'mash') {
+    M.got++;
+    tone(500 + (M.got % 5) * 60, 300, 0.05, 'square', 0.12);
+    M.fx.push({ t: 0, x: px + rand(-20, 20), y: py - 20, text: ['シャッ', 'ザッ', 'シュッ'][M.got % 3], col: '#fff' });
+    for (let i = 0; i < 3; i++) particles.push({ x: W / 2 + rand(-40, 40), y: A.y + A.h * 0.55, vx: rand(-260, 260), vy: rand(-420, -160), life: rand(0.5, 0.9), t: 0, color: ['#f7d9a8', '#e8b878', '#fff1d6'][i], size: rand(3, 6), confetti: true, rot: rand(0, 6), vr: rand(-12, 12), g: 900 });
+  } else if (M.kind === 'drop') {
+    if (M.cat.falling || M.tries <= 0) return;
+    M.cat.falling = true; M.tries--; SFX.whoosh(0.4);
+  }
+  if (M.kind !== 'drop' && M.got >= g.need) endMini(true);
+}
+
+function drawMini() {
+  const M = mini, g = MINI_GAMES[M.kind], A = miniArea();
+  ctx.fillStyle = 'rgba(255, 238, 246, 0.97)';
+  ctx.fillRect(0, 0, W, H);
+  // ヘッダー
+  outlinedText(g.icon + ' ' + g.name, W / 2, SAT + 78, Math.min(26, W / 14), '#ff5a7a');
+  const prog = M.kind === 'drop' ? `${M.got} / ${g.need}　のこり ${M.tries}回` : `${Math.min(M.got, g.need)} / ${g.need}`;
+  outlinedText(prog, W / 2, SAT + 108, 20, '#fff');
+  if (g.time) {
+    const bw = Math.min(W - 60, 300), bx = (W - bw) / 2, by = SAT + 126;
+    ctx.fillStyle = 'rgba(91,58,41,0.2)'; roundRect(bx, by, bw, 12, 6); ctx.fill();
+    ctx.fillStyle = M.left < 3 ? '#ff5a4f' : '#5ccf6a'; roundRect(bx, by, bw * (M.left / g.time), 12, 6); ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = INK; roundRect(bx, by, bw, 12, 6); ctx.stroke();
+  }
+  ctx.save();
+  if (M.kind === 'fish') drawMiniFish(M, A);
+  else if (M.kind === 'mouse') drawMiniMouse(M, A);
+  else if (M.kind === 'memory') drawMiniMemory(M, A);
+  else if (M.kind === 'mash') drawMiniMash(M, A);
+  else if (M.kind === 'drop') drawMiniDrop(M, A);
+  ctx.restore();
+  for (const f of M.fx) {
+    ctx.save(); ctx.globalAlpha = 1 - f.t / 0.7;
+    outlinedText(f.text, f.x, f.y - f.t * 40, 20, f.col);
+    ctx.restore();
+  }
+  if (M.phase === 'intro') {
+    ctx.fillStyle = 'rgba(70,25,50,0.35)'; ctx.fillRect(0, 0, W, H);
+    outlinedText(M.t < 0.9 ? 'よーい…' : 'スタート！', W / 2, H * 0.45, 40, '#ffd23f');
+  } else if (M.phase === 'result') {
+    ctx.fillStyle = 'rgba(70,25,50,0.35)'; ctx.fillRect(0, 0, W, H);
+    const k = Math.min(1, M.t / 0.3);
+    outlinedText(M.ok ? 'クリア！' : 'ざんねん…', W / 2, H * 0.45, 30 + 14 * k, M.ok ? '#ffd23f' : '#fff');
+    if (M.ok) outlinedText('チートアイテムをゲット！', W / 2, H * 0.45 + 46, 20, '#fff');
+  }
+}
+function drawFish(x, y, r, col, rot) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+  ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.fillStyle = col;
+  ctx.beginPath(); ctx.moveTo(r * 0.8, 0); ctx.lineTo(r * 1.5, -r * 0.55); ctx.lineTo(r * 1.5, r * 0.55); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(0, 0, r, r * 0.6, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(-r * 0.5, -r * 0.12, r * 0.18, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(-r * 0.5, -r * 0.12, r * 0.09, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+function drawMiniFish(M, A) {
+  for (const f of M.items) {
+    if (f.gold) { ctx.save(); ctx.globalAlpha = 0.5; drawStar(f.x, f.y, 30, '#fff3a6', 0.8); ctx.restore(); }
+    drawFish(f.x, f.y, 22, f.gold ? '#ffcc33' : f.col, Math.PI / 2 + Math.sin(f.wob) * 0.3);
+  }
+  // 下でまつねこ
+  drawCat(W / 2, A.y + A.h + 10, 70, 0, { pal: curCat().pal, mood: M.got ? 'happy' : 'normal', squash: 0, blink: 0 });
+}
+function drawMiniMouse(M, A) {
+  const holes = mouseHoles(A);
+  for (let i = 0; i < holes.length; i++) {
+    const h = holes[i];
+    ctx.fillStyle = '#7a5038'; ctx.beginPath(); ctx.ellipse(h.x, h.y, h.r * 1.25, h.r * 0.45, 0, 0, Math.PI * 2); ctx.fill();
+    const m = M.items.find(o => o.hole === i);
+    if (m) {
+      const up = Math.min(1, m.t / 0.12, (m.life - m.t) / 0.12);
+      ctx.save();
+      ctx.beginPath(); ctx.rect(h.x - h.r * 2, h.y - h.r * 3, h.r * 4, h.r * 3); ctx.clip();
+      const my = h.y - up * h.r * 1.1;
+      ctx.lineWidth = 3; ctx.strokeStyle = INK;
+      ctx.fillStyle = m.hit ? '#d9cfe0' : '#a9a3b5';
+      for (const sx of [-1, 1]) { ctx.beginPath(); ctx.arc(h.x + sx * h.r * 0.62, my - h.r * 0.7, h.r * 0.38, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
+      ctx.beginPath(); ctx.ellipse(h.x, my, h.r * 0.8, h.r * 0.75, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = INK;
+      if (m.hit) { ctx.font = `bold ${h.r * 0.5}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('× ×', h.x, my - h.r * 0.1); }
+      else { for (const sx of [-1, 1]) { ctx.beginPath(); ctx.arc(h.x + sx * h.r * 0.28, my - h.r * 0.15, h.r * 0.1, 0, Math.PI * 2); ctx.fill(); } }
+      ctx.fillStyle = '#ff9fb2'; ctx.beginPath(); ctx.arc(h.x, my + h.r * 0.15, h.r * 0.12, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+    ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(h.x, h.y, h.r * 1.25, h.r * 0.45, 0, 0, Math.PI); ctx.stroke();
+  }
+}
+function drawMiniMemory(M, A) {
+  const rs = memoryRects(A);
+  rs.forEach((r, i) => {
+    const c = M.cards[i];
+    const f = c.flip, sx = Math.abs(f * 2 - 1);
+    ctx.save();
+    ctx.translate(r.x + r.w / 2, r.y + r.h / 2); ctx.scale(Math.max(0.04, sx), 1);
+    ctx.lineWidth = 3; ctx.strokeStyle = INK;
+    if (f > 0.5) {
+      ctx.fillStyle = c.done ? '#fff7c2' : '#ffffff'; roundRect(-r.w / 2, -r.h / 2, r.w, r.h, 12); ctx.fill(); ctx.stroke();
+      drawCat(0, r.h * 0.36, r.w * 0.78, 0, { pal: c.cat.pal, mood: c.done ? 'happy' : 'normal', squash: 0, blink: 0 });
+    } else {
+      ctx.fillStyle = '#ff9fbd'; roundRect(-r.w / 2, -r.h / 2, r.w, r.h, 12); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      const u = r.w * 0.12;
+      ctx.beginPath(); ctx.ellipse(0, u * 0.8, u * 1.1, u * 0.9, 0, 0, Math.PI * 2); ctx.fill();
+      for (const [tx, ty] of [[-1.1, -0.6], [-0.4, -1.3], [0.4, -1.3], [1.1, -0.6]]) { ctx.beginPath(); ctx.arc(tx * u, ty * u, u * 0.42, 0, Math.PI * 2); ctx.fill(); }
+    }
+    ctx.restore();
+  });
+}
+function drawMiniMash(M, A) {
+  const g = MINI_GAMES.mash, k = 1 - Math.min(1, M.got / g.need);
+  const cx = W / 2, cy = A.y + A.h * 0.55;
+  const bw = Math.min(A.w * 0.7, 240) * (0.35 + 0.65 * k), bh = 70;
+  ctx.save(); ctx.translate(cx, cy); ctx.rotate(-0.08 + Math.sin(gtime * 30) * (M.phase === 'play' ? 0.01 : 0));
+  ctx.lineWidth = 4; ctx.strokeStyle = INK;
+  const gr = ctx.createLinearGradient(0, -bh / 2, 0, bh / 2); gr.addColorStop(0, '#b5733c'); gr.addColorStop(1, '#6e3f1f');
+  ctx.fillStyle = gr; roundRect(-bw / 2, -bh / 2, bw, bh, bh * 0.45); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,220,170,0.35)'; ctx.lineWidth = 3;
+  for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(-bw / 2 + 14, i * 10); ctx.lineTo(bw / 2 - 14, i * 10 + 4); ctx.stroke(); }
+  ctx.restore();
+  // けずりぶしの山
+  const pile = Math.min(1, M.got / g.need);
+  ctx.fillStyle = '#f3cf98'; ctx.strokeStyle = INK; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.ellipse(cx, A.y + A.h - 40, 30 + pile * 90, 8 + pile * 34, 0, Math.PI, Math.PI * 2); ctx.closePath(); ctx.fill(); ctx.stroke();
+  drawCat(cx + Math.min(150, A.w * 0.36), A.y + A.h - 30, 64, 0, { pal: curCat().pal, mood: M.got > g.need * 0.6 ? 'happy' : 'normal', squash: 0, blink: 0 });
+  if (M.phase === 'play') {
+    ctx.save(); ctx.globalAlpha = 0.6 + 0.4 * Math.sin(gtime * 10);
+    outlinedText('れんだ！ れんだ！', cx, A.y + 30, 24, '#fff');
+    ctx.restore();
+  }
+}
+function drawMiniDrop(M, A) {
+  const by = A.y + A.h - 50, bw = Math.min(140, A.w * 0.36), bx = basketX(A);
+  // かご
+  ctx.lineWidth = 4; ctx.strokeStyle = INK; ctx.fillStyle = '#e0a45a';
+  ctx.beginPath(); ctx.moveTo(bx - bw / 2, by - 20); ctx.lineTo(bx + bw / 2, by - 20); ctx.lineTo(bx + bw / 2 - 14, by + 34); ctx.lineTo(bx - bw / 2 + 14, by + 34); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = 'rgba(91,58,41,0.5)'; ctx.lineWidth = 2;
+  for (let i = 1; i < 4; i++) { ctx.beginPath(); ctx.moveTo(bx - bw / 2 + 4, by - 20 + i * 13); ctx.lineTo(bx + bw / 2 - 4, by - 20 + i * 13); ctx.stroke(); }
+  ctx.fillStyle = '#ff9fbd'; ctx.strokeStyle = INK; ctx.lineWidth = 3;
+  roundRect(bx - bw / 2 - 6, by - 26, bw + 12, 12, 6); ctx.fill(); ctx.stroke();
+  // つり下げのひも
+  const c = M.cat;
+  if (!c.falling) { ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(c.x, A.y - 30); ctx.lineTo(c.x, c.y - 52); ctx.stroke(); }
+  drawCat(c.x, c.y + 10, 60, c.falling ? Math.sin(gtime * 20) * 0.15 : Math.sin(c.ph * 2) * 0.1, { pal: curCat().pal, mood: c.falling ? 'scared' : 'normal', squash: 0, blink: 0 });
+  if (M.phase === 'play' && !c.falling) {
+    ctx.save(); ctx.globalAlpha = 0.5 + 0.5 * Math.sin(gtime * 6);
+    outlinedText('タップで落とす！', W / 2, A.y + A.h * 0.45, 20, '#fff');
+    ctx.restore();
+  }
+}
+
 
 function drawGiftBox(x, y, sz, lidUp, rot) {
   ctx.save();
@@ -1721,7 +2161,7 @@ function drawReward() {
     const y = lerp(-sz, cy, bounce) + (k >= 1 ? -Math.abs(Math.sin(R.t * 6)) * 8 : 0);
     const shake = R.t > 0.7 ? Math.sin(R.t * 40) * 0.1 * Math.min(1, (R.t - 0.7) * 1.5) : 0;
     drawGiftBox(cx, y, sz, 0, shake);
-    outlinedText(R.from === 'game' ? `STAGE ${stage} クリアのごほうび！` : 'ひみつ発見！', cx, cy - sz * 1.05, 22, '#ffd23f');
+    outlinedText(R.from === 'game' ? `STAGE ${stage} クリアのごほうび！` : R.from === 'mini' ? 'ミニゲームクリアのごほうび！' : 'ひみつ発見！', cx, cy - sz * 1.05, 22, '#ffd23f');
     if (R.t > 0.5) {
       ctx.save(); ctx.globalAlpha = 0.5 + 0.5 * Math.sin(gtime * 8);
       outlinedText('タップであける！', cx, cy + sz * 0.85, 20, '#fff');
@@ -1765,10 +2205,14 @@ function drawReward() {
   ctx.save();
   ctx.translate(cx, ty);
   ctx.rotate(-0.06);
-  ctx.fillStyle = gold ? '#ffcc33' : '#ff5a7a';
+  if (R.item.cheat) {
+    const rg = ctx.createLinearGradient(-62, 0, 62, 0);
+    ['#ff6fa5', '#ffb03a', '#ffd23f', '#5ccf6a', '#3fa7ff', '#a77bff'].forEach((c, i) => rg.addColorStop(i / 5, c));
+    ctx.fillStyle = rg;
+  } else ctx.fillStyle = gold ? '#ffcc33' : '#ff5a7a';
   roundRect(-62, -20, 124, 40, 12); ctx.fill();
   ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.stroke();
-  outlinedText(R.item.type === 'bonus' ? 'COMPLETE!' : 'NEW!', 0, 1, 24, '#fff');
+  outlinedText(R.item.type === 'bonus' ? 'COMPLETE!' : R.item.cheat ? 'CHEAT!' : 'NEW!', 0, 1, 24, '#fff');
   ctx.restore();
   const by = cy + sz * 0.78;
   if (R.item.type === 'bonus') {
@@ -1784,6 +2228,11 @@ function drawReward() {
     ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.stroke();
     ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(def.desc, cx, by + 37, W - 56);
+    if (R.item.cheat) {
+      const old = R.swap ? itemDef({ type: R.item.type, id: R.swap }) : null;
+      const msg = old ? `🐾 肉球バッグの「${old.short || old.name}」と交換する？` : '🐾 肉球バッグに入れて、好きなステージで使おう';
+      outlinedText(msg, cx, by + 76, Math.min(17, W / 22), old ? '#ffd23f' : '#fff');
+    }
   }
 }
 
@@ -1882,6 +2331,78 @@ function buildCollection() {
   };
   mk('cat', CATS, 'catGrid', 'catDetail', 'catCount');
   mk('hammer', HAMMERS, 'hamGrid', 'hamDetail', 'hamCount');
+}
+// 肉球バッグ（ゲーム中に左上の🐾ボタンから）：使うとそのステージのあいだだけ効く
+let bagSel = null;
+const canUseBag = () => ['build', 'ready', 'play'].includes(state) && !reward && !mini;
+function openBag() {
+  if (!canUseBag() || paused || !(bag.cat || bag.hammer)) return;
+  paused = true;
+  bagSel = bag.cat ? 'cat' : 'hammer';
+  buildBag();
+  show('bagScreen');
+  SFX.tick();
+}
+function closeBag() {
+  hide('bagScreen');
+  paused = false;
+  BGM.ensure();
+}
+function buildBag() {
+  const grid = $('bagGrid');
+  grid.innerHTML = '';
+  for (const type of ['cat', 'hammer']) {
+    const id = bag[type];
+    const d = id ? itemDef({ type, id }) : null;
+    const btn = document.createElement('button');
+    if (!d) {
+      btn.className = 'slot empty';
+      const m = document.createElement('div'); m.className = 'empty-mark'; m.textContent = '🐾';
+      btn.appendChild(m);
+      const lab = document.createElement('span'); lab.textContent = cheatUse[type] ? 'つかっている' : 'からっぽ';
+      btn.appendChild(lab);
+    } else {
+      btn.className = 'slot cheat' + (bagSel === type ? ' sel' : '');
+      btn.appendChild(renderThumb(type, d, true, 64));
+      const lab = document.createElement('span'); lab.textContent = d.short || d.name;
+      btn.appendChild(lab);
+      btn.addEventListener('click', e => { e.stopPropagation(); bagSel = type; SFX.tick(); buildBag(); });
+    }
+    grid.appendChild(btn);
+  }
+  const id = bagSel && bag[bagSel];
+  const d = id ? itemDef({ type: bagSel, id }) : null;
+  $('bagDetail').innerHTML = d ? `<b>${escapeHTML(bagSel === 'cat' ? d.kind + '「' + d.name + '」' : d.name)}</b><br>${escapeHTML(d.desc)}` : 'ミニゲームをクリアするとチートアイテムがもらえるよ';
+  $('bagUse').classList.toggle('hidden', !d);
+}
+function useBagItem() {
+  const type = bagSel, id = type && bag[type];
+  if (!id) return;
+  const oldTime = catT('time');
+  cheatUse[type] = id;
+  bag[type] = null;
+  usedCheat = true;
+  // 時間がのびるねこは、使ったときから残り時間ものびる
+  const k = catT('time') / oldTime;
+  if (k !== 1) { timeMax *= k; timeLeft *= k; }
+  const d = itemDef({ type, id });
+  closeBag();
+  SFX.lucky(); flash = 0.25;
+  addPopup('🐾 ' + (d.short || d.name) + ' 発動！', W / 2, G.hudTop + G.hudH + 60, '#ffd23f', 24);
+  for (let i = 0; i < 30; i++) {
+    particles.push({ x: G.cx + rand(-60, 60), y: G.groundY - G.catSize, vx: rand(-300, 300), vy: rand(-500, -150), life: rand(0.6, 1.1), t: 0,
+      color: ['#ff6fa5', '#ffd23f', '#5ccf6a', '#3fa7ff', '#a77bff'][i % 5], size: rand(3, 6), star: i % 2 === 0, confetti: i % 2 === 1, rot: rand(0, 6), vr: rand(-10, 10), g: 600 });
+  }
+}
+let bagBtnKey = '';
+function updateBagBtn() {
+  const n = (bag.cat ? 1 : 0) + (bag.hammer ? 1 : 0);
+  const vis = n > 0 && canUseBag() && !paused;
+  const key = vis + ':' + n;
+  if (key === bagBtnKey) return;
+  bagBtnKey = key;
+  $('bagBtn').classList.toggle('hidden', !vis);
+  $('bagCount').textContent = n;
 }
 function updateCollBadge() { $('collBtn').classList.toggle('has-new', coll.fresh.length > 0); }
 
@@ -3109,6 +3630,23 @@ function drawHammerHead(w, h, def) {
     ctx.fillStyle = '#ff7aa2';
     ctx.beginPath(); ctx.ellipse(0, h * 0.12, w * 0.13, h * 0.2, 0, 0, Math.PI * 2); ctx.fill();
     for (const [tx, ty] of [[-0.15, -0.16], [0, -0.26], [0.15, -0.16]]) { ctx.beginPath(); ctx.arc(tx * w, ty * h, h * 0.09, 0, Math.PI * 2); ctx.fill(); }
+  } else if (id === 'thunder') {
+    ctx.fillStyle = vgrad('#9fd6ff', '#3fa7ff', '#1e6fc0'); path(); ctx.fill();
+    ctx.fillStyle = '#ffe14d'; ctx.strokeStyle = INK; ctx.lineWidth = lw * 0.6;
+    ctx.beginPath(); ctx.moveTo(w * 0.06, -h * 0.4); ctx.lineTo(-w * 0.14, h * 0.05); ctx.lineTo(0, h * 0.05); ctx.lineTo(-w * 0.06, h * 0.4); ctx.lineTo(w * 0.15, -h * 0.08); ctx.lineTo(0, -h * 0.08); ctx.closePath(); ctx.fill(); ctx.stroke();
+  } else if (id === 'jumbo') {
+    ctx.fillStyle = vgrad('#e3d1ff', '#a77bff', '#6b46c1'); path(); ctx.fill();
+    drawStar(-w * 0.22, -h * 0.05, h * 0.16, '#fff3a6', 1);
+    drawStar(w * 0.2, h * 0.08, h * 0.12, '#ffc1dc', 1);
+    drawStar(w * 0.02, -h * 0.22, h * 0.09, '#fff', 0.9);
+  } else if (id === 'tokei') {
+    ctx.fillStyle = vgrad('#a8f0e6', '#2ec4b6', '#178f84'); path(); ctx.fill();
+    ctx.fillStyle = '#fffdf5'; ctx.strokeStyle = INK; ctx.lineWidth = lw * 0.6;
+    ctx.beginPath(); ctx.arc(0, 0, h * 0.32, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.lineCap = 'round';
+    const ang = gtime * 2;
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(ang) * h * 0.22, Math.sin(ang) * h * 0.22); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -h * 0.16); ctx.stroke();
   } else if (id === 'gold') {
     ctx.fillStyle = vgrad('#fff3a6', '#ffcc33', '#b8860b'); path(); ctx.fill();
     ctx.save(); path(); ctx.clip();
@@ -3205,15 +3743,32 @@ function drawHUD() {
   // コンボ（右側：ボタンの下）
   if (combo >= 2) outlinedText(combo + ' COMBO', W - 12, top + 86, 16, '#ff6fa5', 'right');
 
-  // アイテムの効果（のこり時間つき）
-  let chipX = left, chipY = top + 78;
+  // アイテムの効果（のこり時間つき）。左上に🐾ボタンがあるときはその右から
+  let chipX = (bag.cat || bag.hammer) && canUseBag() ? left + 56 : left, chipY = top + 78;
+  const chipL = chipX;
+  // 使っているチートアイテム（このステージのあいだ）
+  for (const type of ['cat', 'hammer']) {
+    if (!cheatUse[type] || !['build', 'ready', 'play'].includes(state)) continue;
+    const d = itemDef({ type, id: cheatUse[type] });
+    const txt = '🐾 ' + (d.short || d.name);
+    ctx.font = `bold 12px ${FONT}`;
+    const cw = 16 + ctx.measureText(txt).width, ch = 24;
+    if (chipX > chipL && chipX + cw > W - 12) { chipX = chipL; chipY += ch + 4; }
+    const rg = ctx.createLinearGradient(chipX, 0, chipX + cw, 0);
+    rg.addColorStop(0, '#ffd6e7'); rg.addColorStop(0.5, '#fff6c9'); rg.addColorStop(1, '#d6efff');
+    ctx.fillStyle = rg; roundRect(chipX, chipY, cw, ch, 12); ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = INK; ctx.stroke();
+    ctx.fillStyle = INK; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(txt, chipX + 8, chipY + ch / 2 + 1);
+    chipX += cw + 6;
+  }
   for (const k of ['slow', 'wide', 'calm', 'fast']) {
     if (buffs[k] <= 0 || state !== 'play') continue;
     const info = BUFF_INFO[k], good = DROPS[info.icon].good;
     const txt = info.label + ' ' + Math.ceil(buffs[k]);
     ctx.font = `bold 12px ${FONT}`;
     const cw = 34 + ctx.measureText(txt).width, ch = 24;
-    if (chipX > left && chipX + cw > W - 12) { chipX = left; chipY += ch + 4; }
+    if (chipX > chipL && chipX + cw > W - 12) { chipX = chipL; chipY += ch + 4; }
     const cy = chipY;
     const blink = buffs[k] < 1.5 ? 0.55 + 0.45 * Math.sin(gtime * 16) : 1;
     ctx.save(); ctx.globalAlpha = blink;
@@ -3399,6 +3954,7 @@ function drawDanger() {
 }
 
 function render() {
+  updateBagBtn();
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.save();
   if (shake > 0) ctx.translate(rand(-shake, shake) * 0.5, rand(-shake, shake) * 0.5);
@@ -3418,6 +3974,10 @@ function render() {
   drawMeter();
   drawBanner();
   drawDropFx();
+  if (state === 'mini' && mini && mini.phase !== 'offer') {
+    drawMini();
+    ctx.save(); drawParticles(); ctx.restore();
+  }
   if (reward) {
     drawReward();
     ctx.save(); drawParticles(); drawPopups(); ctx.restore();
@@ -3464,7 +4024,8 @@ cvs.addEventListener('pointerdown', e => {
     }
   }
   else if (state === 'play' && !paused) { if (!tapDrop(e.clientX, e.clientY)) strike(e.clientX < W / 2 ? -1 : 1); }
-  else if (state === 'clear' && stateT > 1.0) nextStage();
+  else if (state === 'mini' && !paused) miniTap(e.clientX, e.clientY);
+  else if (state === 'clear' && stateT > 1.0) afterClear();
 }, { passive: false });
 cvs.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
 cvs.addEventListener('touchend', e => e.preventDefault(), { passive: false });
@@ -3483,12 +4044,12 @@ window.addEventListener('keydown', e => {
   }
   else if (e.key === 'Enter' || e.key === ' ') {
     if (state === 'title' && !anyOverlayOpen()) { $('startBtn').click(); e.preventDefault(); }
-    else if (state === 'clear' && stateT > 1.0) nextStage();
+    else if (state === 'clear' && stateT > 1.0) afterClear();
   }
 });
 
-function inGame() { return ['build', 'ready', 'play', 'clear', 'reward'].includes(state); }
-function anyOverlayOpen() { return ['howScreen', 'rankScreen', 'overScreen', 'pauseScreen', 'collScreen', 'resetScreen'].some(id => !$(id).classList.contains('hidden')); }
+function inGame() { return ['build', 'ready', 'play', 'clear', 'reward', 'mini'].includes(state); }
+function anyOverlayOpen() { return ['howScreen', 'rankScreen', 'overScreen', 'pauseScreen', 'collScreen', 'resetScreen', 'miniOffer', 'bagScreen'].some(id => !$(id).classList.contains('hidden')); }
 
 // ===================== UI =====================
 function show(id) { $(id).classList.remove('hidden'); }
@@ -3517,7 +4078,7 @@ function renderRanking(highlightId) {
   const medals = ['🥇', '🥈', '🥉'];
   let html = '<table class="rank"><tr><th></th><th style="text-align:left">なまえ</th><th style="text-align:right">スコア</th><th style="text-align:right">STAGE</th></tr>';
   r.forEach((e, i) => {
-    html += `<tr class="${e.id === highlightId ? 'me' : ''}"><td>${medals[i] || (i + 1)}</td><td>${escapeHTML(e.name)}</td><td>${e.score}</td><td>${e.stage}</td></tr>`;
+    html += `<tr class="${e.id === highlightId ? 'me' : ''}"><td>${medals[i] || (i + 1)}</td><td>${escapeHTML(e.name)}${e.cheat ? ' <span title="チートアイテムを使った記録">🐾</span>' : ''}</td><td>${e.score}</td><td>${e.stage}</td></tr>`;
   });
   html += '</table>';
   el.innerHTML = html;
@@ -3539,7 +4100,7 @@ function showOver() {
   $('newRec').classList.toggle('hidden', !isNewRec);
   sessionBest = Math.max(sessionBest, score);
   const qualifies = score > 0 && (r.length < 10 || score > r[r.length - 1].score);
-  pendingResult = qualifies ? { score, stage, tier: maxTier, combo: maxCombo } : null;
+  pendingResult = qualifies ? { score, stage, tier: maxTier, combo: maxCombo, cheat: usedCheat } : null;
   if (qualifies) {
     let pos = r.findIndex(e => score > e.score);
     if (pos < 0) pos = r.length;
@@ -3560,7 +4121,7 @@ function savePending() {
   try { localStorage.setItem(NAME_KEY, name); } catch (e) {}
   const r = loadRanking();
   const id = Date.now() + '-' + Math.random().toString(36).slice(2, 7);
-  r.push({ id, name, score: pendingResult.score, stage: pendingResult.stage, tier: pendingResult.tier, combo: pendingResult.combo, date: new Date().toISOString() });
+  r.push({ id, name, score: pendingResult.score, stage: pendingResult.stage, tier: pendingResult.tier, combo: pendingResult.combo, cheat: pendingResult.cheat || undefined, date: new Date().toISOString() });
   r.sort((a, b) => b.score - a.score);
   const top = r.slice(0, 10);
   saveRanking(top);
@@ -3580,8 +4141,8 @@ function goTitle() {
   debris = []; flying = []; popups = []; particles = [];
   drops = []; parade = []; dropFx = null; horde = 0; buffs = { slow: 0, fast: 0, wide: 0, calm: 0 };
   wob.w = 0; wob.v = 0; drop = 0;
-  ['overScreen', 'pauseScreen', 'rankScreen', 'howScreen', 'collScreen', 'resetScreen', 'rewardUI'].forEach(hide);
-  reward = null;
+  ['overScreen', 'pauseScreen', 'rankScreen', 'howScreen', 'collScreen', 'resetScreen', 'rewardUI', 'miniOffer', 'bagScreen'].forEach(hide);
+  reward = null; mini = null; resetBag();
   hide('pauseBtn');
   updateTitleBest();
   show('titleScreen');
@@ -3594,6 +4155,7 @@ function goTitle() {
 
 function togglePause(force) {
   if (!inGame()) return;
+  if (!$('bagScreen').classList.contains('hidden')) return; // 肉球バッグを開いているあいだは止まっている
   paused = force !== undefined ? force : !paused;
   if (paused) show('pauseScreen'); else hide('pauseScreen');
   BGM.ensure();
@@ -3636,6 +4198,11 @@ tapBtn('resetYes', () => {
   SFX.pop();
 });
 tapBtn('rewardUse', () => finishReward(true));
+tapBtn('bagBtn', () => openBag());
+tapBtn('bagClose', () => closeBag());
+tapBtn('bagUse', () => useBagItem());
+tapBtn('miniYes', () => { if (mini && mini.phase === 'offer') startMini(mini.kind); });
+tapBtn('miniNo', () => { if (mini && mini.phase === 'offer') skipMini(); });
 tapBtn('rewardNext', () => finishReward(false));
 tapBtn('bgmBtn', () => { BGM.setOn(!BGM.on); updateMuteBtn(); });
 tapBtn('muteBtn', () => {
@@ -3705,7 +4272,7 @@ window.__neko = { get state() { return state; }, get score() { return score; }, 
   startWind, startIntruder, reseatNow() { reseatTimer = 0; }, morphNow() { morphTimer = 0; },
   get catOff() { return catOff; }, get wind() { return wind; }, get intr() { return intr; }, get seat() { return seatBlock(); },
   get bias() { return balanceBias(); }, get dxs() { return blocks.map(b => b.dx); },
-  tick(dt) { update(dt); }, jiggle(p) { jiggleAll(p); }, get blocksArr() { return blocks; }, zones() { return zonesFor(params()); }, coll() { return coll; }, get reward() { return reward; }, unlockAll() { CATS.forEach(c => unlockItem({ type: 'cat', id: c.id })); HAMMERS.forEach(h => unlockItem({ type: 'hammer', id: h.id })); }, get bgm() { return { song: BGM.song, running: !!BGM.timer, step: BGM.step, on: BGM.on }; }, get cooldown() { return cooldown; }, get timeLeft() { return timeLeft; }, get timeMax() { return timeMax; }, get tcat() { return tcat; }, spawnDrop, catchDrop, tapDrop, dropPos, get drops() { return drops; }, get buffs() { return buffs; }, get parade() { return parade; }, get horde() { return horde; }, get intr() { return intr; }, get wind() { return wind; }, get titleTaps() { return titleTaps; }, titleLayout, params, renderIcon };
+  tick(dt) { update(dt); }, jiggle(p) { jiggleAll(p); }, get blocksArr() { return blocks; }, zones() { return zonesFor(params()); }, coll() { return coll; }, get reward() { return reward; }, unlockAll() { CATS.forEach(c => unlockItem({ type: 'cat', id: c.id })); HAMMERS.forEach(h => unlockItem({ type: 'hammer', id: h.id })); }, get bgm() { return { song: BGM.song, running: !!BGM.timer, step: BGM.step, on: BGM.on }; }, get cooldown() { return cooldown; }, get timeLeft() { return timeLeft; }, get timeMax() { return timeMax; }, get tcat() { return tcat; }, spawnDrop, catchDrop, tapDrop, dropPos, get drops() { return drops; }, get buffs() { return buffs; }, get parade() { return parade; }, get horde() { return horde; }, get intr() { return intr; }, get wind() { return wind; }, get titleTaps() { return titleTaps; }, titleLayout, params, renderIcon, get mini() { return mini; }, startMini, miniTap, offerMini, endMini, afterClear, get miniAt() { return miniAt; }, setMiniAt(v) { miniAt = v; }, pickCheat, putInBag, finishReward, get usedCheat() { return usedCheat; }, get bag() { return bag; }, get cheatUse() { return cheatUse; }, openBag, useBagItem, closeBag, startReward, curCat, curHammer, miniArea, mouseHoles, memoryRects, basketX, stageClear, setStage(v) { stage = v; } };
 };
 
 // ===================== アプリ起動 =====================
