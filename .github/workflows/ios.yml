@@ -80,6 +80,9 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "バージョン $VERSION（ビルド ${{ github.run_number }}）"
+          # アプリ内の「アプリの状態」画面にビルド番号を出す
+          sed -i '' "s|<meta name=\"build\" content=\"[^\"]*\">|<meta name=\"build\" content=\"$VERSION (${{ github.run_number }})\">|" ios/App/App/public/index.html
+          grep -o '<meta name="build"[^>]*>' ios/App/App/public/index.html
           xcodebuild -project "$PROJECT" -scheme App -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/App.xcarchive" \

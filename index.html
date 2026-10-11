@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="build" content="1.0.0">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -304,6 +305,15 @@
   </div>
 </div>
 
+<!-- 調べるための画面（タイトルの「ハイスコア」を5回つづけてタップ） -->
+<div class="overlay hidden" id="diagScreen">
+  <div class="card">
+    <h2>アプリの状態</h2>
+    <pre id="diagText" style="text-align:left;font-size:11px;line-height:1.5;white-space:pre-wrap;word-break:break-all;max-height:55vh;overflow:auto;background:#fff;border-radius:10px;padding:8px;-webkit-user-select:text;user-select:text"></pre>
+    <button class="btn" id="diagClose">とじる</button>
+  </div>
+</div>
+
 <!-- データリセットの確認 -->
 <div class="overlay hidden" id="resetScreen">
   <div class="card confirm">
@@ -457,11 +467,21 @@ let W = 0, H = 0, DPR = 1, SAT = 0, SAB = 0, SAR = 0;
 let artMode = false; // ストア用の絵を撮るとき（スコアやメーターを描かない）
 const G = {}; // レイアウト
 
+// CSS 変数をそのまま読むと、iOS では「env(safe-area-inset-top)」という式のまま返ってきて 0 になることがある。
+// 見えない要素に余白としてあて、実際の大きさを測る
+let safeProbe = null;
 function readSafeArea() {
-  const cs = getComputedStyle(document.documentElement);
-  SAT = parseFloat(cs.getPropertyValue('--sat')) || 0;
-  SAB = parseFloat(cs.getPropertyValue('--sab')) || 0;
-  SAR = parseFloat(cs.getPropertyValue('--sar')) || 0;
+  if (!safeProbe) {
+    safeProbe = document.createElement('div');
+    safeProbe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;' +
+      'padding:var(--sat) var(--sar) var(--sab) 0';
+    document.body.appendChild(safeProbe);
+  }
+  const cs = getComputedStyle(safeProbe);
+  SAT = parseFloat(cs.paddingTop) || 0;
+  SAB = parseFloat(cs.paddingBottom) || 0;
+  SAR = parseFloat(cs.paddingRight) || 0;
+  if (window.__diag) window.__diag.sat = [SAT, SAB, SAR];
 }
 
 function resize() {
@@ -4081,7 +4101,7 @@ window.addEventListener('keydown', e => {
 });
 
 function inGame() { return ['build', 'ready', 'play', 'clear', 'reward', 'mini'].includes(state); }
-function anyOverlayOpen() { return ['howScreen', 'rankScreen', 'overScreen', 'pauseScreen', 'collScreen', 'resetScreen', 'miniOffer', 'bagScreen'].some(id => !$(id).classList.contains('hidden')); }
+function anyOverlayOpen() { return ['howScreen', 'rankScreen', 'overScreen', 'pauseScreen', 'collScreen', 'resetScreen', 'miniOffer', 'bagScreen', 'diagScreen'].some(id => !$(id).classList.contains('hidden')); }
 
 // ===================== UI =====================
 function show(id) { $(id).classList.remove('hidden'); }
@@ -4231,6 +4251,25 @@ tapBtn('resetYes', () => {
 });
 tapBtn('rewardUse', () => finishReward(true));
 tapBtn('bagBtn', () => openBag());
+let diagTaps = 0, diagT = 0;
+$('titleBestRow').addEventListener('click', e => {
+  e.stopPropagation();
+  const now = Date.now();
+  diagTaps = now - diagT < 800 ? diagTaps + 1 : 1; diagT = now;
+  if (diagTaps < 5) return;
+  diagTaps = 0;
+  readSafeArea();
+  const d = window.__diag || {};
+  const css = getComputedStyle(document.documentElement);
+  $('diagText').textContent = [
+    'build: ' + (document.querySelector('meta[name=build]') || {}).content,
+    'screen: ' + innerWidth + 'x' + innerHeight + ' ui=' + UI,
+    'css --sat: ' + css.getPropertyValue('--sat').trim() + ' / --sab: ' + css.getPropertyValue('--sab').trim(),
+    'measured: ' + JSON.stringify(d.sat),
+    '', ...(d.log || [])].join('\n');
+  show('diagScreen');
+});
+tapBtn('diagClose', () => hide('diagScreen'));
 tapBtn('bagClose', () => closeBag());
 tapBtn('bagUse', () => useBagItem());
 tapBtn('miniYes', () => { if (mini && mini.phase === 'offer') startMini(mini.kind); });
@@ -4313,9 +4352,15 @@ const ADMOB = {
   bannerId: 'ca-app-pub-8743645031370957/5149231305', // 画面下のバナー（本番）
 };
 
+// 調べるための記録（タイトルの「ハイスコア」を5回つづけてタップすると表示）
+window.__diag = { log: [] };
+const diag = (k, v) => { window.__diag[k] = v; window.__diag.log.push(new Date().toISOString().slice(11, 19) + ' ' + k + ': ' + (typeof v === 'string' ? v : JSON.stringify(v))); };
+
 (() => {
   const cap = window.Capacitor;
   const native = !!(cap && cap.isNativePlatform && cap.isNativePlatform() && cap.nativePromise);
+  diag('native', native);
+  diag('plugins', cap && cap.PluginHeaders ? cap.PluginHeaders.map(h => h.name) : null);
   if (!native) {
     nekoMain();
     // Web版：オフラインでも遊べるように（ホーム画面に追加したとき用）
@@ -4348,9 +4393,10 @@ const ADMOB = {
     const update = v => {
       const n = { top: +v.top || 0, right: +v.right || 0, bottom: +v.bottom || 0, left: +v.left || 0 };
       if (safe && n.top === safe.top && n.right === safe.right && n.bottom === safe.bottom && n.left === safe.left) return;
+      diag('safeArea', n);
       safe = n; applyInsets();
     };
-    const poll = () => call('SafeArea', 'get').then(update).catch(() => {});
+    const poll = () => call('SafeArea', 'get').then(update).catch(e => diag('safeAreaError', String(e && e.message || e)));
     listen('SafeArea', 'change', update);
     poll();
     [300, 1000, 2500].forEach(t => setTimeout(poll, t)); // 起動直後は値が決まっていないことがある
@@ -4360,15 +4406,19 @@ const ADMOB = {
   // --- 広告（画面のいちばん下にバナーを常に表示） ---
   // EEA・英国では Google の UMP で同意を確認してから広告を出す（KAZE Application のほかのアプリと同じ。ATT は使わない）
   if (has('AdMob')) {
-    listen('AdMob', 'bannerAdSizeChanged', size => { adH = Math.max(0, +size.height || 0); applyInsets(); });
+    listen('AdMob', 'bannerAdSizeChanged', size => { adH = Math.max(0, +size.height || 0); diag('bannerSize', size); applyInsets(); });
+    listen('AdMob', 'bannerAdLoaded', () => diag('banner', 'loaded'));
+    listen('AdMob', 'bannerAdFailedToLoad', e => diag('bannerError', e));
     (async () => {
       let info;
       try {
         // プラグインは initialize の中で同意フォーム用の準備をするので、先に初期化する（広告はまだ出ない）
         await call('AdMob', 'initialize', { maxAdContentRating: 'General' });
         info = await call('AdMob', 'requestConsentInfo', {});
-        if (info.isConsentFormAvailable && info.status === 'REQUIRED') info = await call('AdMob', 'showConsentForm', {});
+        diag('consent', info);
+        if (info.isConsentFormAvailable && info.status === 'REQUIRED') { info = await call('AdMob', 'showConsentForm', {}); diag('consentForm', info); }
       } catch (e) {
+        diag('consentError', String(e && e.message || e));
         return; // 同意の状況が分からないときは、規約違反を避けるため広告を出さない
       }
       if (info.privacyOptionsRequirementStatus === 'REQUIRED') {
@@ -4378,7 +4428,9 @@ const ADMOB = {
         window.dispatchEvent(new Event('resize')); // タイトルの配置をやり直す
       }
       if (info.canRequestAds) {
-        call('AdMob', 'showBanner', { adId: ADMOB.bannerId, adSize: 'ADAPTIVE_BANNER', position: 'BOTTOM_CENTER', margin: 0 }).catch(() => {});
+        diag('showBanner', ADMOB.bannerId);
+        call('AdMob', 'showBanner', { adId: ADMOB.bannerId, adSize: 'ADAPTIVE_BANNER', position: 'BOTTOM_CENTER', margin: 0 })
+          .catch(e => diag('showBannerError', String(e && e.message || e)));
       }
     })();
   }
