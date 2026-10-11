@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="build" content="1.0.0">
+<meta name="diag" content="0"><!-- 1 で「アプリの状態」画面とテスト広告を使える（アプリ版は CI の diagnostics で切り替え） -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -4268,7 +4269,7 @@ $('titleBestRow').addEventListener('click', e => {
   e.stopPropagation();
   const now = Date.now();
   diagTaps = now - diagT < 800 ? diagTaps + 1 : 1; diagT = now;
-  if (diagTaps < 5) return;
+  if (diagTaps < 5 || !DIAG) return;
   diagTaps = 0;
   readSafeArea();
   const d = window.__diag || {};
@@ -4375,6 +4376,9 @@ const ADMOB = {
   testId: 'ca-app-pub-3940256099942544/2435281174',   // Google のテスト用バナー
 };
 const TEST_ADS_KEY = 'nekoDaruma.testAds'; // 「アプリの状態」画面で切り替える（自分の端末で画面を確かめる用）
+// 「アプリの状態」画面は TestFlight で調べるときだけ。App Store に出すビルドでは開けず、テスト広告の設定も無視する。
+// Web版はいつでも開ける（アプリの機能はないので、すき間の値などを見るだけ）
+const DIAG = (document.querySelector('meta[name=diag]') || {}).content === '1' || !(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 
 // 調べるための記録（タイトルの「ハイスコア」を5回つづけてタップすると表示）
 window.__diag = { log: [] };
@@ -4437,7 +4441,7 @@ const diag = (k, v) => { window.__diag[k] = v; window.__diag.log.push(new Date()
     listen('AdMob', 'bannerAdSizeChanged', size => { adH = Math.max(0, +size.height || 0); diag('bannerSize', size); applyInsets(); });
     listen('AdMob', 'bannerAdLoaded', () => diag('banner', 'loaded'));
     listen('AdMob', 'bannerAdFailedToLoad', e => diag('bannerError', e));
-    const test = localStorage.getItem(TEST_ADS_KEY) === '1';
+    const test = DIAG && localStorage.getItem(TEST_ADS_KEY) === '1';
     const showBanner = () => {
       diag('showBanner', test ? 'TEST ' + ADMOB.testId : ADMOB.bannerId);
       call('AdMob', 'showBanner', { adId: test ? ADMOB.testId : ADMOB.bannerId, isTesting: test, adSize: 'ADAPTIVE_BANNER', position: 'BOTTOM_CENTER', margin: 0 })
