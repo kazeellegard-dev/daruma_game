@@ -203,3 +203,12 @@ iPhone の Safari で開き、共有ボタン →「ホーム画面に追加」�
 | `ios/App/App/Info.plist` の `GADApplicationIdentifier` | アプリ ID（`ca-app-pub-XXXX~ZZZZ`） |
 
 広告の分だけ下のすき間（`--sab`）を広げて、ゲームの画面が広告に隠れないようにしています。
+
+## App Store 申請用
+
+- `store/metadata-ja.md`：App Store Connect に貼り付ける文面（説明・キーワード・年齢制限・プライバシーの回答など）と申請前チェックリスト
+- `store/screenshots/`：iPhone 6.9 インチ・iPad 13 インチのスクリーンショット（広告なし）
+- `store/tools/`：スクリーンショットを作り直すスクリプト
+- `support.html`：サポートページ（App Store のサポート URL）
+
+iPad など大きい画面では、スマホ向けの画面をまるごと拡大して表示します（`index.html` の `uiScale()`）。
