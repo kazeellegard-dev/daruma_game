@@ -4437,6 +4437,12 @@ const diag = (k, v) => { window.__diag[k] = v; window.__diag.log.push(new Date()
     listen('AdMob', 'bannerAdSizeChanged', size => { adH = Math.max(0, +size.height || 0); diag('bannerSize', size); applyInsets(); });
     listen('AdMob', 'bannerAdLoaded', () => diag('banner', 'loaded'));
     listen('AdMob', 'bannerAdFailedToLoad', e => diag('bannerError', e));
+    const test = localStorage.getItem(TEST_ADS_KEY) === '1';
+    const showBanner = () => {
+      diag('showBanner', test ? 'TEST ' + ADMOB.testId : ADMOB.bannerId);
+      call('AdMob', 'showBanner', { adId: test ? ADMOB.testId : ADMOB.bannerId, isTesting: test, adSize: 'ADAPTIVE_BANNER', position: 'BOTTOM_CENTER', margin: 0 })
+        .catch(e => diag('showBannerError', String(e && e.message || e)));
+    };
     (async () => {
       let info;
       try {
@@ -4447,7 +4453,10 @@ const diag = (k, v) => { window.__diag[k] = v; window.__diag.log.push(new Date()
         if (info.isConsentFormAvailable && info.status === 'REQUIRED') { info = await call('AdMob', 'showConsentForm', {}); diag('consentForm', info); }
       } catch (e) {
         diag('consentError', String(e && e.message || e));
-        return; // 同意の状況が分からないときは、規約違反を避けるため広告を出さない
+        // 同意の状況が分からないときは、規約違反を避けるため本番の広告は出さない。
+        // テスト広告（自分の端末で画面を確かめる用）は収益にならないので出す
+        if (test) showBanner();
+        return;
       }
       if (info.privacyOptionsRequirementStatus === 'REQUIRED') {
         const b = document.getElementById('privacyBtn');
@@ -4455,12 +4464,7 @@ const diag = (k, v) => { window.__diag[k] = v; window.__diag.log.push(new Date()
         b.addEventListener('click', e => { e.stopPropagation(); call('AdMob', 'showPrivacyOptionsForm', {}).catch(() => {}); });
         window.dispatchEvent(new Event('resize')); // タイトルの配置をやり直す
       }
-      if (info.canRequestAds) {
-        const test = localStorage.getItem(TEST_ADS_KEY) === '1';
-        diag('showBanner', test ? 'TEST ' + ADMOB.testId : ADMOB.bannerId);
-        call('AdMob', 'showBanner', { adId: test ? ADMOB.testId : ADMOB.bannerId, isTesting: test, adSize: 'ADAPTIVE_BANNER', position: 'BOTTOM_CENTER', margin: 0 })
-          .catch(e => diag('showBannerError', String(e && e.message || e)));
-      }
+      if (info.canRequestAds || test) showBanner();
     })();
   }
 
