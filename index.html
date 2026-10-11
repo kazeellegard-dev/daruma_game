@@ -454,6 +454,7 @@ const INK = '#5b3a29';
 const BLOCK_COLORS = ['#ff5a4f', '#3fa7ff', '#ffd23f', '#5ccf6a', '#a77bff', '#ff9a3c', '#2ec4b6', '#ff6fa5'];
 
 let W = 0, H = 0, DPR = 1, SAT = 0, SAB = 0, SAR = 0;
+let artMode = false; // ストア用の絵を撮るとき（スコアやメーターを描かない）
 const G = {}; // レイアウト
 
 function readSafeArea() {
@@ -483,13 +484,15 @@ function layout() {
   G.hudTop = SAT + 6;
   G.hudH = 74;
   G.uiBottom = clamp(H * 0.2, 128, 160);
+  if (artMode) { G.hudTop = H * 0.05; G.hudH = 0; G.uiBottom = H * 0.12; } // ストア用の絵：スコアやメーターの場所はいらない
+  const big = artMode ? 1.7 : 1;
   G.groundY = H - SAB - G.uiBottom;
   G.cx = W / 2;
   const top = G.hudTop + G.hudH + 14;
   const avail = Math.max(120, G.groundY - top);
-  G.catSize = clamp(avail * 0.19, 54, 116);
-  G.blockH = clamp((avail - G.catSize - 8) / Math.max(stageBlocks, 1), 9, 46);
-  G.blockW = clamp(Math.min(W * 0.48, 90 + G.blockH * 3), 110, 200);
+  G.catSize = clamp(avail * (artMode ? 0.24 : 0.19), 54, 116 * big);
+  G.blockH = clamp((avail - G.catSize - 8) / Math.max(stageBlocks, 1), 9, 46 * big);
+  G.blockW = clamp(Math.min(W * 0.48, 90 + G.blockH * 3), 110, 200 * big);
   G.mW = Math.min(W - 48, 380);
   G.mH = 26;
   G.mX = (W - G.mW) / 2;
@@ -2790,7 +2793,7 @@ const bgCanvas = document.createElement('canvas');
 let bgKey = '';
 
 function buildBackground() {
-  const key = [W, H, DPR, Math.round(G.groundY)].join(',');
+  const key = [W, H, DPR, Math.round(G.groundY), artMode].join(',');
   if (key === bgKey) return;
   bgKey = key;
   bgCanvas.width = Math.round(W * DPR);
@@ -2817,7 +2820,7 @@ function buildBackground() {
   }
 
   // にじ
-  const rcx = W * 0.5, rcy = gy - 30, rr = Math.max(W * 0.62, 260);
+  const rcx = W * 0.5, rcy = gy - 30, rr = artMode ? Math.min(W * 0.45, gy * 0.9) : Math.max(W * 0.62, 260);
   ['#ff9fb8', '#ffc98f', '#fff09a', '#a8e6b8', '#9fd4ff', '#c7b3ff'].forEach((col, i) => {
     c.strokeStyle = col; c.globalAlpha = 0.45; c.lineWidth = 12;
     c.beginPath(); c.arc(rcx, rcy, rr - i * 12, Math.PI * 1.02, Math.PI * 1.98); c.stroke();
@@ -3995,6 +3998,7 @@ function render() {
   drawParticles();
   drawPopups();
   ctx.restore();
+  if (artMode) return; // ストア用の絵を撮るときは、スコアやメーターを描かない
   drawDanger();
   if (flash > 0) { ctx.fillStyle = `rgba(255,255,255,${flash * 2})`; ctx.fillRect(0, 0, W, H); }
   drawHUD();
@@ -4300,7 +4304,7 @@ window.__neko = { get state() { return state; }, get score() { return score; }, 
   startWind, startIntruder, reseatNow() { reseatTimer = 0; }, morphNow() { morphTimer = 0; },
   get catOff() { return catOff; }, get wind() { return wind; }, get intr() { return intr; }, get seat() { return seatBlock(); },
   get bias() { return balanceBias(); }, get dxs() { return blocks.map(b => b.dx); },
-  tick(dt) { update(dt); }, jiggle(p) { jiggleAll(p); }, get blocksArr() { return blocks; }, zones() { return zonesFor(params()); }, coll() { return coll; }, get reward() { return reward; }, unlockAll() { CATS.forEach(c => unlockItem({ type: 'cat', id: c.id })); HAMMERS.forEach(h => unlockItem({ type: 'hammer', id: h.id })); }, get bgm() { return { song: BGM.song, running: !!BGM.timer, step: BGM.step, on: BGM.on }; }, get cooldown() { return cooldown; }, get timeLeft() { return timeLeft; }, get timeMax() { return timeMax; }, get tcat() { return tcat; }, spawnDrop, catchDrop, tapDrop, dropPos, get drops() { return drops; }, get buffs() { return buffs; }, get parade() { return parade; }, get horde() { return horde; }, get intr() { return intr; }, get wind() { return wind; }, get titleTaps() { return titleTaps; }, titleLayout, params, renderIcon, setScore(v) { score = v; }, get mini() { return mini; }, startMini, miniTap, offerMini, endMini, afterClear, get miniAt() { return miniAt; }, setMiniAt(v) { miniAt = v; }, pickCheat, putInBag, finishReward, get usedCheat() { return usedCheat; }, get bag() { return bag; }, get cheatUse() { return cheatUse; }, openBag, useBagItem, closeBag, startReward, curCat, curHammer, miniArea, mouseHoles, memoryRects, basketX, stageClear, setStage(v) { stage = v; } };
+  tick(dt) { update(dt); }, jiggle(p) { jiggleAll(p); }, get blocksArr() { return blocks; }, zones() { return zonesFor(params()); }, coll() { return coll; }, get reward() { return reward; }, unlockAll() { CATS.forEach(c => unlockItem({ type: 'cat', id: c.id })); HAMMERS.forEach(h => unlockItem({ type: 'hammer', id: h.id })); }, get bgm() { return { song: BGM.song, running: !!BGM.timer, step: BGM.step, on: BGM.on }; }, get cooldown() { return cooldown; }, get timeLeft() { return timeLeft; }, get timeMax() { return timeMax; }, get tcat() { return tcat; }, spawnDrop, catchDrop, tapDrop, dropPos, get drops() { return drops; }, get buffs() { return buffs; }, get parade() { return parade; }, get horde() { return horde; }, get intr() { return intr; }, get wind() { return wind; }, get titleTaps() { return titleTaps; }, titleLayout, params, renderIcon, setScore(v) { score = v; }, setArt(v) { artMode = v; layout(); }, catMood(m) { cat.mood = m; cat.moodT = 99; }, get popups() { return popups; }, get mini() { return mini; }, startMini, miniTap, offerMini, endMini, afterClear, get miniAt() { return miniAt; }, setMiniAt(v) { miniAt = v; }, pickCheat, putInBag, finishReward, get usedCheat() { return usedCheat; }, get bag() { return bag; }, get cheatUse() { return cheatUse; }, openBag, useBagItem, closeBag, startReward, curCat, curHammer, miniArea, mouseHoles, memoryRects, basketX, stageClear, setStage(v) { stage = v; } };
 };
 
 // ===================== アプリ起動 =====================
