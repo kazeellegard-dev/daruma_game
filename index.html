@@ -444,13 +444,14 @@ const MUTE_KEY = 'nekoDaruma.muted';
 const INK = '#5b3a29';
 const BLOCK_COLORS = ['#ff5a4f', '#3fa7ff', '#ffd23f', '#5ccf6a', '#a77bff', '#ff9a3c', '#2ec4b6', '#ff6fa5'];
 
-let W = 0, H = 0, DPR = 1, SAT = 0, SAB = 0;
+let W = 0, H = 0, DPR = 1, SAT = 0, SAB = 0, SAR = 0;
 const G = {}; // レイアウト
 
 function readSafeArea() {
   const cs = getComputedStyle(document.documentElement);
   SAT = parseFloat(cs.getPropertyValue('--sat')) || 0;
   SAB = parseFloat(cs.getPropertyValue('--sab')) || 0;
+  SAR = parseFloat(cs.getPropertyValue('--sar')) || 0;
 }
 
 function resize() {
@@ -3735,11 +3736,24 @@ function drawHUD() {
   ctx.textBaseline = 'middle';
   outlinedText('SCORE', left, top + 12, 12, '#fff', 'left');
   outlinedText(String(score), left, top + 34, 26, '#ffd23f', 'left');
-  // ステージ
-  const cx = W / 2;
-  outlinedText('STAGE ' + stage, cx, top + 14, 20, '#fff');
+  // ステージ（右上のボタン3つとスコアのあいだに収める）
   const remain = state === 'build' ? stageBlocks : blocks.length;
-  outlinedText(`${stageBlocks}だん ・ のこり ${remain}`, cx, top + 37, 14, '#fff');
+  const t1 = 'STAGE ' + stage, t2 = `${stageBlocks}だん・のこり ${remain}`;
+  ctx.font = `bold 26px ${FONT}`;
+  let scoreW = ctx.measureText(String(score)).width;
+  ctx.font = `bold 12px ${FONT}`;
+  scoreW = Math.max(scoreW, ctx.measureText('SCORE').width);
+  const scoreR = left + scoreW + 10;
+  const btnL = W - SAR - 8 - (40 * 3 + 8 * 2) - 8;
+  ctx.font = `bold 20px ${FONT}`;
+  let tw = ctx.measureText(t1).width;
+  ctx.font = `bold 14px ${FONT}`;
+  tw = Math.max(tw, ctx.measureText(t2).width) + 6;
+  const room = btnL - scoreR;
+  const k = Math.min(1, room / tw);
+  const cx = k < 1 ? (scoreR + btnL) / 2 : clamp(W / 2, scoreR + tw / 2, btnL - tw / 2);
+  outlinedText(t1, cx, top + 14, 20 * Math.max(0.7, k), '#fff');
+  outlinedText(t2, cx, top + 37, 14 * Math.max(0.75, k), '#fff');
   // コンボ（右側：ボタンの下）
   if (combo >= 2) outlinedText(combo + ' COMBO', W - 12, top + 86, 16, '#ff6fa5', 'right');
 
