@@ -9,6 +9,8 @@ node store/tools/compose.js            # 見出しをつけて store/screenshots
 ```
 
 - iPhone 6.9 インチ（1320×2868）と iPad 13 インチ（2064×2752）の 2 サイズ
+- iPhone 6.3 インチ（1206×2622）は、6.9 インチの画像を縮小して作る（比率がほぼ同じ）：
+  `python3 -c "from PIL import Image;import os;[Image.open(f'store/screenshots/iphone/{f}').resize((1206,2622),Image.LANCZOS).save(f'store/screenshots/iphone-6.3/{f}',quality=92) for f in os.listdir('store/screenshots/iphone')]"`
 - 見出しの文字は `compose.js` の `ORDER` で変えられます
 - 丸ゴシックで表示するには「Rounded Mplus 1c」フォントを入れておきます
 
