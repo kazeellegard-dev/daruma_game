@@ -11,7 +11,8 @@ const RANK = JSON.stringify([
   { id: 'a', name: 'ねこすき', score: 18640, stage: 14, tier: 16, combo: 22, date: '2026-10-01T00:00:00Z' },
   { id: 'b', name: 'たま', score: 12480, stage: 11, tier: 13, combo: 15, date: '2026-10-02T00:00:00Z' },
 ]);
-const COLL = JSON.stringify({ cats: ['tora', 'shiro', 'kuro', 'mike', 'siam', 'hachi'], hammers: ['wood', 'pico', 'candy'], cat: 'tora', hammer: 'wood', fresh: [] });
+// 見せるのは、ねこ半分・ハンマー3種類だけ（のこりは「？？？」のまま）
+const COLL = JSON.stringify({ cats: ['tora', 'shiro', 'kuro', 'mike', 'siam'], hammers: ['wood', 'pico', 'candy'], cat: 'tora', hammer: 'wood', fresh: [] });
 
 async function play(p, stageNo, score) {
   await p.click('#startBtn', { force: true });
@@ -65,7 +66,6 @@ const SCENES = {
     await sleep(500);
   },
   async collection(p) {
-    await p.evaluate(() => { __neko.unlockAll(); __neko.coll().fresh.length = 0; });
     await p.click('#collBtn', { force: true });
     await sleep(500);
     await p.evaluate(() => { const s = [...document.querySelectorAll('#catGrid .slot')]; s[5] && s[5].click(); });

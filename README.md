@@ -209,6 +209,7 @@ iPhone の Safari で開き、共有ボタン →「ホーム画面に追加」�
 - `store/metadata-ja.md`：App Store Connect に貼り付ける文面（説明・キーワード・年齢制限・プライバシーの回答など）と申請前チェックリスト
 - `store/screenshots/`：iPhone 6.9 インチ・iPad 13 インチのスクリーンショット（広告なし）
 - `store/tools/`：スクリーンショットを作り直すスクリプト
-- `support.html`：サポートページ（App Store のサポート URL）
+- `store/kaze-application/`：KAZE Application サイト（サポート・プライバシーポリシー）に載せる文面と画像
+- `support.html`・`privacy.html`：Web版用の簡易ページ（App Store には KAZE Application サイトの URL を登録）
 
 iPad など大きい画面では、スマホ向けの画面をまるごと拡大して表示します（`index.html` の `uiScale()`）。
