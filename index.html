@@ -200,6 +200,7 @@
   .slot.empty { background: #f7f0f3; border-style: dashed; cursor: default; }
   .slot .empty-mark { width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; font-size: 26px; opacity: .35; }
   .mini-offer h2 { font-size: clamp(19px, 6vw, 24px); white-space: nowrap; }
+  #privacyBtn { font-size: 12px; padding: 5px 10px; margin-top: 8px; color: var(--ink); }
   .mini-icon { font-size: 54px; line-height: 1.1; margin: 4px 0 0; }
   .mini-name { font-size: 22px; font-weight: 900; color: #ff5a7a; margin: 2px 0 4px; }
   .mini-offer .mini-prize { font-size: 13px; background: #fff3dc; border: 2px dashed var(--ink); border-radius: 12px; padding: 6px 10px; }
@@ -254,6 +255,7 @@
       <button class="btn sec" id="rankBtn">ランキング</button>
     </div>
     <div class="tiny">ねこをタップするとジャンプするよ ・ 🎵でBGMのON/OFF</div>
+    <button class="btn mini hidden" id="privacyBtn">🔒 プライバシー設定</button>
   </div>
 </div>
 
@@ -4302,10 +4304,9 @@ window.__neko = { get state() { return state; }, get score() { return score; }, 
 };
 
 // ===================== アプリ起動 =====================
-// AdMob（アプリ版の広告）。いまはGoogleのテスト用IDなので本物の広告は出ない
+// AdMob（アプリ版の広告）
 const ADMOB = {
-  bannerId: 'ca-app-pub-3940256099942544/2435281174', // iOS アダプティブバナー（テスト用）
-  testing: true,
+  bannerId: 'ca-app-pub-8743645031370957/5149231305', // 画面下のバナー（本番）
 };
 
 (() => {
@@ -4353,11 +4354,29 @@ const ADMOB = {
   }
 
   // --- 広告（画面のいちばん下にバナーを常に表示） ---
+  // EEA・英国では Google の UMP で同意を確認してから広告を出す（KAZE Application のほかのアプリと同じ。ATT は使わない）
   if (has('AdMob')) {
     listen('AdMob', 'bannerAdSizeChanged', size => { adH = Math.max(0, +size.height || 0); applyInsets(); });
-    call('AdMob', 'initialize', { initializeForTesting: ADMOB.testing, maxAdContentRating: 'General' })
-      .then(() => call('AdMob', 'showBanner', { adId: ADMOB.bannerId, adSize: 'ADAPTIVE_BANNER', position: 'BOTTOM_CENTER', margin: 0 }))
-      .catch(e => console.warn('AdMob', e));
+    (async () => {
+      let info;
+      try {
+        // プラグインは initialize の中で同意フォーム用の準備をするので、先に初期化する（広告はまだ出ない）
+        await call('AdMob', 'initialize', { maxAdContentRating: 'General' });
+        info = await call('AdMob', 'requestConsentInfo', {});
+        if (info.isConsentFormAvailable && info.status === 'REQUIRED') info = await call('AdMob', 'showConsentForm', {});
+      } catch (e) {
+        return; // 同意の状況が分からないときは、規約違反を避けるため広告を出さない
+      }
+      if (info.privacyOptionsRequirementStatus === 'REQUIRED') {
+        const b = document.getElementById('privacyBtn');
+        b.classList.remove('hidden');
+        b.addEventListener('click', e => { e.stopPropagation(); call('AdMob', 'showPrivacyOptionsForm', {}).catch(() => {}); });
+        window.dispatchEvent(new Event('resize')); // タイトルの配置をやり直す
+      }
+      if (info.canRequestAds) {
+        call('AdMob', 'showBanner', { adId: ADMOB.bannerId, adSize: 'ADAPTIVE_BANNER', position: 'BOTTOM_CENTER', margin: 0 }).catch(() => {});
+      }
+    })();
   }
 
   // --- セーブデータを端末の設定領域にも保存して、iOSに消されないようにする ---

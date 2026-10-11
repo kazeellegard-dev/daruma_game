@@ -195,12 +195,16 @@ iPhone の Safari で開き、共有ボタン →「ホーム画面に追加」�
 
 ### 広告（AdMob）
 
-アプリ版だけ、画面のいちばん下に AdMob のバナー広告を常に表示します（Web 版には出ません）。いまは **Google のテスト用 ID** なので「Test Ad」と書かれた広告が出ます。本番の広告に切り替えるときは次の 2 か所を AdMob の管理画面で発行した ID に書き換えます。
+アプリ版だけ、画面のいちばん下に AdMob のバナー広告を常に表示します（Web 版には出ません）。
 
 | 場所 | 中身 |
 |---|---|
-| `index.html` の `ADMOB.bannerId`（と `testing: false`） | 広告ユニット ID（`ca-app-pub-XXXX/YYYY`） |
-| `ios/App/App/Info.plist` の `GADApplicationIdentifier` | アプリ ID（`ca-app-pub-XXXX~ZZZZ`） |
+| `index.html` の `ADMOB.bannerId` | 広告ユニット ID `ca-app-pub-8743645031370957/5149231305` |
+| `ios/App/App/Info.plist` の `GADApplicationIdentifier` | アプリ ID `ca-app-pub-8743645031370957~9088476310` |
+
+- KAZE Application のほかのアプリと同じく、EEA・英国では Google の UMP で同意を確認してから広告を出します。iOS の「トラッキングを許可しますか？」（ATT）は出しません。
+- 同意が必要な地域の人には、タイトル画面のメニューに「🔒 プライバシー設定」ボタンが出て、あとから同意を変更できます。
+- 同意フォームの文面は、AdMob 管理画面の「プライバシーとメッセージ」で作ったものが使われます。
 
 広告の分だけ下のすき間（`--sab`）を広げて、ゲームの画面が広告に隠れないようにしています。
 
