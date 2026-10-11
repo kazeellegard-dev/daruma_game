@@ -310,6 +310,7 @@
   <div class="card">
     <h2>アプリの状態</h2>
     <pre id="diagText" style="text-align:left;font-size:11px;line-height:1.5;white-space:pre-wrap;word-break:break-all;max-height:55vh;overflow:auto;background:#fff;border-radius:10px;padding:8px;-webkit-user-select:text;user-select:text"></pre>
+    <button class="btn sec" id="diagTestAds" style="font-size:14px;margin-bottom:10px"></button>
     <button class="btn" id="diagClose">とじる</button>
   </div>
 </div>
@@ -482,6 +483,17 @@ function readSafeArea() {
   SAB = parseFloat(cs.paddingBottom) || 0;
   SAR = parseFloat(cs.paddingRight) || 0;
   if (window.__diag) window.__diag.sat = [SAT, SAB, SAR];
+}
+// iOS では起動の直後はすき間が 0 で、少したってから正しい値になる（resize イベントは来ない）。
+// CSS で置いたボタンは自動で動くが、キャンバスは測り直さないとずれたままになるので、変わったら配置し直す
+function watchSafeArea() {
+  const check = () => {
+    const cs = getComputedStyle(safeProbe);
+    const px = v => parseFloat(v) || 0;
+    if (px(cs.paddingTop) !== SAT || px(cs.paddingBottom) !== SAB || px(cs.paddingRight) !== SAR) resize();
+  };
+  if (window.ResizeObserver) new ResizeObserver(check).observe(safeProbe);
+  setInterval(check, 1000);
 }
 
 function resize() {
@@ -4267,9 +4279,18 @@ $('titleBestRow').addEventListener('click', e => {
     'css --sat: ' + css.getPropertyValue('--sat').trim() + ' / --sab: ' + css.getPropertyValue('--sab').trim(),
     'measured: ' + JSON.stringify(d.sat),
     '', ...(d.log || [])].join('\n');
+  const nat = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+  $('diagTestAds').classList.toggle('hidden', !nat);
+  $('diagTestAds').textContent = localStorage.getItem(TEST_ADS_KEY) === '1' ? '本番の広告にもどす（再起動）' : 'テスト広告にする（再起動）';
   show('diagScreen');
 });
 tapBtn('diagClose', () => hide('diagScreen'));
+tapBtn('diagTestAds', () => {
+  try {
+    if (localStorage.getItem(TEST_ADS_KEY) === '1') localStorage.removeItem(TEST_ADS_KEY); else localStorage.setItem(TEST_ADS_KEY, '1');
+  } catch (e) {}
+  setTimeout(() => location.reload(), 300); // 端末の設定領域への保存を待ってから読み込み直す
+});
 tapBtn('bagClose', () => closeBag());
 tapBtn('bagUse', () => useBagItem());
 tapBtn('miniYes', () => { if (mini && mini.phase === 'offer') startMini(mini.kind); });
@@ -4320,6 +4341,7 @@ window.addEventListener('orientationchange', () => setTimeout(resize, 200));
 
 // ===================== 起動 =====================
 resize();
+watchSafeArea();
 initPetals();
 initClouds();
 // ロゴの文字をカラフルに
@@ -4350,7 +4372,9 @@ window.__neko = { get state() { return state; }, get score() { return score; }, 
 // AdMob（アプリ版の広告）
 const ADMOB = {
   bannerId: 'ca-app-pub-8743645031370957/5149231305', // 画面下のバナー（本番）
+  testId: 'ca-app-pub-3940256099942544/2435281174',   // Google のテスト用バナー
 };
+const TEST_ADS_KEY = 'nekoDaruma.testAds'; // 「アプリの状態」画面で切り替える（自分の端末で画面を確かめる用）
 
 // 調べるための記録（タイトルの「ハイスコア」を5回つづけてタップすると表示）
 window.__diag = { log: [] };
@@ -4369,34 +4393,38 @@ const diag = (k, v) => { window.__diag[k] = v; window.__diag.log.push(new Date()
     }
     return;
   }
-  const has = name => (cap.PluginHeaders || []).some(h => h.name === name);
   const call = (plugin, method, opts) => cap.nativePromise(plugin, method, opts || {});
   const listen = (plugin, ev, fn) => cap.addListener(plugin, ev, d => { if (d) fn(d); });
 
   // --- 画面のすき間（ダイナミックアイランド・ホームバー）と広告の高さ ---
-  // iOS から受け取った値を CSS 変数にのせる。広告はホームバーのすぐ上に出るので、下のすき間に足す
+  // iOS から受け取った値を CSS 変数にのせる。広告はホームバーのすぐ上に出るので、下のすき間に足す。
+  // 広告が読み込まれてから画面がせり上がらないよう、はじめから広告の高さ（だいたいの値）をあけておく
   const rootStyle = document.documentElement.style;
+  const adGuess = () => Math.round(Math.min(90, Math.max(50, innerWidth * 0.156))); // アダプティブバナーの高さの目安
   let safe = null, adH = 0;
-  let appliedUI = 0;
+  let appliedUI = 0, appliedW = 0;
   const applyInsets = () => {
     const u = appliedUI = uiScale();  // 拡大して見せるぶん、すき間は小さめの値にする
+    appliedW = innerWidth;
     if (safe) {
       rootStyle.setProperty('--sat', safe.top / u + 'px');
       rootStyle.setProperty('--sal', safe.left / u + 'px');
       rootStyle.setProperty('--sar', safe.right / u + 'px');
     }
-    if (safe || adH) rootStyle.setProperty('--sab', ((safe ? safe.bottom : 0) + adH) / u + 'px');
+    const ad = Math.max(adH, adGuess()) / u;
+    rootStyle.setProperty('--sab', safe ? (safe.bottom / u + ad) + 'px' : `calc(env(safe-area-inset-bottom, 0px) + ${ad}px)`);
     window.dispatchEvent(new Event('resize'));
   };
-  window.addEventListener('resize', () => { if ((safe || adH) && uiScale() !== appliedUI) applyInsets(); });
-  if (has('SafeArea')) {
+  window.addEventListener('resize', () => { if (uiScale() !== appliedUI || innerWidth !== appliedW) applyInsets(); });
+  applyInsets();
+  {
     const update = v => {
       const n = { top: +v.top || 0, right: +v.right || 0, bottom: +v.bottom || 0, left: +v.left || 0 };
       if (safe && n.top === safe.top && n.right === safe.right && n.bottom === safe.bottom && n.left === safe.left) return;
       diag('safeArea', n);
       safe = n; applyInsets();
     };
-    const poll = () => call('SafeArea', 'get').then(update).catch(e => diag('safeAreaError', String(e && e.message || e)));
+    const poll = () => call('SafeArea', 'get').then(update).catch(e => { if (!window.__diag.safeAreaError) diag('safeAreaError', String(e && e.message || e)); });
     listen('SafeArea', 'change', update);
     poll();
     [300, 1000, 2500].forEach(t => setTimeout(poll, t)); // 起動直後は値が決まっていないことがある
@@ -4405,7 +4433,7 @@ const diag = (k, v) => { window.__diag[k] = v; window.__diag.log.push(new Date()
 
   // --- 広告（画面のいちばん下にバナーを常に表示） ---
   // EEA・英国では Google の UMP で同意を確認してから広告を出す（KAZE Application のほかのアプリと同じ。ATT は使わない）
-  if (has('AdMob')) {
+  {
     listen('AdMob', 'bannerAdSizeChanged', size => { adH = Math.max(0, +size.height || 0); diag('bannerSize', size); applyInsets(); });
     listen('AdMob', 'bannerAdLoaded', () => diag('banner', 'loaded'));
     listen('AdMob', 'bannerAdFailedToLoad', e => diag('bannerError', e));
@@ -4428,15 +4456,16 @@ const diag = (k, v) => { window.__diag[k] = v; window.__diag.log.push(new Date()
         window.dispatchEvent(new Event('resize')); // タイトルの配置をやり直す
       }
       if (info.canRequestAds) {
-        diag('showBanner', ADMOB.bannerId);
-        call('AdMob', 'showBanner', { adId: ADMOB.bannerId, adSize: 'ADAPTIVE_BANNER', position: 'BOTTOM_CENTER', margin: 0 })
+        const test = localStorage.getItem(TEST_ADS_KEY) === '1';
+        diag('showBanner', test ? 'TEST ' + ADMOB.testId : ADMOB.bannerId);
+        call('AdMob', 'showBanner', { adId: test ? ADMOB.testId : ADMOB.bannerId, isTesting: test, adSize: 'ADAPTIVE_BANNER', position: 'BOTTOM_CENTER', margin: 0 })
           .catch(e => diag('showBannerError', String(e && e.message || e)));
       }
     })();
   }
 
   // --- セーブデータを端末の設定領域にも保存して、iOSに消されないようにする ---
-  if (!has('Preferences')) { nekoMain(); return; }
+  if (!(cap.PluginHeaders || []).some(h => h.name === 'Preferences')) { nekoMain(); return; }
   const PREFIX = 'nekoDaruma.';
   const LS = window.localStorage;
   const set = Storage.prototype.setItem, del = Storage.prototype.removeItem;
