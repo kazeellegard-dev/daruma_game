@@ -186,7 +186,7 @@ iPhone の Safari で開き、共有ボタン →「ホーム画面に追加」�
 | `capacitor.config.json` | アプリ名・バンドル ID など |
 | `ios/` | Xcode プロジェクト（Capacitor が生成） |
 | `scripts/build-web.mjs` | アプリに入れる Web ファイルを `www/` に集める |
-| `assets-src/` | アイコン・起動画面の元画像（`renderIcon` でゲームの絵から生成） |
+| `assets-src/` | アイコン（`icon-1024.png`）と起動画面（`splash-2732.png`、`renderIcon` でゲームの絵から生成）の元画像 |
 | `icons/`, `manifest.webmanifest`, `sw.js` | Web 版のホーム画面アイコンとオフライン対応 |
 | `privacy.html` | プライバシーポリシー（App Store の申請に使う） |
 
