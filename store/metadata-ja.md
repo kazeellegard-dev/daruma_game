@@ -103,15 +103,16 @@ KAZE Application サイトに載せる内容は `store/kaze-application/HANDOFF.
 ## 9. App のプライバシー（「データ収集あり」で回答）
 
 ゲーム本体は個人情報を集めませんが、**広告（Google AdMob）が情報を集める**ため「データを収集する」と答えます。
-KAZE Application のほかのアプリ（EL tools など）と同じ設定にします：**ATT（トラッキングの許可確認）はせず IDFA は使わない、EEA・英国は UMP で同意を確認**。
-ほかのアプリで App Store Connect に入れた回答があれば、それと同じにするのがいちばん確実です。下はその前提での下書きです。
+1.0（ビルド 22）は「GDPR の同意画面でトラッキングを伝えているのに ATT を使っていない」として却下されました（ガイドライン 5.1.2(i)）。
+そのため **ATT で許可を取り、許可されたら IDFA を広告に使う（＝トラッキングする）** 設定に変えました。EEA・英国は今までどおり UMP で同意を確認します。
+広告は AdMob のメディエーションで Unity Ads にも依頼しますが、集めるデータの種類は AdMob と同じです。
 
 | データの種類 | 用途 | ユーザーに紐づくか | トラッキングに使うか |
 |---|---|---|---|
-| 位置情報 › おおまかな位置情報 | 他社の広告、分析 | いいえ | いいえ |
-| ID › デバイス ID | 他社の広告、分析 | いいえ | いいえ |
-| 使用状況データ › 製品の操作 | 他社の広告、分析 | いいえ | いいえ |
-| 使用状況データ › 広告データ | 他社の広告、分析 | いいえ | いいえ |
+| 位置情報 › おおまかな位置情報 | 他社の広告、分析 | いいえ | **はい** |
+| ID › デバイス ID | 他社の広告、分析 | いいえ | **はい** |
+| 使用状況データ › 製品の操作 | 他社の広告、分析 | いいえ | **はい** |
+| 使用状況データ › 広告データ | 他社の広告、分析 | いいえ | **はい** |
 | 診断 › クラッシュデータ・パフォーマンスデータ・その他の診断データ | 分析 | いいえ | いいえ |
 
 ## 10. App Review に関する情報（審査メモ）
@@ -127,7 +128,16 @@ KAZE Application のほかのアプリ（EL tools など）と同じ設定にし
 ログインは不要です。タイトル画面の「スタート」ですぐに遊べます。
 画面の左半分／右半分をタップすると、左右からハンマーでお菓子をたたきます。
 3〜5ステージクリアするごとに、ミニゲームを遊ぶか選ぶ画面が出ます。
-画面下部に Google AdMob のバナー広告を表示しています（EEA・英国では UMP で同意を確認してから表示します）。
+画面下部に Google AdMob のバナー広告を表示しています。
+
+App Tracking Transparency:
+アプリを初めて起動したとき、タイトル画面が表示されてすぐに App Tracking Transparency の許可の確認を表示します。
+EEA・英国・スイスでは、先に Google の GDPR 同意画面が表示され、それを閉じたあとに App Tracking Transparency の確認が表示されます（同意の結果にかかわらず表示します）。
+広告は、App Tracking Transparency の確認が終わってから読み込みます。
+
+The App Tracking Transparency permission request appears on first launch, right after the title screen is displayed.
+In the EEA, the UK and Switzerland, Google's GDPR consent message is shown first, and the App Tracking Transparency request appears after it is closed (regardless of the choice).
+Ads are loaded only after the App Tracking Transparency request has been answered.
 ```
 
 ## 11. 輸出コンプライアンス
@@ -168,7 +178,8 @@ KAZE Application のほかのアプリ（EL tools など）と同じ設定にし
 ## 申請前にやること（チェックリスト）
 
 - [x] AdMob の本番 ID をアプリに設定する（アプリ ID `ca-app-pub-8743645031370957~9088476310`・広告ユニット ID `ca-app-pub-8743645031370957/5149231305`）
-- [x] 同意画面を入れる（EEA・英国向けの UMP 同意。ATT はほかのアプリと同じく入れない）
+- [x] 同意画面を入れる（EEA・英国向けの UMP 同意）
+- [x] ATT（トラッキングの許可の確認）を入れる（1.0 の却下を受けて追加。Info.plist の NSUserTrackingUsageDescription も追加）
 - [ ] AdMob 管理画面の「プライバシーとメッセージ」で、GDPR のメッセージの対象にこのアプリを入れる
 - [ ] KAZE Application サイトにアプリのページを追加（`store/kaze-application/HANDOFF.md`）
 - [ ] App のプライバシーの回答を確定する（上の 9）

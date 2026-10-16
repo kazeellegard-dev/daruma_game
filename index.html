@@ -4460,7 +4460,8 @@ const diag = (k, v) => { window.__diag[k] = v; window.__diag.log.push(new Date()
   }
 
   // --- 広告（画面のいちばん下にバナーを常に表示） ---
-  // EEA・英国では Google の UMP で同意を確認してから広告を出す（KAZE Application のほかのアプリと同じ。ATT は使わない）
+  // EEA・英国では Google の UMP で同意を確認し、そのあと iOS の ATT（トラッキングの許可）を聞いてから広告を出す。
+  // ATT を聞かずに広告を出すと App Store の審査に通らない（ガイドライン 5.1.2(i)）
   {
     listen('AdMob', 'bannerAdSizeChanged', size => { adH = Math.max(0, +size.height || 0); diag('bannerSize', size); applyInsets(); });
     listen('AdMob', 'bannerAdLoaded', () => diag('banner', 'loaded'));
@@ -4470,6 +4471,18 @@ const diag = (k, v) => { window.__diag[k] = v; window.__diag.log.push(new Date()
       diag('showBanner', test ? 'TEST ' + ADMOB.testId : ADMOB.bannerId);
       call('AdMob', 'showBanner', { adId: test ? ADMOB.testId : ADMOB.bannerId, isTesting: test, adSize: 'ADAPTIVE_BANNER', position: 'BOTTOM_CENTER', margin: 0 })
         .catch(e => diag('showBannerError', String(e && e.message || e)));
+    };
+    // ATT はアプリが前面に出ているときに聞かないと、確認が出ずに「許可しない」扱いになる
+    const askTracking = async () => {
+      try {
+        const { status } = await call('AdMob', 'trackingAuthorizationStatus', {});
+        diag('tracking', status);
+        if (status !== 'notDetermined') return;
+        if (document.visibilityState !== 'visible') await new Promise(r => document.addEventListener('visibilitychange', function f() { if (document.visibilityState === 'visible') { document.removeEventListener('visibilitychange', f); r(); } }));
+        await new Promise(r => setTimeout(r, 600));
+        await call('AdMob', 'requestTrackingAuthorization', {});
+        diag('tracking', (await call('AdMob', 'trackingAuthorizationStatus', {})).status);
+      } catch (e) { diag('trackingError', String(e && e.message || e)); }
     };
     (async () => {
       let info;
@@ -4483,6 +4496,7 @@ const diag = (k, v) => { window.__diag[k] = v; window.__diag.log.push(new Date()
         diag('consentError', String(e && e.message || e));
         // 同意の状況が分からないときは、規約違反を避けるため本番の広告は出さない。
         // テスト広告（自分の端末で画面を確かめる用）は収益にならないので出す
+        await askTracking();
         if (test) showBanner();
         return;
       }
@@ -4492,6 +4506,8 @@ const diag = (k, v) => { window.__diag[k] = v; window.__diag.log.push(new Date()
         b.addEventListener('click', e => { e.stopPropagation(); call('AdMob', 'showPrivacyOptionsForm', {}).catch(() => {}); });
         window.dispatchEvent(new Event('resize')); // タイトルの配置をやり直す
       }
+      // 審査で確認できるよう、同意の結果にかかわらず ATT は必ず聞く（広告を出さない場合も）
+      await askTracking();
       if (info.canRequestAds || test) showBanner();
     })();
   }

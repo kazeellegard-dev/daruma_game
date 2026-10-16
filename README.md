@@ -202,7 +202,8 @@ iPhone の Safari で開き、共有ボタン →「ホーム画面に追加」�
 | `index.html` の `ADMOB.bannerId` | 広告ユニット ID `ca-app-pub-8743645031370957/5149231305` |
 | `ios/App/App/Info.plist` の `GADApplicationIdentifier` | アプリ ID `ca-app-pub-8743645031370957~9088476310` |
 
-- KAZE Application のほかのアプリと同じく、EEA・英国では Google の UMP で同意を確認してから広告を出します。iOS の「トラッキングを許可しますか？」（ATT）は出しません。
+- EEA・英国では Google の UMP で同意を確認し、そのあと iOS の「トラッキングを許可しますか？」（ATT）を聞いてから広告を出します。ATT は同意の結果にかかわらず必ず聞きます（1.0 の審査で、ATT がないことを理由に却下されたため。ガイドライン 5.1.2(i)）。
+- 広告は AdMob のメディエーションで Unity Ads にも依頼します（`scripts/patch-admob.mjs` で Google の Unity アダプターを入れています）。
 - 同意が必要な地域の人には、タイトル画面のメニューに「🔒 プライバシー設定」ボタンが出て、あとから同意を変更できます。
 - 同意フォームの文面は、AdMob 管理画面の「プライバシーとメッセージ」で作ったものが使われます。
 

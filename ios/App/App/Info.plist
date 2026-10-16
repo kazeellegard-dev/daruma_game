@@ -66,6 +66,8 @@
 	<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>あなたの好みに合った広告を表示するために使います。許可しなくても、ゲームはすべて遊べます。</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-8743645031370957~9088476310</string>
 	<key>SKAdNetworkItems</key>
