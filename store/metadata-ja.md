@@ -73,7 +73,7 @@ App Store Connect の各欄にそのまま貼り付けられるように、文�
 | 項目 | URL |
 |---|---|
 | サポート URL（必須） | https://kaze-application.kazeellegard.workers.dev/apps/neko-daruma/ |
-| プライバシーポリシー URL（必須） | https://kaze-application.kazeellegard.workers.dev/policy/ |
+| プライバシーポリシー URL（必須） | https://kazeellegard-dev.github.io/daruma_game/privacy.html （KAZE Application サイトの共通ページは「ATT を使わない」と書いてあり食い違うため、2026-10-16 にこのアプリ専用のページへ変更） |
 | マーケティング URL | https://kaze-application.kazeellegard.workers.dev/ （AdMob が app-ads.txt を確認するので入れておく） |
 
 KAZE Application サイトに載せる内容は `store/kaze-application/HANDOFF.md` にまとめています。
@@ -182,6 +182,7 @@ Ads are loaded only after the App Tracking Transparency request has been answere
 - [x] ATT（トラッキングの許可の確認）を入れる（1.0 の却下を受けて追加。Info.plist の NSUserTrackingUsageDescription も追加）
 - [ ] AdMob 管理画面の「プライバシーとメッセージ」で、GDPR のメッセージの対象にこのアプリを入れる
 - [ ] KAZE Application サイトにアプリのページを追加（`store/kaze-application/HANDOFF.md`）
-- [ ] App のプライバシーの回答を確定する（上の 9）
+- [x] App のプライバシーの回答を確定する（上の 9。2026-10-16 にトラッキングありで公開）
+- [x] ビルド 25（ATT 入り）を選び、審査メモを差し替えて再提出（2026-10-16）
 - [ ] 本番広告入りのビルドを TestFlight で確認（自分の広告はタップしない。AdMob の「テストデバイス」に自分の iPhone を登録しておくと安全）
 - [ ] App Store Connect の「1.0 提出準備中」でビルドを選び、上の内容を入力して「審査に提出」
