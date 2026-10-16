@@ -11,6 +11,18 @@
 <meta name="apple-mobile-web-app-title" content="ねこだるま">
 <meta name="theme-color" content="#ffd6e6">
 <title>ねこだるまおとし</title>
+<meta name="description" content="ねこを落とさないように、お菓子の段をハンマーでたたき出す、だるま落としゲーム。ブラウザですぐ遊べます。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ねこだるまおとし">
+<meta property="og:title" content="ねこだるまおとし">
+<meta property="og:description" content="ねこがのった、お菓子のだるま落とし。タイミングよくたたいてPERFECTをねらおう。">
+<meta property="og:url" content="https://kazeellegard-dev.github.io/daruma_game/">
+<meta property="og:image" content="https://kazeellegard-dev.github.io/daruma_game/icons/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="お菓子の山の上にすわるねこ">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
@@ -4318,9 +4330,21 @@ tapBtn('retryBtn', () => {
 });
 tapBtn('overRankBtn', () => { renderRanking(); openRanking('overScreen'); });
 tapBtn('overTitleBtn', () => { if (pendingResult) savePending(); goTitle(); });
+// Link put into shared results. Inside the app, location.href is the app's internal
+// address (capacitor://localhost/), which nobody else can open, so share a public page.
+const WEB_URL = 'https://kazeellegard-dev.github.io/daruma_game/';
+// Support page until the App Store ID is known; then switch to
+// 'https://apps.apple.com/app/id<ID>?pt=<provider token>&ct=share' to count installs from shares.
+const APP_SHARE_URL = 'https://kaze-application.kazeellegard.workers.dev/apps/neko-daruma/';
+function shareUrl() {
+  const native = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  if (native) return APP_SHARE_URL;
+  if (!/^https?:$/.test(location.protocol)) return WEB_URL;
+  return location.origin + location.pathname;
+}
 tapBtn('shareBtn', async () => {
-  const text = `🐱ねこだるまおとし🐱\nスコア ${score}点！ STAGE ${stage}（${maxTier}だん）まで到達！\nMAXコンボ ${maxCombo}`;
-  const url = location.href.split('#')[0];
+  const text = `🐱ねこだるまおとし🐱\nスコア ${score}点！ STAGE ${stage}（${maxTier}だん）まで到達！\nMAXコンボ ${maxCombo}\n#ねこだるまおとし`;
+  const url = shareUrl();
   try {
     if (navigator.share) { await navigator.share({ title: 'ねこだるまおとし', text, url }); return; }
   } catch (e) { if (e && e.name === 'AbortError') return; }
