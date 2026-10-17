@@ -210,7 +210,7 @@ iPhone の Safari で開き、共有ボタン →「ホーム画面に追加」�
 | 場所 | 中身 |
 |---|---|
 | `index.html` の `ADMOB.bannerId` | 広告ユニット ID `ca-app-pub-8743645031370957/5149231305` |
-| `index.html` の `ADMOB.rewardId` | リワード広告のユニット ID（空のあいだは、本番ではボタンを出さない） |
+| `index.html` の `ADMOB.rewardId` | リワード広告のユニット ID `ca-app-pub-8743645031370957/9267526988` |
 | `ios/App/App/Info.plist` の `GADApplicationIdentifier` | アプリ ID `ca-app-pub-8743645031370957~9088476310` |
 
 - EEA・英国では Google の UMP で同意を確認し、そのあと iOS の「トラッキングを許可しますか？」（ATT）を聞いてから広告を出します。ATT は同意の結果にかかわらず必ず聞きます（1.0 の審査で、ATT がないことを理由に却下されたため。ガイドライン 5.1.2(i)）。
