@@ -1,0 +1,3 @@
+/* Name under the home screen icon (keep it short so it is not truncated) */
+"CFBundleDisplayName" = "Daruma Cat";
+"NSUserTrackingUsageDescription" = "This is used to show ads that match your interests. You can play the whole game even if you don't allow it.";

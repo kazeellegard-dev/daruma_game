@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="build" content="1.0.0">
+<meta name="build" content="1.1.0">
 <meta name="diag" content="0"><!-- 1 で「アプリの状態」画面とテスト広告を使える（アプリ版は CI の diagnostics で切り替え） -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -246,60 +246,60 @@
 <canvas id="game"></canvas>
 
 <div class="topbtns">
-  <button class="iconbtn hidden" id="pauseBtn" aria-label="ポーズ">⏸</button>
+  <button class="iconbtn hidden" id="pauseBtn" aria-label="ポーズ" data-en-label="Pause">⏸</button>
   <button class="iconbtn" id="bgmBtn" aria-label="BGM">🎵</button>
-  <button class="iconbtn" id="muteBtn" aria-label="効果音">🔊</button>
+  <button class="iconbtn" id="muteBtn" aria-label="効果音" data-en-label="Sound effects">🔊</button>
 </div>
-<button class="bagbtn hidden" id="bagBtn" aria-label="肉球バッグ">🐾<span id="bagCount"></span></button>
+<button class="bagbtn hidden" id="bagBtn" aria-label="肉球バッグ" data-en-label="Paw Bag">🐾<span id="bagCount"></span></button>
 
 <!-- タイトル -->
 <div class="overlay title-screen" id="titleScreen">
   <div class="logo" id="titleLogo">
-    <div class="logo-row" data-text="ねこだるま"></div>
-    <div class="logo-row big" data-text="おとし"></div>
-    <div class="tagline">ねこを落とさず、お菓子をぜんぶたたき出そう！</div>
+    <div class="logo-row" data-text="ねこだるま" data-en-text="DARUMA"></div>
+    <div class="logo-row big" data-text="おとし" data-en-text="CAT"></div>
+    <div class="tagline" data-en="Knock out every sweet without dropping the cat!">ねこを落とさず、お菓子をぜんぶたたき出そう！</div>
   </div>
   <div class="menu" id="titleMenu">
-    <div class="best" id="titleBestRow">ハイスコア <b id="titleBest">0</b></div>
-    <div class="best toast hidden" id="titleToast">データをリセットしました</div>
-    <button class="btn pulse" id="startBtn">▶ スタート</button>
-    <button class="btn yellow coll" id="collBtn">🐱 ねこ・ハンマー</button>
+    <div class="best" id="titleBestRow"><span data-en="High score">ハイスコア</span> <b id="titleBest">0</b></div>
+    <div class="best toast hidden" id="titleToast" data-en="Data has been reset">データをリセットしました</div>
+    <button class="btn pulse" id="startBtn" data-en="▶ Start">▶ スタート</button>
+    <button class="btn yellow coll" id="collBtn" data-en="🐱 Cats &amp; Hammers">🐱 ねこ・ハンマー</button>
     <div class="row">
-      <button class="btn sec" id="howBtn">あそびかた</button>
-      <button class="btn sec" id="rankBtn">ランキング</button>
+      <button class="btn sec" id="howBtn" data-en="How to play">あそびかた</button>
+      <button class="btn sec" id="rankBtn" data-en="Ranking">ランキング</button>
     </div>
-    <div class="tiny">ねこをタップするとジャンプするよ ・ 🎵でBGMのON/OFF</div>
-    <button class="btn mini hidden" id="privacyBtn">🔒 プライバシー設定</button>
+    <div class="tiny" data-en="Tap the cat to make it jump ・ 🎵 turns music on/off">ねこをタップするとジャンプするよ ・ 🎵でBGMのON/OFF</div>
+    <button class="btn mini hidden" id="privacyBtn" data-en="🔒 Privacy settings">🔒 プライバシー設定</button>
   </div>
 </div>
 
 <!-- ねこ・ハンマー（コレクション） -->
 <div class="overlay hidden" id="collScreen">
   <div class="card">
-    <h2>ねこ・ハンマー</h2>
-    <div class="coll-head">ねこ <small id="catCount"></small></div>
+    <h2 data-en="Cats &amp; Hammers">ねこ・ハンマー</h2>
+    <div class="coll-head"><span data-en="Cats">ねこ</span> <small id="catCount"></small></div>
     <div class="grid cats" id="catGrid"></div>
     <div class="detail" id="catDetail"></div>
-    <div class="coll-head">ハンマー <small id="hamCount"></small></div>
+    <div class="coll-head"><span data-en="Hammers">ハンマー</span> <small id="hamCount"></small></div>
     <div class="grid hams" id="hamGrid"></div>
     <div class="detail" id="hamDetail"></div>
-    <div class="tiny">5ステージクリアするごとに、新しいねこかハンマーがもらえるよ</div>
-    <button class="btn" id="collClose">けってい</button>
-    <button class="btn mini" id="resetBtn">🗑 データリセット</button>
+    <div class="tiny" data-en="Every 5 stages you clear, you get a new cat or hammer">5ステージクリアするごとに、新しいねこかハンマーがもらえるよ</div>
+    <button class="btn" id="collClose" data-en="OK">けってい</button>
+    <button class="btn mini" id="resetBtn" data-en="🗑 Reset data">🗑 データリセット</button>
   </div>
 </div>
 
 <!-- ミニゲームのおさそい -->
 <div class="overlay hidden" id="miniOffer">
   <div class="card confirm mini-offer">
-    <h2>🎮 ミニゲームチャンス！</h2>
+    <h2 data-en="🎮 Mini-game chance!">🎮 ミニゲームチャンス！</h2>
     <div class="mini-icon" id="miniIcon">🐟</div>
     <div class="mini-name" id="miniName"></div>
     <p id="miniRule"></p>
-    <p class="mini-prize">クリアすると、ふつうでは手に入らない<b>チートねこ</b>か<b>チートハンマー</b>がもらえるよ！<br><br>肉球バッグに入れて、<b>好きなステージで1回</b>使えるよ</p>
+    <p class="mini-prize" data-en="Clear it to get a rare <b>cheat cat</b> or <b>cheat hammer</b>!<br><br>It goes into your Paw Bag, and you can use it <b>once, on any stage</b>">クリアすると、ふつうでは手に入らない<b>チートねこ</b>か<b>チートハンマー</b>がもらえるよ！<br><br>肉球バッグに入れて、<b>好きなステージで1回</b>使えるよ</p>
     <div class="row">
-      <button class="btn sec" id="miniNo">やらない</button>
-      <button class="btn pulse" id="miniYes">やる！</button>
+      <button class="btn sec" id="miniNo" data-en="No thanks">やらない</button>
+      <button class="btn pulse" id="miniYes" data-en="Let's go!">やる！</button>
     </div>
   </div>
 </div>
@@ -307,13 +307,13 @@
 <!-- 肉球バッグ（ゲーム中） -->
 <div class="overlay hidden" id="bagScreen">
   <div class="card confirm">
-    <h2>🐾 肉球バッグ</h2>
-    <p class="mini-prize">使うと<b>このステージのあいだだけ</b>効果がつづくよ。ステージが終わるとなくなる！</p>
+    <h2 data-en="🐾 Paw Bag">🐾 肉球バッグ</h2>
+    <p class="mini-prize" data-en="The effect lasts <b>for this stage only</b>. It is gone when the stage ends!">使うと<b>このステージのあいだだけ</b>効果がつづくよ。ステージが終わるとなくなる！</p>
     <div class="grid bag" id="bagGrid"></div>
     <div class="detail" id="bagDetail"></div>
     <div class="row">
-      <button class="btn sec" id="bagClose">とじる</button>
-      <button class="btn pulse" id="bagUse">つかう！</button>
+      <button class="btn sec" id="bagClose" data-en="Close">とじる</button>
+      <button class="btn pulse" id="bagUse" data-en="Use it!">つかう！</button>
     </div>
   </div>
 </div>
@@ -321,26 +321,26 @@
 <!-- 調べるための画面（タイトルの「ハイスコア」を5回つづけてタップ） -->
 <div class="overlay hidden" id="diagScreen">
   <div class="card">
-    <h2>アプリの状態</h2>
+    <h2 data-en="App status">アプリの状態</h2>
     <pre id="diagText" style="text-align:left;font-size:11px;line-height:1.5;white-space:pre-wrap;word-break:break-all;max-height:55vh;overflow:auto;background:#fff;border-radius:10px;padding:8px;-webkit-user-select:text;user-select:text"></pre>
     <button class="btn sec" id="diagTestAds" style="font-size:14px;margin-bottom:10px"></button>
-    <button class="btn" id="diagClose">とじる</button>
+    <button class="btn" id="diagClose" data-en="Close">とじる</button>
   </div>
 </div>
 
 <!-- データリセットの確認 -->
 <div class="overlay hidden" id="resetScreen">
   <div class="card confirm">
-    <h2>ほんとうにリセットする？</h2>
-    <p>つぎのデータがすべて消えて、元にもどせません。</p>
+    <h2 data-en="Really reset?">ほんとうにリセットする？</h2>
+    <p data-en="All of the following will be deleted. This cannot be undone.">つぎのデータがすべて消えて、元にもどせません。</p>
     <ul>
-      <li>ハイスコアとランキング</li>
-      <li>集めたねこ・ハンマー（ゴールドハンマーもふくむ）</li>
+      <li data-en="High score and ranking">ハイスコアとランキング</li>
+      <li data-en="Cats and hammers you collected (including the Gold Hammer)">集めたねこ・ハンマー（ゴールドハンマーもふくむ）</li>
     </ul>
-    <p style="font-size:12px;opacity:.7">※ 音の設定はそのままです</p>
+    <p style="font-size:12px;opacity:.7" data-en="* Sound settings are kept">※ 音の設定はそのままです</p>
     <div class="row">
-      <button class="btn sec" id="resetNo">やめる</button>
-      <button class="btn danger" id="resetYes">リセットする</button>
+      <button class="btn sec" id="resetNo" data-en="Cancel">やめる</button>
+      <button class="btn danger" id="resetYes" data-en="Reset">リセットする</button>
     </div>
   </div>
 </div>
@@ -348,18 +348,18 @@
 <!-- ごほうびのボタン -->
 <div class="overlay hidden reward-ui" id="rewardUI">
   <div class="reward-btns">
-    <button class="btn yellow" id="rewardUse">これをつかう！</button>
-    <button class="btn sec" id="rewardNext">つぎへ</button>
+    <button class="btn yellow" id="rewardUse" data-en="Use this!">これをつかう！</button>
+    <button class="btn sec" id="rewardNext" data-en="Next">つぎへ</button>
   </div>
 </div>
 
 <!-- あそびかた -->
 <div class="overlay hidden" id="howScreen">
   <div class="card">
-    <h2>あそびかた</h2>
+    <h2 data-en="How to play">あそびかた</h2>
     <ul class="howto">
-      <li data-i="👆">画面の<b>左半分</b>をタップで左から、<b>右半分</b>をタップで右からハンマーで一番下のお菓子をたたくよ。</li>
-      <li data-i="🎯">下のパワーメーターの<b>まんなか</b>で止めるほど上手にぬける！
+      <li data-i="👆" data-en="Tap the <b>left half</b> of the screen to hit the bottom sweet from the left, or the <b>right half</b> to hit it from the right.">画面の<b>左半分</b>をタップで左から、<b>右半分</b>をタップで右からハンマーで一番下のお菓子をたたくよ。</li>
+      <li data-i="🎯"><span data-en="The closer to the <b>middle</b> of the power meter you stop, the cleaner the hit!">下のパワーメーターの<b>まんなか</b>で止めるほど上手にぬける！</span>
         <div class="zones">
           <span style="flex:12;background:#9aa7b8"></span>
           <span style="flex:15;background:#ffd166"></span>
@@ -369,90 +369,112 @@
           <span style="flex:15;background:#ffd166"></span>
           <span style="flex:12;background:#ff5a4f"></span>
         </div>
-        <div class="zl"><span>よわい</span><span>PERFECT</span><span>つよすぎ</span></div>
+        <div class="zl"><span data-en="Weak">よわい</span><span>PERFECT</span><span data-en="Too hard">つよすぎ</span></div>
       </li>
-      <li data-i="〰️">たたくとお菓子の山が<b>ぐらぐら</b>ゆれるよ。たたいた側と<b>反対側</b>に押されるので、かたむいている側からたたくと揺れをおさえられる！</li>
-      <li data-i="⏱">時間内にぜんぶ抜いて、ねこが床にすわればクリア！</li>
-      <li data-i="📈">クリアするたびに段数が増えるよ（最大30段）。</li>
-      <li data-i="⏱">PERFECTを出すと残り時間が少し増える！</li>
-      <li data-i="🔥">PERFECT・GOODを続けるとコンボボーナス！</li>
-      <li data-i="🎮">3〜5ステージごとに<b>ミニゲーム</b>のチャンス！ やるかどうかは選べるよ。クリアすると<b>チートねこ・チートハンマー</b>がもらえて、<b>肉球バッグ</b>にねこ・ハンマー1つずつしまえる。左上の<b>🐾ボタン</b>から好きなときに使えて、効果は<b>そのステージのあいだだけ</b>（ゲームが終わるとバッグはからっぽ・ランキングに🐾がつくよ）</li>
-      <li data-i="🍬">STAGE 3から、ときどき空から物がふってくる！<b>お菓子</b>をタップするといいことが、<b>お菓子じゃないもの</b>をタップしてしまうとわるいことが起きるよ</li>
-      <li data-i="🪑">ねこが座っている一番上の段は、ときどき<b>形や幅が変わる</b>よ。せまいと揺れやすい！</li>
-      <li data-i="🐱">ねこがときどき<b>座り直して</b>場所がずれるよ。はしに寄ると傾きやすい！</li>
-      <li data-i="💨">STAGE 2から、ときどき<b>風</b>がふいて押されるよ。</li>
-      <li data-i="🐈">STAGE 3から、ときどき<b>のらねこが乱入</b>して段をずらしてくる！ ずれた段はたたき出すと元にもどるよ。</li>
+      <li data-i="〰️" data-en="Each hit makes the stack <b>wobble</b>. It gets pushed <b>away</b> from the side you hit, so hit from the side it leans toward to calm it down!">たたくとお菓子の山が<b>ぐらぐら</b>ゆれるよ。たたいた側と<b>反対側</b>に押されるので、かたむいている側からたたくと揺れをおさえられる！</li>
+      <li data-i="⏱" data-en="Knock out every sweet in time so the cat sits on the floor to clear the stage!">時間内にぜんぶ抜いて、ねこが床にすわればクリア！</li>
+      <li data-i="📈" data-en="Each stage adds another layer (up to 30).">クリアするたびに段数が増えるよ（最大30段）。</li>
+      <li data-i="⏱" data-en="A PERFECT adds a little time!">PERFECTを出すと残り時間が少し増える！</li>
+      <li data-i="🔥" data-en="Chain PERFECTs and GOODs for a combo bonus!">PERFECT・GOODを続けるとコンボボーナス！</li>
+      <li data-i="🎮" data-en="Every 3–5 stages you get a <b>mini-game</b> chance, and you can choose to play or skip it. Clear it to get a <b>cheat cat or cheat hammer</b>. Your <b>Paw Bag</b> holds one cat and one hammer. Use them any time with the <b>🐾 button</b> at the top left; the effect lasts <b>for that stage only</b> (the bag empties when the game ends, and the ranking shows a 🐾)">3〜5ステージごとに<b>ミニゲーム</b>のチャンス！ やるかどうかは選べるよ。クリアすると<b>チートねこ・チートハンマー</b>がもらえて、<b>肉球バッグ</b>にねこ・ハンマー1つずつしまえる。左上の<b>🐾ボタン</b>から好きなときに使えて、効果は<b>そのステージのあいだだけ</b>（ゲームが終わるとバッグはからっぽ・ランキングに🐾がつくよ）</li>
+      <li data-i="🍬" data-en="From STAGE 3, things sometimes fall from the sky! Tap a <b>sweet</b> for something good, but tap <b>something that is not a sweet</b> and something bad happens">STAGE 3から、ときどき空から物がふってくる！<b>お菓子</b>をタップするといいことが、<b>お菓子じゃないもの</b>をタップしてしまうとわるいことが起きるよ</li>
+      <li data-i="🪑" data-en="The top layer the cat sits on sometimes <b>changes shape or width</b>. Narrow ones wobble more!">ねこが座っている一番上の段は、ときどき<b>形や幅が変わる</b>よ。せまいと揺れやすい！</li>
+      <li data-i="🐱" data-en="The cat sometimes <b>shifts its seat</b>. Near the edge, the stack tips more easily!">ねこがときどき<b>座り直して</b>場所がずれるよ。はしに寄ると傾きやすい！</li>
+      <li data-i="💨" data-en="From STAGE 2, <b>wind</b> sometimes pushes the stack.">STAGE 2から、ときどき<b>風</b>がふいて押されるよ。</li>
+      <li data-i="🐈" data-en="From STAGE 3, a <b>stray cat</b> sometimes barges in and shoves a layer out of line! Knock that layer out to fix it.">STAGE 3から、ときどき<b>のらねこが乱入</b>して段をずらしてくる！ ずれた段はたたき出すと元にもどるよ。</li>
     </ul>
-    <h2 style="margin-top:14px">おかし図鑑</h2>
+    <h2 style="margin-top:14px" data-en="Sweets guide">おかし図鑑</h2>
     <ul class="howto">
-      <li data-i="🍩"><b>ドーナツ</b>：判定が広くてぬけやすい</li>
-      <li data-i="🍬"><b>マカロン</b>：かるいので、たたいても揺れにくい</li>
-      <li data-i="🍰"><b>ショートケーキ</b>：ふわふわで大きく揺れる。得点2倍</li>
-      <li data-i="🍫"><b>板チョコ</b>（STAGE 3〜）：かたくて2回たたかないとぬけない。得点2倍</li>
-      <li data-i="🍮"><b>プリン</b>（STAGE 3〜）：積んであるあいだ揺れがおさまりにくい。得点1.5倍</li>
-      <li data-i="🍡"><b>おもち</b>（STAGE 4〜）：ねばって判定がせまい。得点2倍</li>
-      <li data-i="🍞"><b>カステラ</b>（STAGE 2〜）：ずっしり重くて、積んであるあいだ揺れがおさまりやすい</li>
-      <li data-i="✨"><b>金のカステラ</b>：たまに出るレアなお菓子。得点3倍</li>
-      <li data-i="🎂">ねこの段は<b>ホールケーキ・マシュマロ・ジャンボプリン・いちご大福</b>に変身するよ</li>
+      <li data-i="🍩" data-en="<b>Donut</b>: wide timing, easy to knock out"><b>ドーナツ</b>：判定が広くてぬけやすい</li>
+      <li data-i="🍬" data-en="<b>Macaron</b>: light, so it barely wobbles when hit"><b>マカロン</b>：かるいので、たたいても揺れにくい</li>
+      <li data-i="🍰" data-en="<b>Shortcake</b>: fluffy and wobbles a lot. 2× points"><b>ショートケーキ</b>：ふわふわで大きく揺れる。得点2倍</li>
+      <li data-i="🍫" data-en="<b>Chocolate bar</b> (STAGE 3+): hard, takes 2 hits. 2× points"><b>板チョコ</b>（STAGE 3〜）：かたくて2回たたかないとぬけない。得点2倍</li>
+      <li data-i="🍮" data-en="<b>Pudding</b> (STAGE 3+): keeps the stack wobbling longer. 1.5× points"><b>プリン</b>（STAGE 3〜）：積んであるあいだ揺れがおさまりにくい。得点1.5倍</li>
+      <li data-i="🍡" data-en="<b>Mochi</b> (STAGE 4+): sticky, narrow timing. 2× points"><b>おもち</b>（STAGE 4〜）：ねばって判定がせまい。得点2倍</li>
+      <li data-i="🍞" data-en="<b>Castella</b> (STAGE 2+): heavy, helps the stack settle down"><b>カステラ</b>（STAGE 2〜）：ずっしり重くて、積んであるあいだ揺れがおさまりやすい</li>
+      <li data-i="✨" data-en="<b>Golden castella</b>: a rare sweet. 3× points"><b>金のカステラ</b>：たまに出るレアなお菓子。得点3倍</li>
+      <li data-i="🎂" data-en="The cat's layer turns into a <b>whole cake, marshmallow, jumbo pudding or strawberry daifuku</b>">ねこの段は<b>ホールケーキ・マシュマロ・ジャンボプリン・いちご大福</b>に変身するよ</li>
     </ul>
-    <p class="sub" style="margin-top:8px">お菓子によって<b>パーフェクトの位置</b>がちがうよ。やわらかいお菓子は「よわい」寄り、かたいお菓子は「つよい」寄り！ 画面下の「つぎ：〇〇」とメーターの色で確認しよう。</p>
-    <h2 style="margin-top:14px">ねこ・ハンマー</h2>
+    <p class="sub" style="margin-top:8px" data-en="Each sweet has its own <b>PERFECT spot</b>. Soft sweets lean toward "Weak", hard ones toward "Strong"! Check "Next: …" at the bottom and the meter colors.">お菓子によって<b>パーフェクトの位置</b>がちがうよ。やわらかいお菓子は「よわい」寄り、かたいお菓子は「つよい」寄り！ 画面下の「つぎ：〇〇」とメーターの色で確認しよう。</p>
+    <h2 style="margin-top:14px" data-en="Cats &amp; Hammers">ねこ・ハンマー</h2>
     <ul class="howto">
-      <li data-i="🎁"><b>5ステージクリア</b>するごとに、新しいねこかハンマーがランダムでもらえるよ。</li>
-      <li data-i="🐱">ねこは10種類、ハンマーは5種類。それぞれ特徴があるよ。タイトルの「ねこ・ハンマー」でえらべるよ。</li>
-      <li data-i="✨">ひみつのハンマーもあるらしい…？</li>
+      <li data-i="🎁" data-en="Every <b>5 stages</b> you clear, you get a random new cat or hammer."><b>5ステージクリア</b>するごとに、新しいねこかハンマーがランダムでもらえるよ。</li>
+      <li data-i="🐱" data-en="There are 10 cats and 5 hammers, each with its own trait. Pick them from "Cats &amp; Hammers" on the title screen.">ねこは10種類、ハンマーは5種類。それぞれ特徴があるよ。タイトルの「ねこ・ハンマー」でえらべるよ。</li>
+      <li data-i="✨" data-en="Rumor has it there is a secret hammer…?">ひみつのハンマーもあるらしい…？</li>
     </ul>
-    <button class="btn" id="howClose">わかった！</button>
+    <button class="btn" id="howClose" data-en="Got it!">わかった！</button>
   </div>
 </div>
 
 <!-- ランキング -->
 <div class="overlay hidden" id="rankScreen">
   <div class="card">
-    <h2>🏆 ランキング</h2>
+    <h2 data-en="🏆 Ranking">🏆 ランキング</h2>
     <div id="rankList"></div>
-    <button class="btn" id="rankClose">もどる</button>
-    <div class="tiny">ランキングはこの端末のブラウザに保存されます</div>
+    <button class="btn" id="rankClose" data-en="Back">もどる</button>
+    <div class="tiny" data-en="The ranking is saved on this device">ランキングはこの端末のブラウザに保存されます</div>
   </div>
 </div>
 
 <!-- ポーズ -->
 <div class="overlay hidden" id="pauseScreen">
   <div class="card">
-    <h2>ポーズ</h2>
-    <button class="btn" id="resumeBtn">つづける</button>
-    <button class="btn sec" id="quitBtn">タイトルへ</button>
+    <h2 data-en="Paused">ポーズ</h2>
+    <button class="btn" id="resumeBtn" data-en="Resume">つづける</button>
+    <button class="btn sec" id="quitBtn" data-en="Title">タイトルへ</button>
   </div>
 </div>
 
 <!-- ゲームオーバー -->
 <div class="overlay hidden" id="overScreen">
   <div class="card">
-    <h2 id="overTitle">ゲームオーバー</h2>
+    <h2 id="overTitle" data-en="Game over">ゲームオーバー</h2>
     <div class="result" id="overReason"></div>
-    <div id="newRec" class="newrec hidden">🎉 ハイスコア更新！</div>
+    <div id="newRec" class="newrec hidden" data-en="🎉 New high score!">🎉 ハイスコア更新！</div>
     <div class="bigscore" id="overScore">0</div>
     <div class="stats">
       <div>STAGE<br><b id="overStage">1</b></div>
-      <div>最高段数<br><b id="overTier">3</b></div>
-      <div>MAXコンボ<br><b id="overCombo">0</b></div>
+      <div><span data-en="Max layers">最高段数</span><br><b id="overTier">3</b></div>
+      <div><span data-en="Max combo">MAXコンボ</span><br><b id="overCombo">0</b></div>
     </div>
     <div class="nameform hidden" id="nameForm">
-      <label id="rankInLabel">ランクイン！ なまえを入れてね</label>
-      <input id="nameInput" maxlength="10" placeholder="なまえ" autocomplete="off" enterkeyhint="done">
-      <button class="btn yellow" id="saveBtn">ランキングに登録</button>
+      <label id="rankInLabel" data-en="You made the ranking! Enter your name">ランクイン！ なまえを入れてね</label>
+      <input id="nameInput" maxlength="10" placeholder="なまえ" data-en-placeholder="Name" autocomplete="off" enterkeyhint="done">
+      <button class="btn yellow" id="saveBtn" data-en="Save to ranking">ランキングに登録</button>
     </div>
-    <button class="btn" id="retryBtn">もういちど</button>
+    <button class="btn yellow pulse hidden" id="continueBtn" data-en="📺 Watch an ad to continue">📺 広告を見てつづきから</button>
+    <button class="btn" id="retryBtn" data-en="Play again">もういちど</button>
     <div class="row">
-      <button class="btn sec" id="overRankBtn">ランキング</button>
-      <button class="btn sec" id="shareBtn">シェア</button>
+      <button class="btn sec" id="overRankBtn" data-en="Ranking">ランキング</button>
+      <button class="btn sec" id="shareBtn" data-en="Share">シェア</button>
     </div>
-    <button class="btn sec" id="overTitleBtn">タイトルへ</button>
+    <button class="btn sec" id="overTitleBtn" data-en="Title">タイトルへ</button>
   </div>
 </div>
 
 </div>
 <script>
+// 言語：端末の言語が日本語なら日本語、それ以外は英語（?lang=en / ?lang=ja で切り替えて確かめられる）
+const LANG = (() => {
+  try {
+    const q = new URLSearchParams(location.search).get('lang');
+    if (q === 'ja' || q === 'en') return q;
+    return /^ja\b/i.test((navigator.languages && navigator.languages[0]) || navigator.language || '') ? 'ja' : 'en';
+  } catch (e) { return 'ja'; }
+})();
+const EN = LANG === 'en';
+const T = (ja, en) => EN ? en : ja;
+const APP_NAME = T('ねこだるまおとし', 'Daruma Cat');
+// 画面の文字は日本語で書いてあり、英語のときは data-en などの英語に差し替える
+if (EN) {
+  document.documentElement.lang = 'en';
+  document.title = APP_NAME;
+  document.querySelectorAll('[data-en]').forEach(el => { el.innerHTML = el.dataset.en; });
+  document.querySelectorAll('[data-en-label]').forEach(el => el.setAttribute('aria-label', el.dataset.enLabel));
+  document.querySelectorAll('[data-en-placeholder]').forEach(el => el.setAttribute('placeholder', el.dataset.enPlaceholder));
+  document.querySelectorAll('[data-en-text]').forEach(el => { el.dataset.text = el.dataset.enText; });
+}
+
 // 大きい画面（iPad）では、スマホ向けの画面をまるごと拡大して見せる
 let UI = 1;
 function uiScale() { return Math.max(1, Math.min(window.innerWidth / 480, window.innerHeight / 900)); }
@@ -866,39 +888,39 @@ let lastCause = '', lastCauseT = -99;
 // ふってくるアイテム（STAGE 3〜）：お菓子はいいこと、お菓子じゃないものはわるいこと
 const DROP_STAGE = 3;
 const DROPS = {
-  candy:    { good: true,  name: 'キャンディ',     msg: 'メーターがゆっくりに！',   color: '#ff6fa5', buff: 'slow', dur: 6 },
-  cookie:   { good: true,  name: 'クッキー',       msg: 'じかん +3びょう！',        color: '#e0913a' },
-  lolly:    { good: true,  name: 'ぺろぺろキャンディ', msg: 'ゆれがぴたっ！',        color: '#3fb8ff', buff: 'calm', dur: 4 },
-  konpeito: { good: true,  name: 'こんぺいとう',   msg: 'PERFECTがひろがる！',      color: '#ffcc00', buff: 'wide', dur: 6 },
-  boot:     { good: false, name: 'ながぐつ',       msg: 'とっぷうがくる！',         color: '#7fd3ff' },
-  bone:     { good: false, name: 'さかなのほね',   msg: 'のらねこの大群がくる！',   color: '#ff9a3c' },
-  clock:    { good: false, name: 'めざましどけい', msg: 'メーターが速くなる！',     color: '#ff5a4f', buff: 'fast', dur: 5 },
+  candy:    { good: true,  name: T('キャンディ', 'Candy'), msg: T('メーターがゆっくりに！', 'Slow meter!'),   color: '#ff6fa5', buff: 'slow', dur: 6 },
+  cookie:   { good: true,  name: T('クッキー', 'Cookie'), msg: T('じかん +3びょう！', 'Time +3 sec!'),        color: '#e0913a' },
+  lolly:    { good: true,  name: T('ぺろぺろキャンディ', 'Lollipop'), msg: T('ゆれがぴたっ！', 'Wobble stops!'),        color: '#3fb8ff', buff: 'calm', dur: 4 },
+  konpeito: { good: true,  name: T('こんぺいとう', 'Konpeito'), msg: T('PERFECTがひろがる！', 'Wider PERFECT!'),      color: '#ffcc00', buff: 'wide', dur: 6 },
+  boot:     { good: false, name: T('ながぐつ', 'Boot'), msg: T('とっぷうがくる！', 'A gust is coming!'),         color: '#7fd3ff' },
+  bone:     { good: false, name: T('さかなのほね', 'Fish bone'), msg: T('のらねこの大群がくる！', 'A horde of strays!'),   color: '#ff9a3c' },
+  clock:    { good: false, name: T('めざましどけい', 'Alarm clock'), msg: T('メーターが速くなる！', 'Fast meter!'),     color: '#ff5a4f', buff: 'fast', dur: 5 },
 };
-const BUFF_INFO = { slow: { icon: 'candy', label: 'ゆっくり' }, calm: { icon: 'lolly', label: 'ぴたっ' }, wide: { icon: 'konpeito', label: 'ひろい' }, fast: { icon: 'clock', label: 'はやい' } };
+const BUFF_INFO = { slow: { icon: 'candy', label: T('ゆっくり', 'Slow') }, calm: { icon: 'lolly', label: T('ぴたっ', 'Calm') }, wide: { icon: 'konpeito', label: T('ひろい', 'Wide') }, fast: { icon: 'clock', label: T('はやい', 'Fast') } };
 let drops = [], dropTimer = 0, horde = 0, parade = [], dropFx = null;
 let buffs = { slow: 0, fast: 0, wide: 0, calm: 0 };
 const SEAT_SHAPES = 4;   // 0:ホールケーキ 1:マシュマロ 2:プリン 3:いちご大福
-const SEAT_NAMES = ['ホールケーキ', 'マシュマロ', 'ジャンボプリン', 'いちご大福'];
+const SEAT_NAMES = EN ? ['Whole cake', 'Marshmallow', 'Jumbo pudding', 'Strawberry daifuku'] : ['ホールケーキ', 'マシュマロ', 'ジャンボプリン', 'いちご大福'];
 
 // お菓子の段：zone=判定の広さ imp=揺れやすさ pts=得点倍率 center=パーフェクトの位置（0:よわい〜1:つよい）
 const SWEETS = {
-  donut:    { name: 'ドーナツ',       tip: 'ぬけやすい',   desc: '判定が広くてぬけやすい',               zone: 1.35, imp: 1,    pts: 1,   center: 0.5,  soft: 0.4, minStage: 1, weight: 3 },
-  macaron:  { name: 'マカロン',       tip: 'ゆれにくい',   desc: 'かるいので、たたいても揺れにくい',     zone: 1,    imp: 0.6,  pts: 1,   center: 0.42, soft: 0.3, minStage: 1, weight: 3 },
-  cake:     { name: 'ショートケーキ', tip: 'ぐらつく・2倍', desc: 'ふわふわで大きく揺れる。得点2倍',     zone: 1,    imp: 1.15, pts: 2,   center: 0.36, soft: 0.7, minStage: 1, weight: 2 },
-  choco:    { name: '板チョコ',       tip: 'かたい・2回',  desc: 'かたくて2回たたかないとぬけない。得点2倍', zone: 1, imp: 1,  pts: 2,   center: 0.72, soft: 0, minStage: 3, weight: 1.5, hp: 2 },
-  pudding:  { name: 'プリン',         tip: 'ぷるぷる',     desc: '積んであるあいだ揺れがおさまりにくい。得点1.5倍', zone: 1, imp: 1, pts: 1.5, center: 0.3, soft: 1, minStage: 3, weight: 1.5 },
-  mochi:    { name: 'おもち',         tip: 'きびしい・2倍', desc: 'ねばって判定がせまい。得点2倍',       zone: 0.75, imp: 1,    pts: 2,   center: 0.62, soft: 0.85, minStage: 4, weight: 1.5 },
-  kasutera: { name: 'カステラ',       tip: 'あんてい',     desc: 'ずっしり重くて、積んであるあいだ揺れがおさまりやすい', zone: 1, imp: 1, pts: 1, center: 0.48, soft: 0.5, minStage: 2, weight: 2 },
-  castella: { name: '金のカステラ',   tip: '3倍！',        desc: 'たまに出るレアなお菓子。得点3倍',     zone: 1,    imp: 1,    pts: 3,   center: 0.56, soft: 0.2, minStage: 1, weight: 0 },
+  donut:    { name: T('ドーナツ', 'Donut'), tip: T('ぬけやすい', 'easy'), desc: T('判定が広くてぬけやすい', 'Wide timing, easy to knock out'),               zone: 1.35, imp: 1,    pts: 1,   center: 0.5,  soft: 0.4, minStage: 1, weight: 3 },
+  macaron:  { name: T('マカロン', 'Macaron'), tip: T('ゆれにくい', 'steady'), desc: T('かるいので、たたいても揺れにくい', 'Light, so it barely wobbles'),     zone: 1,    imp: 0.6,  pts: 1,   center: 0.42, soft: 0.3, minStage: 1, weight: 3 },
+  cake:     { name: T('ショートケーキ', 'Shortcake'), tip: T('ぐらつく・2倍', 'wobbly · 2×'), desc: T('ふわふわで大きく揺れる。得点2倍', 'Fluffy and wobbles a lot. 2× points'),     zone: 1,    imp: 1.15, pts: 2,   center: 0.36, soft: 0.7, minStage: 1, weight: 2 },
+  choco:    { name: T('板チョコ', 'Chocolate'), tip: T('かたい・2回', 'hard · 2 hits'), desc: T('かたくて2回たたかないとぬけない。得点2倍', 'Hard, takes 2 hits. 2× points'), zone: 1, imp: 1,  pts: 2,   center: 0.72, soft: 0, minStage: 3, weight: 1.5, hp: 2 },
+  pudding:  { name: T('プリン', 'Pudding'), tip: T('ぷるぷる', 'jiggly'), desc: T('積んであるあいだ揺れがおさまりにくい。得点1.5倍', 'Keeps the stack wobbling. 1.5× points'), zone: 1, imp: 1, pts: 1.5, center: 0.3, soft: 1, minStage: 3, weight: 1.5 },
+  mochi:    { name: T('おもち', 'Mochi'), tip: T('きびしい・2倍', 'tricky · 2×'), desc: T('ねばって判定がせまい。得点2倍', 'Sticky, narrow timing. 2× points'),       zone: 0.75, imp: 1,    pts: 2,   center: 0.62, soft: 0.85, minStage: 4, weight: 1.5 },
+  kasutera: { name: T('カステラ', 'Castella'), tip: T('あんてい', 'stable'), desc: T('ずっしり重くて、積んであるあいだ揺れがおさまりやすい', 'Heavy, helps the stack settle'), zone: 1, imp: 1, pts: 1, center: 0.48, soft: 0.5, minStage: 2, weight: 2 },
+  castella: { name: T('金のカステラ', 'Golden castella'), tip: T('3倍！', '3×!'), desc: T('たまに出るレアなお菓子。得点3倍', 'A rare sweet. 3× points'),     zone: 1,    imp: 1,    pts: 3,   center: 0.56, soft: 0.2, minStage: 1, weight: 0 },
 };
 const SEAT_CENTERS = [0.4, 0.3, 0.3, 0.55]; // ホールケーキ・マシュマロ・ジャンボプリン・いちご大福
 const SEAT_SOFT = [0.6, 0.9, 1, 0.75];      // やわらかさ（0:かたい〜1:ぷるぷる）
 const SWEET_WORDS = {
-  donut: ['もふっ'], macaron: ['さくっ'], cake: ['ふわっ', 'ふわん'], choco: ['カチッ', 'コツン'],
-  pudding: ['ぷるんっ', 'ぷるるん', 'ぷるっ'], mochi: ['もちっ', 'むにゅ〜'], castella: ['ふかっ'], kasutera: ['ふかっ', 'しっとり'],
-  seat0: ['ふわっ'], seat1: ['ぽよん'], seat2: ['ぷるるんっ'], seat3: ['もちっ'],
+  donut: [T('もふっ', 'Fluff!')], macaron: [T('さくっ', 'Crunch!')], cake: EN ? ['Poof!', 'Floof!'] : ['ふわっ', 'ふわん'], choco: EN ? ['Clack!', 'Tok!'] : ['カチッ', 'コツン'],
+  pudding: EN ? ['Jiggle!', 'Wobble!', 'Boing!'] : ['ぷるんっ', 'ぷるるん', 'ぷるっ'], mochi: EN ? ['Squish!', 'Stretch~'] : ['もちっ', 'むにゅ〜'], castella: [T('ふかっ', 'Puff!')], kasutera: EN ? ['Puff!', 'Soft!'] : ['ふかっ', 'しっとり'],
+  seat0: [T('ふわっ', 'Poof!')], seat1: [T('ぽよん', 'Boing!')], seat2: [T('ぷるるんっ', 'Wobble!')], seat3: [T('もちっ', 'Squish!')],
 };
-const SEAT_SWEET = { name: '', tip: 'ねこの段', zone: 1, imp: 1, pts: 1, center: 0.5 };
+const SEAT_SWEET = { name: '', tip: T('ねこの段', "cat's seat"), zone: 1, imp: 1, pts: 1, center: 0.5 };
 function sweetOf(b) {
   if (b.seat) return { ...SEAT_SWEET, center: SEAT_CENTERS[b.shape || 0], soft: SEAT_SOFT[b.shape || 0] };
   return SWEETS[b.kind] || SWEETS.donut;
@@ -906,51 +928,51 @@ function sweetOf(b) {
 
 // ===================== ねこ・ハンマー =====================
 const CATS = [
-  { id: 'tora', name: 'トラ', kind: '茶トラ', desc: 'バランスのいい、ふつうのねこ',
+  { id: 'tora', name: T('トラ', 'Tora'), kind: T('茶トラ', 'Orange tabby'), desc: T('バランスのいい、ふつうのねこ', 'A well-balanced, ordinary cat'),
     pal: { body: '#f8ad55', stripe: '#e0832e', white: '#fff8ee', stripes: true } },
-  { id: 'shiro', name: 'シロ', kind: '白ねこ', desc: 'スコアが1.15倍', score: 1.15,
+  { id: 'shiro', name: T('シロ', 'Shiro'), kind: T('白ねこ', 'White cat'), desc: T('スコアが1.15倍', 'Score ×1.15'), score: 1.15,
     pal: { body: '#fdfbf7', stripe: '#e8e0d6', white: '#ffffff', eye: '#7cc8ff' } },
-  { id: 'kuro', name: 'クロ', kind: '黒ねこ', desc: '風に強い（風の力が半分）', wind: 0.5,
+  { id: 'kuro', name: T('クロ', 'Kuro'), kind: T('黒ねこ', 'Black cat'), desc: T('風に強い（風の力が半分）', 'Wind-proof (half the wind)'), wind: 0.5,
     pal: { body: '#3a3540', stripe: '#2a262e', white: '#3a3540', eye: '#ffd23f', dark: true } },
-  { id: 'mike', name: 'ミケ', kind: '三毛ねこ', desc: 'のらねこが来にくく、押す力も弱い', intruder: 0.5,
+  { id: 'mike', name: T('ミケ', 'Mike'), kind: T('三毛ねこ', 'Calico'), desc: T('のらねこが来にくく、押す力も弱い', 'Fewer strays, and they push softer'), intruder: 0.5,
     pal: { body: '#fffaf2', stripe: '#e0832e', white: '#ffffff',
       patches: { head: [[-20, -82, 16, 13, '#f39a3d'], [22, -76, 14, 12, '#4a3f3a']], body: [[-20, -42, 14, 12, '#4a3f3a'], [20, -24, 13, 15, '#f39a3d']] } } },
-  { id: 'saba', name: 'サバ', kind: 'サバトラ', desc: 'おちついていて、座り直しをしない', reseat: false,
+  { id: 'saba', name: T('サバ', 'Saba'), kind: T('サバトラ', 'Silver tabby'), desc: T('おちついていて、座り直しをしない', 'Calm, never shifts its seat'), reseat: false,
     pal: { body: '#a3abb5', stripe: '#5f6873', white: '#f6f6f6', stripes: true } },
-  { id: 'siam', name: 'シャム', kind: 'シャムねこ', desc: 'パーフェクトの幅が1.15倍', zone: 1.15,
+  { id: 'siam', name: T('シャム', 'Siam'), kind: T('シャムねこ', 'Siamese'), desc: T('パーフェクトの幅が1.15倍', 'PERFECT zone ×1.15'), zone: 1.15,
     pal: { body: '#f3e6cf', stripe: '#d9c6a6', white: '#fbf4e6', point: '#6b4a3a', eye: '#5fb7ff' } },
-  { id: 'hachi', name: 'ハチ', kind: 'ハチワレ', desc: '制限時間が1.25倍', time: 1.25,
+  { id: 'hachi', name: T('ハチ', 'Hachi'), kind: T('ハチワレ', 'Tuxedo cat'), desc: T('制限時間が1.25倍', 'Time limit ×1.25'), time: 1.25,
     pal: { body: '#35313a', stripe: '#25222a', white: '#ffffff', eye: '#9be07a', dark: true, tux: true } },
-  { id: 'blue', name: 'ブルー', kind: 'ロシアンブルー', desc: '揺れがおさまりやすい', damp: 1.25,
+  { id: 'blue', name: T('ブルー', 'Blue'), kind: T('ロシアンブルー', 'Russian Blue'), desc: T('揺れがおさまりやすい', 'Wobbles settle faster'), damp: 1.25,
     pal: { body: '#8a98aa', stripe: '#76849a', white: '#9aa7b8', eye: '#7ddc8a' } },
-  { id: 'scot', name: 'たれみみ', kind: 'スコティッシュ', desc: 'たたいたときの揺れが0.88倍', imp: 0.88,
+  { id: 'scot', name: T('たれみみ', 'Floppy'), kind: T('スコティッシュ', 'Scottish Fold'), desc: T('たたいたときの揺れが0.88倍', 'Wobble per hit ×0.88'), imp: 0.88,
     pal: { body: '#efd9b4', stripe: '#d9b98a', white: '#fff8ee', fold: true, stripes: true } },
-  { id: 'maneki', name: 'まねき', kind: '招きねこ', desc: '金のカステラが出やすく、スコア1.05倍', goldRate: 3, score: 1.05,
+  { id: 'maneki', name: T('まねき', 'Maneki'), kind: T('招きねこ', 'Lucky cat'), desc: T('金のカステラが出やすく、スコア1.05倍', 'More golden castella, score ×1.05'), goldRate: 3, score: 1.05,
     pal: { body: '#ffffff', stripe: '#eeeeee', white: '#ffffff', collar: true,
       patches: { head: [[-22, -84, 12, 10, '#f39a3d'], [24, -82, 10, 9, '#3a3540']], body: [] } } },
 ];
 const HAMMERS = [
-  { id: 'wood', name: '木づち', short: '木づち', desc: 'ふつうのハンマー', handle: '#c98b4a' },
-  { id: 'pico', name: 'ピコピコハンマー', short: 'ピコピコ', desc: 'やさしい：揺れ0.8倍（得点は0.9倍）', imp: 0.8, score: 0.9, handle: '#ffd23f' },
-  { id: 'iron', name: '鉄のハンマー', short: '鉄', desc: 'かたい板チョコも1回でぬける', chocoOne: true, handle: '#6b7280' },
-  { id: 'candy', name: 'キャンディハンマー', short: 'キャンディ', desc: 'パーフェクトの幅が1.2倍', zone: 1.2, handle: '#ff5a4f' },
-  { id: 'paw', name: '肉球ハンマー', short: '肉球', desc: '3コンボごとにコンボ倍率アップ', comboStep: 3, handle: '#fff3f6' },
-  { id: 'gold', name: 'ゴールドハンマー', short: 'ゴールド', desc: 'ひみつのハンマー：得点1.5倍・パーフェクトの幅1.1倍', score: 1.5, zone: 1.1, handle: '#e0a800', secret: true },
+  { id: 'wood', name: T('木づち', 'Mallet'), short: T('木づち', 'Mallet'), desc: T('ふつうのハンマー', 'An ordinary hammer'), handle: '#c98b4a' },
+  { id: 'pico', name: T('ピコピコハンマー', 'Squeaky hammer'), short: T('ピコピコ', 'Squeaky'), desc: T('やさしい：揺れ0.8倍（得点は0.9倍）', 'Gentle: wobble ×0.8 (points ×0.9)'), imp: 0.8, score: 0.9, handle: '#ffd23f' },
+  { id: 'iron', name: T('鉄のハンマー', 'Iron hammer'), short: T('鉄', 'Iron'), desc: T('かたい板チョコも1回でぬける', 'Knocks out chocolate in 1 hit'), chocoOne: true, handle: '#6b7280' },
+  { id: 'candy', name: T('キャンディハンマー', 'Candy hammer'), short: T('キャンディ', 'Candy'), desc: T('パーフェクトの幅が1.2倍', 'PERFECT zone ×1.2'), zone: 1.2, handle: '#ff5a4f' },
+  { id: 'paw', name: T('肉球ハンマー', 'Paw hammer'), short: T('肉球', 'Paw'), desc: T('3コンボごとにコンボ倍率アップ', 'Combo bonus rises every 3 combos'), comboStep: 3, handle: '#fff3f6' },
+  { id: 'gold', name: T('ゴールドハンマー', 'Gold hammer'), short: T('ゴールド', 'Gold'), desc: T('ひみつのハンマー：得点1.5倍・パーフェクトの幅1.1倍', 'Secret hammer: points ×1.5, PERFECT zone ×1.1'), score: 1.5, zone: 1.1, handle: '#e0a800', secret: true },
 ];
 // チートねこ・チートハンマー（ミニゲームのごほうび。そのゲームのあいだだけ、肉球バッグに1つずつ入る）
 const CHEAT_CATS = [
-  { id: 'niji', name: 'にじ', kind: 'チートねこ', desc: 'パーフェクトの幅が2倍！', zone: 2, cheat: true,
+  { id: 'niji', name: T('にじ', 'Rainbow'), kind: T('チートねこ', 'Cheat cat'), desc: T('パーフェクトの幅が2倍！', 'PERFECT zone ×2!'), zone: 2, cheat: true,
     pal: { body: '#fff4fa', stripe: '#ffc1dc', white: '#ffffff', eye: '#ff6fa5', collar: true,
       patches: { head: [[-22, -84, 11, 9, '#ff9fbd'], [22, -84, 11, 9, '#8fd0ff'], [0, -96, 9, 7, '#fff07a']], body: [[-18, -40, 11, 10, '#9be59b'], [18, -26, 11, 12, '#c9a7ff']] } } },
-  { id: 'robo', name: 'ロボ', kind: 'チートねこ', desc: '制限時間2倍・風とのらねこがきかない', time: 2, wind: 0, intruder: 0, cheat: true,
+  { id: 'robo', name: T('ロボ', 'Robo'), kind: T('チートねこ', 'Cheat cat'), desc: T('制限時間2倍・風とのらねこがきかない', 'Time ×2, immune to wind and strays'), time: 2, wind: 0, intruder: 0, cheat: true,
     pal: { body: '#c9d3df', stripe: '#8d9bab', white: '#eef2f6', eye: '#ff4d6d', stripes: true, collar: true } },
-  { id: 'fuwa', name: 'ふわふわ', kind: 'チートねこ', desc: 'ほとんど揺れない（揺れ0.5倍・おさまり2倍）', imp: 0.5, damp: 2, cheat: true,
+  { id: 'fuwa', name: T('ふわふわ', 'Fluffy'), kind: T('チートねこ', 'Cheat cat'), desc: T('ほとんど揺れない（揺れ0.5倍・おさまり2倍）', 'Hardly wobbles (wobble ×0.5, settles ×2)'), imp: 0.5, damp: 2, cheat: true,
     pal: { body: '#f1e9ff', stripe: '#dccfff', white: '#ffffff', eye: '#a77bff' } },
 ];
 const CHEAT_HAMMERS = [
-  { id: 'thunder', name: 'いなずまハンマー', short: 'いなずま', desc: '得点3倍！', score: 3, cheat: true, handle: '#3fa7ff' },
-  { id: 'jumbo', name: 'ジャンボハンマー', short: 'ジャンボ', desc: 'パーフェクトの幅1.8倍・かたいチョコも1回', zone: 1.8, chocoOne: true, cheat: true, handle: '#a77bff' },
-  { id: 'tokei', name: 'とけいハンマー', short: 'とけい', desc: 'PERFECTで時間+2秒・揺れ0.7倍', perfTime: 2, imp: 0.7, cheat: true, handle: '#2ec4b6' },
+  { id: 'thunder', name: T('いなずまハンマー', 'Thunder hammer'), short: T('いなずま', 'Thunder'), desc: T('得点3倍！', 'Points ×3!'), score: 3, cheat: true, handle: '#3fa7ff' },
+  { id: 'jumbo', name: T('ジャンボハンマー', 'Jumbo hammer'), short: T('ジャンボ', 'Jumbo'), desc: T('パーフェクトの幅1.8倍・かたいチョコも1回', 'PERFECT zone ×1.8, chocolate in 1 hit'), zone: 1.8, chocoOne: true, cheat: true, handle: '#a77bff' },
+  { id: 'tokei', name: T('とけいハンマー', 'Clock hammer'), short: T('とけい', 'Clock'), desc: T('PERFECTで時間+2秒・揺れ0.7倍', 'PERFECT gives +2 sec, wobble ×0.7'), perfTime: 2, imp: 0.7, cheat: true, handle: '#2ec4b6' },
 ];
 const COLL_KEY = 'nekoDaruma.collection.v1';
 const defaultColl = () => ({ cats: ['tora'], hammers: ['wood'], cat: 'tora', hammer: 'wood', fresh: [] });
@@ -970,6 +992,7 @@ function curHammer() { return (cheatUse.hammer && CHEAT_HAMMERS.find(h => h.id =
 function usingCheat() { return !!(curCat().cheat || curHammer().cheat); }
 function catT(k, d = 1) { const v = curCat()[k]; return v === undefined ? d : v; }
 function hamT(k, d = 1) { const v = curHammer()[k]; return v === undefined ? d : v; }
+function catTitle(d) { return EN ? `${d.name} (${d.kind})` : d.kind + '「' + d.name + '」'; }
 function owns(type, id) { return (type === 'cat' ? coll.cats : coll.hammers).includes(id); }
 function unlockItem(it) {
   if (it.type === 'bonus' || owns(it.type, it.id)) return;
@@ -1081,7 +1104,7 @@ function makeBlocks(n) {
 }
 
 function startGame() {
-  stage = 1; score = 0; combo = 0; maxCombo = 0; maxTier = 3;
+  stage = 1; score = 0; combo = 0; maxCombo = 0; maxTier = 3; continued = false;
   miniAt = randInt(3, 5); mini = null; usedCheat = false; resetBag();
   debris = []; flying = []; popups = []; particles = [];
   setupStage();
@@ -1149,7 +1172,7 @@ function strike(side) {
     bottom.jv = (bottom.jv || 0) + 5 * softOf(bottom);
     bottom.shv = (bottom.shv || 0) + dir * 5 * softOf(bottom);
     if (softOf(bottom) >= 0.7) sweetWord(bottom, G.cx - side * (G.blockW / 2 + 30), by - 44);
-    addPopup('よわい…', bx, by - 20, '#7d8aa0', 22);
+    addPopup(T('よわい…', 'Too weak…'), bx, by - 20, '#7d8aa0', 22);
     SFX.weak();
     cooldown = 0.3;
     return;
@@ -1165,7 +1188,7 @@ function strike(side) {
     if (grade === 'perfect' || grade === 'good') { combo++; maxCombo = Math.max(maxCombo, combo); }
     else { combo = 0; if (grade === 'strong') { missesThisStage++; shake = 8; } }
     score += 10;
-    addPopup('パキッ！ あと1回', G.cx - dir * G.blockW * 0.1, by - 30, '#ffe0b0', 22);
+    addPopup(T('パキッ！ あと1回', 'Crack! 1 more'), G.cx - dir * G.blockW * 0.1, by - 30, '#ffe0b0', 22);
     for (let i = 0; i < 8; i++) particles.push({ x: G.cx - dir * G.blockW / 2, y: by, vx: dir * rand(40, 260), vy: rand(-260, 0), life: rand(0.4, 0.7), t: 0, color: '#6b3e26', size: rand(2, 4) });
     SFX.crack();
     cooldown = 0.25;
@@ -1187,7 +1210,7 @@ function strike(side) {
   if (grade === 'perfect') { combo++; base = 100; label = 'PERFECT!'; color = '#ff6fa5'; }
   else if (grade === 'good') { combo++; base = 50; label = 'GOOD!'; color = '#5ccf6a'; }
   else if (grade === 'ok') { combo = 0; base = 20; label = 'OK'; color = '#ffb020'; }
-  else { combo = 0; base = 10; label = 'つよすぎ!'; color = '#ff5a4f'; missesThisStage++; shake = 10; }
+  else { combo = 0; base = 10; label = T('つよすぎ!', 'TOO HARD!'); color = '#ff5a4f'; missesThisStage++; shake = 10; }
   maxCombo = Math.max(maxCombo, combo);
   const mult = 1 + Math.min(4, Math.floor(combo / hamT('comboStep', 5))) * 0.5;
   const sp = sweetOf(b).pts;
@@ -1201,7 +1224,7 @@ function strike(side) {
     const pt = hamT('perfTime', PERFECT_TIME);
     timeLeft = Math.min(timeMax, timeLeft + pt);
     timeGlow = 1;
-    addPopup('⏱+' + pt + '秒', W / 2, G.hudTop + G.hudH + 44, '#3fb8ff', 18);
+    addPopup('⏱+' + pt + T('秒', 's'), W / 2, G.hudTop + G.hudH + 44, '#3fb8ff', 18);
   }
   if (combo >= 3) addPopup(combo + ' COMBO' + (mult > 1 ? ' x' + mult : ''), G.cx, G.groundY - G.blockH * blocks.length - G.catSize - 30 - drop, '#ffd23f', 20);
 
@@ -1216,6 +1239,7 @@ function strike(side) {
   SFX.hit(grade);
 }
 
+const TIME_UP = T('じかんぎれ！', "Time's up!");
 function topple(reason) {
   if (state !== 'play') return;
   state = 'falling'; stateT = 0;
@@ -1224,9 +1248,9 @@ function topple(reason) {
   fall.angle = maxAngle() * wob.w;
   fall.av = fall.dir * (0.6 + Math.abs(wob.v) * 0.2);
   fall.scattered = false;
-  if (reason !== 'じかんぎれ！' && gtime - lastCauseT < 1.6) {
-    if (lastCause === 'wind') reason = 'かぜでたおれちゃった！';
-    else if (lastCause === 'intruder') reason = 'のらねこにたおされた！';
+  if (reason !== TIME_UP && gtime - lastCauseT < 1.6) {
+    if (lastCause === 'wind') reason = T('かぜでたおれちゃった！', 'The wind knocked it over!');
+    else if (lastCause === 'intruder') reason = T('のらねこにたおされた！', 'A stray cat knocked it over!');
   }
   fall.reason = reason;
   cat.mood = 'scared';
@@ -1277,6 +1301,23 @@ function stageClear() {
       color: BLOCK_COLORS[i % BLOCK_COLORS.length], size: rand(4, 8), confetti: true, rot: rand(0, 6), vr: rand(-10, 10), g: 900 });
   }
 }
+
+// 広告を見て、失敗したステージをやり直す（1回のゲームで1回だけ）
+let continued = false;
+function updateContinueBtn() {
+  $('continueBtn').classList.toggle('hidden', !(rewardAd.ready && !continued && state === 'over'));
+}
+function continueGame() {
+  continued = true;
+  pendingResult = null; // ランキングには、ゲームが本当に終わったときに登録する
+  ['overScreen', 'rankScreen', 'nameForm'].forEach(hide);
+  combo = 0;
+  debris = []; flying = []; popups = []; particles = [];
+  setupStage();
+  $('pauseBtn').classList.remove('hidden');
+  BGM.setSong('game');
+}
+rewardAd.onChange = updateContinueBtn;
 
 function gameOver() {
   state = 'over';
@@ -1348,8 +1389,8 @@ function update(dt) {
     wob.v += a * dt;
     wob.w += wob.v * dt;
     if (Math.abs(wob.w) > 0.7 && cat.mood !== 'happy') { cat.mood = 'scared'; cat.moodT = 0.3; }
-    if (Math.abs(wob.w) > 1) topple('ねこが落ちちゃった！');
-    else if (timeLeft <= 0) { timeLeft = 0; wob.v += (wob.w >= 0 ? 1 : -1) * 6; topple('じかんぎれ！'); }
+    if (Math.abs(wob.w) > 1) topple(T('ねこが落ちちゃった！', 'The cat fell!'));
+    else if (timeLeft <= 0) { timeLeft = 0; wob.v += (wob.w >= 0 ? 1 : -1) * 6; topple(TIME_UP); }
   }
 
   // 落下（だるまが下に落ちる）
@@ -1485,7 +1526,7 @@ function updateEvents(dt, P) {
       sb.nextShape = sh;
       sb.morph = 0;
       SFX.boing();
-      addPopup((sb.swT < 0.75 ? 'ほそい' : '') + SEAT_NAMES[sh] + 'に！', G.cx, catWorldTop() - G.catSize * 1.25, '#a77bff', 18);
+      addPopup(EN ? (sb.swT < 0.75 ? 'Thin ' : '') + SEAT_NAMES[sh] + '!' : (sb.swT < 0.75 ? 'ほそい' : '') + SEAT_NAMES[sh] + 'に！', G.cx, catWorldTop() - G.catSize * 1.25, '#a77bff', 18);
     }
     if (sb.morph !== undefined && sb.morph < 1) {
       sb.morph = Math.min(1, sb.morph + dt / 0.5);
@@ -1506,7 +1547,7 @@ function updateEvents(dt, P) {
       let to = rand(-1, 1) * lim * 0.9;
       if (Math.abs(to - catOff) < lim * 0.4) to = catOff > 0 ? -rand(0.3, 0.9) * lim : rand(0.3, 0.9) * lim;
       reseat = { t: 0, from: catOff, to, dur: 0.55 };
-      addPopup('よいしょ', G.cx + to, catWorldTop() - G.catSize * 1.2, '#ff9a3c', 17);
+      addPopup(T('よいしょ', 'Heave-ho'), G.cx + to, catWorldTop() - G.catSize * 1.2, '#ff9a3c', 17);
     }
   }
   if (reseat) {
@@ -1576,7 +1617,7 @@ function startIntruder(quiet) {
     s: G.catSize * 0.78, x: side < 0 ? -70 : W + 70, y: G.groundY, x0: 0, y0: 0, vx: 0, vy: 0, pushed: false };
   if (quiet) { intr.t = 0.35; return; } // 大群のときは予告みじかめ
   SFX.warn();
-  addPopup('のらねこ乱入！', W / 2, G.hudTop + G.hudH + 44, '#ff9a3c', 22);
+  addPopup(T('のらねこ乱入！', 'Stray cat!'), W / 2, G.hudTop + G.hudH + 44, '#ff9a3c', 22);
 }
 
 function intruderSpot(it, idx, pushK) {
@@ -1641,7 +1682,7 @@ function updateIntruder(dt, P) {
       cat.mood = 'scared'; cat.moodT = 0.6;
       SFX.push();
       setTimeout(() => SFX.nya(true), 120);
-      addPopup('ずりっ！', p.x - it.side * it.s * 0.2, p.y - it.s * 1.1, '#ff5a4f', 20);
+      addPopup(T('ずりっ！', 'Shove!'), p.x - it.side * it.s * 0.2, p.y - it.s * 1.1, '#ff5a4f', 20);
     }
     if (it.t > 0.45) intruderLeave(it);
     return;
@@ -1753,7 +1794,7 @@ let lastWordT = -9;
 function sweetWord(b, x, y) {
   if (gtime - lastWordT < 0.5) return;
   lastWordT = gtime;
-  const list = SWEET_WORDS[b.seat ? 'seat' + (b.shape || 0) : b.kind] || ['ぽん'];
+  const list = SWEET_WORDS[b.seat ? 'seat' + (b.shape || 0) : b.kind] || [T('ぽん', 'Pop')];
   const sf = softOf(b);
   addPopup(list[Math.floor(Math.random() * list.length)], clamp(x, 40, W - 40), y, sf >= 0.7 ? '#ff8fc0' : sf < 0.1 ? '#c9a27e' : '#fff3c4', 17);
 }
@@ -1805,11 +1846,11 @@ function updateReward(dt) {
       // 肉球バッグに同じ種類が入っていたら、交換するか聞く
       reward.swap = bag[it.type] || null;
       $('rewardUse').classList.toggle('hidden', !reward.swap);
-      $('rewardUse').textContent = '交換する';
-      $('rewardNext').textContent = reward.swap ? 'やめる' : 'バッグにしまう';
+      $('rewardUse').textContent = T('交換する', 'Swap');
+      $('rewardNext').textContent = reward.swap ? T('やめる', 'Keep old') : T('バッグにしまう', 'Put in bag');
     } else {
-      $('rewardUse').textContent = 'これをつかう！';
-      $('rewardNext').textContent = 'つぎへ';
+      $('rewardUse').textContent = T('これをつかう！', 'Use this!');
+      $('rewardNext').textContent = T('つぎへ', 'Next');
     }
     show('rewardUI');
   }
@@ -1834,11 +1875,11 @@ function finishReward(use) {
 
 // ===================== ミニゲーム（3〜5ステージごと・やるかは選べる） =====================
 const MINI_GAMES = {
-  fish:   { icon: '🐟', name: 'おさかなキャッチ', rule: 'ふってくるおさかなを<b>8ひき</b>タップしてつかまえよう！', time: 10, need: 8 },
-  mouse:  { icon: '🐭', name: 'ねずみたたき', rule: 'あなから出てくるねずみを<b>10ぴき</b>タップしよう！', time: 12, need: 10 },
-  memory: { icon: '🐱', name: 'ねこあわせ', rule: 'おなじねこのカードを<b>3くみ</b>そろえよう！', time: 20, need: 3 },
-  mash:   { icon: '🐾', name: 'かつおぶしけずり', rule: '画面をれんだして、かつおぶしを<b>30回</b>けずろう！', time: 6, need: 30 },
-  drop:   { icon: '🧺', name: 'ねこドロップ', rule: 'タップでねこを落として、かごに<b>3回</b>入れよう！（5回まで）', time: 0, need: 3, tries: 5 },
+  fish:   { icon: '🐟', name: T('おさかなキャッチ', 'Fish Catch'), rule: T('ふってくるおさかなを<b>8ひき</b>タップしてつかまえよう！', 'Tap <b>8 falling fish</b> to catch them!'), time: 10, need: 8 },
+  mouse:  { icon: '🐭', name: T('ねずみたたき', 'Whack-a-Mouse'), rule: T('あなから出てくるねずみを<b>10ぴき</b>タップしよう！', 'Tap <b>10 mice</b> popping out of the holes!'), time: 12, need: 10 },
+  memory: { icon: '🐱', name: T('ねこあわせ', 'Cat Match'), rule: T('おなじねこのカードを<b>3くみ</b>そろえよう！', 'Match <b>3 pairs</b> of cat cards!'), time: 20, need: 3 },
+  mash:   { icon: '🐾', name: T('かつおぶしけずり', 'Bonito Shaving'), rule: T('画面をれんだして、かつおぶしを<b>30回</b>けずろう！', 'Tap fast to shave the bonito <b>30 times</b>!'), time: 6, need: 30 },
+  drop:   { icon: '🧺', name: T('ねこドロップ', 'Cat Drop'), rule: T('タップでねこを落として、かごに<b>3回</b>入れよう！（5回まで）', 'Tap to drop the cat into the basket <b>3 times</b>! (5 tries)'), time: 0, need: 3, tries: 5 },
 };
 let mini = null;   // { kind, phase: 'intro'|'play'|'result', t, got, ok, ... }
 let miniAt = 4;    // このステージをクリアしたらミニゲームのチャンス
@@ -1864,7 +1905,7 @@ function offerMini() {
   mini = { kind, phase: 'offer', t: 0 };
   $('miniIcon').textContent = g.icon;
   $('miniName').textContent = g.name;
-  $('miniRule').innerHTML = g.rule + (g.time ? `（${g.time}びょう）` : '');
+  $('miniRule').innerHTML = g.rule + (g.time ? T(`（${g.time}びょう）`, ` (${g.time} sec)`) : '');
   show('miniOffer');
   SFX.lucky();
 }
@@ -1967,8 +2008,8 @@ function updateMini(dt) {
       const bx = basketX(A), by = A.y + A.h - 50, bw = Math.min(140, A.w * 0.36);
       if (c.y >= by - 10) {
         const hit = Math.abs(c.x - bx) < bw / 2 - 8;
-        if (hit) { M.got++; SFX.lucky(); M.fx.push({ t: 0, x: bx, y: by - 30, text: 'ナイス！', col: '#ffd23f' }); }
-        else { SFX.weak(); M.fx.push({ t: 0, x: c.x, y: by - 30, text: 'おしい…', col: '#fff' }); }
+        if (hit) { M.got++; SFX.lucky(); M.fx.push({ t: 0, x: bx, y: by - 30, text: T('ナイス！', 'Nice!'), col: '#ffd23f' }); }
+        else { SFX.weak(); M.fx.push({ t: 0, x: c.x, y: by - 30, text: T('おしい…', 'So close…'), col: '#fff' }); }
         c.falling = false; c.vy = 0; c.y = A.y + 40;
         if (M.got >= g.need) { endMini(true); return; }
         if (M.tries <= 0) { endMini(false); return; }
@@ -2012,7 +2053,7 @@ function miniTap(px, py) {
       if (!m.hit && Math.hypot(h.x - px, h.y - h.r * 0.6 - py) < h.r * 1.5) {
         m.hit = true; m.life = Math.min(m.life, m.t + 0.25);
         M.got++; SFX.hammer();
-        M.fx.push({ t: 0, x: h.x, y: h.y - h.r * 1.6, text: 'ポカッ！', col: '#fff' });
+        M.fx.push({ t: 0, x: h.x, y: h.y - h.r * 1.6, text: T('ポカッ！', 'Bonk!'), col: '#fff' });
         break;
       }
     }
@@ -2027,14 +2068,14 @@ function miniTap(px, py) {
         const [a, b] = M.open;
         if (a.cat.id === b.cat.id) {
           a.done = b.done = true; M.open = []; M.got++; SFX.nya(true);
-          M.fx.push({ t: 0, x: r.x + r.w / 2, y: r.y, text: 'そろった！', col: '#ffd23f' });
+          M.fx.push({ t: 0, x: r.x + r.w / 2, y: r.y, text: T('そろった！', 'Match!'), col: '#ffd23f' });
         } else M.wait = 0.7;
       }
     });
   } else if (M.kind === 'mash') {
     M.got++;
     tone(500 + (M.got % 5) * 60, 300, 0.05, 'square', 0.12);
-    M.fx.push({ t: 0, x: px + rand(-20, 20), y: py - 20, text: ['シャッ', 'ザッ', 'シュッ'][M.got % 3], col: '#fff' });
+    M.fx.push({ t: 0, x: px + rand(-20, 20), y: py - 20, text: (EN ? ['Shk!', 'Zip!', 'Swish!'] : ['シャッ', 'ザッ', 'シュッ'])[M.got % 3], col: '#fff' });
     for (let i = 0; i < 3; i++) particles.push({ x: W / 2 + rand(-40, 40), y: A.y + A.h * 0.55, vx: rand(-260, 260), vy: rand(-420, -160), life: rand(0.5, 0.9), t: 0, color: ['#f7d9a8', '#e8b878', '#fff1d6'][i], size: rand(3, 6), confetti: true, rot: rand(0, 6), vr: rand(-12, 12), g: 900 });
   } else if (M.kind === 'drop') {
     if (M.cat.falling || M.tries <= 0) return;
@@ -2049,7 +2090,7 @@ function drawMini() {
   ctx.fillRect(0, 0, W, H);
   // ヘッダー
   outlinedText(g.icon + ' ' + g.name, W / 2, SAT + 78, Math.min(26, W / 14), '#ff5a7a');
-  const prog = M.kind === 'drop' ? `${M.got} / ${g.need}　のこり ${M.tries}回` : `${Math.min(M.got, g.need)} / ${g.need}`;
+  const prog = M.kind === 'drop' ? T(`${M.got} / ${g.need}　のこり ${M.tries}回`, `${M.got} / ${g.need}   ${M.tries} tries left`) : `${Math.min(M.got, g.need)} / ${g.need}`;
   outlinedText(prog, W / 2, SAT + 108, 20, '#fff');
   if (g.time) {
     const bw = Math.min(W - 60, 300), bx = (W - bw) / 2, by = SAT + 126;
@@ -2071,12 +2112,12 @@ function drawMini() {
   }
   if (M.phase === 'intro') {
     ctx.fillStyle = 'rgba(70,25,50,0.35)'; ctx.fillRect(0, 0, W, H);
-    outlinedText(M.t < 0.9 ? 'よーい…' : 'スタート！', W / 2, H * 0.45, 40, '#ffd23f');
+    outlinedText(M.t < 0.9 ? T('よーい…', 'Ready…') : T('スタート！', 'Go!'), W / 2, H * 0.45, 40, '#ffd23f');
   } else if (M.phase === 'result') {
     ctx.fillStyle = 'rgba(70,25,50,0.35)'; ctx.fillRect(0, 0, W, H);
     const k = Math.min(1, M.t / 0.3);
-    outlinedText(M.ok ? 'クリア！' : 'ざんねん…', W / 2, H * 0.45, 30 + 14 * k, M.ok ? '#ffd23f' : '#fff');
-    if (M.ok) outlinedText('チートアイテムをゲット！', W / 2, H * 0.45 + 46, 20, '#fff');
+    outlinedText(M.ok ? T('クリア！', 'Clear!') : T('ざんねん…', 'Too bad…'), W / 2, H * 0.45, 30 + 14 * k, M.ok ? '#ffd23f' : '#fff');
+    if (M.ok) outlinedText(T('チートアイテムをゲット！', 'You got a cheat item!'), W / 2, H * 0.45 + 46, 20, '#fff');
   }
 }
 function drawFish(x, y, r, col, rot) {
@@ -2159,7 +2200,7 @@ function drawMiniMash(M, A) {
   drawCat(cx + Math.min(150, A.w * 0.36), A.y + A.h - 30, 64, 0, { pal: curCat().pal, mood: M.got > g.need * 0.6 ? 'happy' : 'normal', squash: 0, blink: 0 });
   if (M.phase === 'play') {
     ctx.save(); ctx.globalAlpha = 0.6 + 0.4 * Math.sin(gtime * 10);
-    outlinedText('れんだ！ れんだ！', cx, A.y + 30, 24, '#fff');
+    outlinedText(T('れんだ！ れんだ！', 'Tap! Tap! Tap!'), cx, A.y + 30, 24, '#fff');
     ctx.restore();
   }
 }
@@ -2178,7 +2219,7 @@ function drawMiniDrop(M, A) {
   drawCat(c.x, c.y + 10, 60, c.falling ? Math.sin(gtime * 20) * 0.15 : Math.sin(c.ph * 2) * 0.1, { pal: curCat().pal, mood: c.falling ? 'scared' : 'normal', squash: 0, blink: 0 });
   if (M.phase === 'play' && !c.falling) {
     ctx.save(); ctx.globalAlpha = 0.5 + 0.5 * Math.sin(gtime * 6);
-    outlinedText('タップで落とす！', W / 2, A.y + A.h * 0.45, 20, '#fff');
+    outlinedText(T('タップで落とす！', 'Tap to drop!'), W / 2, A.y + A.h * 0.45, 20, '#fff');
     ctx.restore();
   }
 }
@@ -2223,10 +2264,10 @@ function drawReward() {
     const y = lerp(-sz, cy, bounce) + (k >= 1 ? -Math.abs(Math.sin(R.t * 6)) * 8 : 0);
     const shake = R.t > 0.7 ? Math.sin(R.t * 40) * 0.1 * Math.min(1, (R.t - 0.7) * 1.5) : 0;
     drawGiftBox(cx, y, sz, 0, shake);
-    outlinedText(R.from === 'game' ? `STAGE ${stage} クリアのごほうび！` : R.from === 'mini' ? 'ミニゲームクリアのごほうび！' : 'ひみつ発見！', cx, cy - sz * 1.05, 22, '#ffd23f');
+    outlinedText(R.from === 'game' ? T(`STAGE ${stage} クリアのごほうび！`, `STAGE ${stage} clear reward!`) : R.from === 'mini' ? T('ミニゲームクリアのごほうび！', 'Mini-game reward!') : T('ひみつ発見！', 'Secret found!'), cx, cy - sz * 1.05, 22, '#ffd23f');
     if (R.t > 0.5) {
       ctx.save(); ctx.globalAlpha = 0.5 + 0.5 * Math.sin(gtime * 8);
-      outlinedText('タップであける！', cx, cy + sz * 0.85, 20, '#fff');
+      outlinedText(T('タップであける！', 'Tap to open!'), cx, cy + sz * 0.85, 20, '#fff');
       ctx.restore();
     }
     return;
@@ -2278,11 +2319,11 @@ function drawReward() {
   ctx.restore();
   const by = cy + sz * 0.78;
   if (R.item.type === 'bonus') {
-    outlinedText('ぜんぶ集めた！', cx, by, 26, '#ffd23f');
-    outlinedText('ボーナス +1000', cx, by + 34, 22, '#fff');
+    outlinedText(T('ぜんぶ集めた！', 'Collected them all!'), cx, by, 26, '#ffd23f');
+    outlinedText(T('ボーナス +1000', 'Bonus +1000'), cx, by + 34, 22, '#fff');
   } else {
-    const title = R.item.type === 'cat' ? `${def.kind}「${def.name}」` : def.name;
-    outlinedText(title + ' をゲット！', cx, by, Math.min(26, W / 14), gold ? '#ffd23f' : '#fff');
+    const title = R.item.type === 'cat' ? catTitle(def) : def.name;
+    outlinedText(T(title + ' をゲット！', 'You got ' + title + '!'), cx, by, Math.min(26, W / 14), gold ? '#ffd23f' : '#fff');
     ctx.font = `bold 15px ${FONT}`;
     const tw = Math.min(W - 40, ctx.measureText(def.desc).width + 36);
     ctx.fillStyle = 'rgba(255,255,255,0.95)';
@@ -2292,7 +2333,7 @@ function drawReward() {
     ctx.fillText(def.desc, cx, by + 37, W - 56);
     if (R.item.cheat) {
       const old = R.swap ? itemDef({ type: R.item.type, id: R.swap }) : null;
-      const msg = old ? `🐾 肉球バッグの「${old.short || old.name}」と交換する？` : '🐾 肉球バッグに入れて、好きなステージで使おう';
+      const msg = old ? T(`🐾 肉球バッグの「${old.short || old.name}」と交換する？`, `🐾 Swap it for "${old.short || old.name}" in your Paw Bag?`) : T('🐾 肉球バッグに入れて、好きなステージで使おう', '🐾 Put it in your Paw Bag and use it on any stage');
       outlinedText(msg, cx, by + 76, Math.min(17, W / 22), old ? '#ffd23f' : '#fff');
     }
   }
@@ -2365,9 +2406,9 @@ function buildCollection() {
     $(countId).textContent = `${list.filter(d => ownedList.includes(d.id)).length} / ${list.length}`;
     const showDetail = (d, own) => {
       const el = $(detailId);
-      if (own) el.innerHTML = `<b>${type === 'cat' ? escapeHTML(d.kind + '「' + d.name + '」') : escapeHTML(d.name)}</b><br>${escapeHTML(d.desc)}`;
-      else if (d.secret) el.innerHTML = '<b>？？？</b><br>ひみつのハンマー。タイトル画面で、ねこと仲良くなると…？';
-      else el.innerHTML = '<b>？？？</b><br>まだ持っていないよ。5ステージクリアするごとにもらえるかも！';
+      if (own) el.innerHTML = `<b>${type === 'cat' ? escapeHTML(catTitle(d)) : escapeHTML(d.name)}</b><br>${escapeHTML(d.desc)}`;
+      else if (d.secret) el.innerHTML = T('<b>？？？</b><br>ひみつのハンマー。タイトル画面で、ねこと仲良くなると…？', '<b>???</b><br>A secret hammer. Make friends with the cat on the title screen and…?');
+      else el.innerHTML = T('<b>？？？</b><br>まだ持っていないよ。5ステージクリアするごとにもらえるかも！', '<b>???</b><br>Not yet yours. You might get it every 5 stages you clear!');
     };
     for (const d of list) {
       const own = ownedList.includes(d.id);
@@ -2421,7 +2462,7 @@ function buildBag() {
       btn.className = 'slot empty';
       const m = document.createElement('div'); m.className = 'empty-mark'; m.textContent = '🐾';
       btn.appendChild(m);
-      const lab = document.createElement('span'); lab.textContent = cheatUse[type] ? 'つかっている' : 'からっぽ';
+      const lab = document.createElement('span'); lab.textContent = cheatUse[type] ? T('つかっている', 'In use') : T('からっぽ', 'Empty');
       btn.appendChild(lab);
     } else {
       btn.className = 'slot cheat' + (bagSel === type ? ' sel' : '');
@@ -2434,7 +2475,7 @@ function buildBag() {
   }
   const id = bagSel && bag[bagSel];
   const d = id ? itemDef({ type: bagSel, id }) : null;
-  $('bagDetail').innerHTML = d ? `<b>${escapeHTML(bagSel === 'cat' ? d.kind + '「' + d.name + '」' : d.name)}</b><br>${escapeHTML(d.desc)}` : 'ミニゲームをクリアするとチートアイテムがもらえるよ';
+  $('bagDetail').innerHTML = d ? `<b>${escapeHTML(bagSel === 'cat' ? catTitle(d) : d.name)}</b><br>${escapeHTML(d.desc)}` : T('ミニゲームをクリアするとチートアイテムがもらえるよ', 'Clear a mini-game to get a cheat item');
   $('bagUse').classList.toggle('hidden', !d);
 }
 function useBagItem() {
@@ -2450,7 +2491,7 @@ function useBagItem() {
   const d = itemDef({ type, id });
   closeBag();
   SFX.lucky(); flash = 0.25;
-  addPopup('🐾 ' + (d.short || d.name) + ' 発動！', W / 2, G.hudTop + G.hudH + 60, '#ffd23f', 24);
+  addPopup('🐾 ' + (d.short || d.name) + T(' 発動！', ' activated!'), W / 2, G.hudTop + G.hudH + 60, '#ffd23f', 24);
   for (let i = 0; i < 30; i++) {
     particles.push({ x: G.cx + rand(-60, 60), y: G.groundY - G.catSize, vx: rand(-300, 300), vy: rand(-500, -150), life: rand(0.6, 1.1), t: 0,
       color: ['#ff6fa5', '#ffd23f', '#5ccf6a', '#3fa7ff', '#a77bff'][i % 5], size: rand(3, 6), star: i % 2 === 0, confetti: i % 2 === 1, rot: rand(0, 6), vr: rand(-10, 10), g: 600 });
@@ -3208,7 +3249,7 @@ function drawHammers() {
       ctx.textAlign = 'center';
       ctx.fillStyle = '#ff5a4f';
       ctx.globalAlpha = 0.6 + Math.sin(gtime * 10) * 0.4;
-      ctx.fillText('ここ!', rest, y - hh * 2.4);
+      ctx.fillText(T('ここ!', 'Here!'), rest, y - hh * 2.4);
       ctx.restore();
     }
   }
@@ -3412,7 +3453,7 @@ function drawDropFx() {
   }
   const wig = def.good ? 0 : Math.sin(t * 40) * 3 * Math.max(0, 1 - t * 2);
   ctx.save(); ctx.translate(wig, -38); ctx.rotate(def.good ? Math.sin(t * 6) * 0.15 : 0); drawDropItem(dropFx.kind, 26); ctx.restore();
-  outlinedText(def.good ? 'ラッキー！' : 'あっ…！', wig, 12, 34, def.good ? '#ffd23f' : '#c9a7ff');
+  outlinedText(def.good ? T('ラッキー！', 'Lucky!') : T('あっ…！', 'Oops…!'), wig, 12, 34, def.good ? '#ffd23f' : '#c9a7ff');
   outlinedText(def.name, 0, 44, 16, '#fff');
   outlinedText(def.msg, 0, 68, 20, def.color);
   ctx.restore();
@@ -3799,7 +3840,7 @@ function drawHUD() {
   outlinedText(String(score), left, top + 34, 26, '#ffd23f', 'left');
   // ステージ（右上のボタン3つとスコアのあいだに収める）
   const remain = state === 'build' ? stageBlocks : blocks.length;
-  const t1 = 'STAGE ' + stage, t2 = `${stageBlocks}だん・のこり ${remain}`;
+  const t1 = 'STAGE ' + stage, t2 = T(`${stageBlocks}だん・のこり ${remain}`, `${stageBlocks} layers · ${remain} left`);
   ctx.font = `bold 26px ${FONT}`;
   let scoreW = ctx.measureText(String(score)).width;
   ctx.font = `bold 12px ${FONT}`;
@@ -3896,7 +3937,7 @@ function drawMeter() {
   ctx.fillStyle = '#fff'; ctx.strokeStyle = INK; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.arc(mx, ty, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
   ctx.font = `bold 11px ${FONT}`; ctx.fillStyle = INK; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-  ctx.fillText('ぐらぐら', tx - 8, ty);
+  ctx.fillText(T('ぐらぐら', 'Wobble'), tx - 8, ty);
 
   // パワーメーター（一番下のお菓子で判定の広さが変わる）
   const ZP = zonesFor(P);
@@ -3924,8 +3965,8 @@ function drawMeter() {
   roundRect(mX, mY, mW, mH, mH / 2); ctx.stroke();
   // ラベル
   ctx.font = `bold 11px ${FONT}`; ctx.fillStyle = INK; ctx.textBaseline = 'bottom';
-  ctx.textAlign = 'left'; ctx.fillText('よわい', mX + 4, mY - 3);
-  ctx.textAlign = 'right'; ctx.fillText('つよい', mX + mW - 4, mY - 3);
+  ctx.textAlign = 'left'; ctx.fillText(T('よわい', 'Weak'), mX + 4, mY - 3);
+  ctx.textAlign = 'right'; ctx.fillText(T('つよい', 'Strong'), mX + mW - 4, mY - 3);
   ctx.textAlign = 'center'; ctx.fillStyle = '#e0457f';
   ctx.fillText('PERFECT', clamp(mX + zc * mW, mX + 70, mX + mW - 70), mY - 3);
   // 針
@@ -3944,25 +3985,25 @@ function drawMeter() {
   if (G.hintY < H - SAB - 4) {
     ctx.globalAlpha = 0.75;
     ctx.font = `bold 13px ${FONT}`; ctx.fillStyle = INK; ctx.textBaseline = 'middle';
-    ctx.textAlign = 'left'; ctx.fillText('◀ 左', 14, G.hintY);
-    ctx.textAlign = 'right'; ctx.fillText('右 ▶', W - 14, G.hintY);
+    ctx.textAlign = 'left'; ctx.fillText(T('◀ 左', '◀ L'), 14, G.hintY);
+    ctx.textAlign = 'right'; ctx.fillText(T('右 ▶', 'R ▶'), W - 14, G.hintY);
     const b0 = blocks[0];
     if (b0) {
       const sw = sweetOf(b0);
       const name = b0.seat ? SEAT_NAMES[b0.shape] : sw.name;
-      const lean = sw.center < 0.45 ? '・よわめ' : sw.center > 0.55 ? '・つよめ' : '';
-      let tip = sw.hp && b0.hp < sw.hp ? 'あと1回' : sw.tip;
-      if (sw.hp && hamT('chocoOne', false)) tip = '鉄なら1回';
+      const lean = sw.center < 0.45 ? T('・よわめ', ' · soft') : sw.center > 0.55 ? T('・つよめ', ' · firm') : '';
+      let tip = sw.hp && b0.hp < sw.hp ? T('あと1回', '1 more') : sw.tip;
+      if (sw.hp && hamT('chocoOne', false)) tip = T('鉄なら1回', '1 hit w/ iron');
       tip += lean;
       ctx.globalAlpha = 1;
       ctx.textAlign = 'center';
       ctx.fillStyle = INK;
       // 左右の「◀ 左」「右 ▶」と重ならない大きさにする
       const maxW = W - 120;
-      let text = `つぎ：${name}（${tip}）`;
+      let text = T(`つぎ：${name}（${tip}）`, `Next: ${name} (${tip})`);
       ctx.font = `bold 14px ${FONT}`;
       if (ctx.measureText(text).width > maxW) ctx.font = `bold 12px ${FONT}`;
-      if (ctx.measureText(text).width > maxW) text = `${name}（${tip}）`;
+      if (ctx.measureText(text).width > maxW) text = T(`${name}（${tip}）`, `${name} (${tip})`);
       ctx.fillText(text, W / 2, G.hintY);
     }
     ctx.globalAlpha = 1;
@@ -3972,27 +4013,27 @@ function drawMeter() {
 function drawBanner() {
   if (state === 'ready') {
     const k = stateT;
-    const txt = k < 0.55 ? `STAGE ${stage}` : 'スタート！';
+    const txt = k < 0.55 ? `STAGE ${stage}` : T('スタート！', 'GO!');
     const sc = 1 + Math.max(0, 0.3 - (k % 0.55)) * 1.5;
     ctx.save(); ctx.translate(W / 2, H * 0.36); ctx.scale(sc, sc);
     outlinedText(txt, 0, 0, 40, k < 0.55 ? '#fff' : '#ffd23f');
-    if (k < 0.55) outlinedText(`${stageBlocks}だん`, 0, 40, 22, '#ff9a3c');
+    if (k < 0.55) outlinedText(T(`${stageBlocks}だん`, `${stageBlocks} layers`), 0, 40, 22, '#ff9a3c');
     ctx.restore();
   }
   if (state === 'clear' && clearInfo) {
     const k = Math.min(1, stateT * 3);
     ctx.save(); ctx.translate(W / 2, H * 0.3);
     ctx.scale(0.5 + k * 0.5, 0.5 + k * 0.5);
-    outlinedText('クリア！', 0, 0, 46, '#ffd23f');
+    outlinedText(T('クリア！', 'CLEAR!'), 0, 0, 46, '#ffd23f');
     ctx.restore();
-    const lines = [`ステージボーナス +${clearInfo.stageBonus}`, `タイムボーナス +${clearInfo.timeBonus}`];
-    if (clearInfo.noMiss) lines.push(`ノーミス +${clearInfo.noMiss}`);
+    const lines = [T('ステージボーナス', 'Stage bonus') + ` +${clearInfo.stageBonus}`, T('タイムボーナス', 'Time bonus') + ` +${clearInfo.timeBonus}`];
+    if (clearInfo.noMiss) lines.push(T('ノーミス', 'No miss') + ` +${clearInfo.noMiss}`);
     lines.forEach((l, i) => {
       if (stateT > 0.35 + i * 0.25) outlinedText(l, W / 2, H * 0.3 + 46 + i * 26, 17, '#fff');
     });
     if (stateT > 1.2) {
       ctx.globalAlpha = 0.5 + Math.sin(gtime * 6) * 0.5;
-      outlinedText(stageBlocks < MAX_TIER ? `つぎは ${stageBlocks + 1}だん！` : 'さいだい30だん！', W / 2, H * 0.3 + 46 + lines.length * 26 + 8, 18, '#ff9a3c');
+      outlinedText(stageBlocks < MAX_TIER ? T(`つぎは ${stageBlocks + 1}だん！`, `Next: ${stageBlocks + 1} layers!`) : T('さいだい30だん！', 'Max 30 layers!'), W / 2, H * 0.3 + 46 + lines.length * 26 + 8, 18, '#ff9a3c');
       ctx.globalAlpha = 1;
     }
   }
@@ -4000,7 +4041,7 @@ function drawBanner() {
     if (wind.phase === 'warn') {
       ctx.save();
       ctx.globalAlpha = 0.55 + 0.45 * Math.sin(gtime * 14);
-      outlinedText(wind.dir > 0 ? 'かぜがくるよ →' : '← かぜがくるよ', W / 2, H * 0.4, 26, '#7fd3ff');
+      outlinedText(wind.dir > 0 ? T('かぜがくるよ →', 'Wind coming →') : T('← かぜがくるよ', '← Wind coming'), W / 2, H * 0.4, 26, '#7fd3ff');
       ctx.restore();
     } else {
       // ぐらぐらゲージの横に風向きを表示
@@ -4008,7 +4049,7 @@ function drawBanner() {
       const x = W / 2 + tw / 2 + 34 + ((gtime * 40) % 8) * wind.dir;
       ctx.save();
       ctx.globalAlpha = 0.6 + 0.4 * Math.abs(wind.cur);
-      outlinedText(wind.dir > 0 ? 'かぜ≫' : '≪かぜ', x, G.tiltY, 14, '#bfe9ff');
+      outlinedText(wind.dir > 0 ? T('かぜ≫', 'wind≫') : T('≪かぜ', '≪wind'), x, G.tiltY, 14, '#bfe9ff');
       ctx.restore();
     }
   }
@@ -4151,11 +4192,11 @@ function escapeHTML(s) {
 function renderRanking(highlightId) {
   const r = loadRanking();
   const el = $('rankList');
-  if (!r.length) { el.innerHTML = '<div class="empty">まだ記録がないよ<br>🐱 あそんで記録をつくろう！</div>'; return; }
+  if (!r.length) { el.innerHTML = '<div class="empty">' + T('まだ記録がないよ<br>🐱 あそんで記録をつくろう！', 'No records yet<br>🐱 Play to set one!') + '</div>'; return; }
   const medals = ['🥇', '🥈', '🥉'];
-  let html = '<table class="rank"><tr><th></th><th style="text-align:left">なまえ</th><th style="text-align:right">スコア</th><th style="text-align:right">STAGE</th></tr>';
+  let html = '<table class="rank"><tr><th></th><th style="text-align:left">' + T('なまえ', 'Name') + '</th><th style="text-align:right">' + T('スコア', 'Score') + '</th><th style="text-align:right">STAGE</th></tr>';
   r.forEach((e, i) => {
-    html += `<tr class="${e.id === highlightId ? 'me' : ''}"><td>${medals[i] || (i + 1)}</td><td>${escapeHTML(e.name)}${e.cheat ? ' <span title="チートアイテムを使った記録">🐾</span>' : ''}</td><td>${e.score}</td><td>${e.stage}</td></tr>`;
+    html += `<tr class="${e.id === highlightId ? 'me' : ''}"><td>${medals[i] || (i + 1)}</td><td>${escapeHTML(e.name)}${e.cheat ? ' <span title="' + T('チートアイテムを使った記録', 'Used a cheat item') + '">🐾</span>' : ''}</td><td>${e.score}</td><td>${e.stage}</td></tr>`;
   });
   html += '</table>';
   el.innerHTML = html;
@@ -4167,11 +4208,11 @@ let pendingResult = null;
 function showOver() {
   const r = loadRanking();
   const prevBest = bestScore();
-  $('overTitle').textContent = 'ゲームオーバー';
+  $('overTitle').textContent = T('ゲームオーバー', 'Game over');
   $('overReason').textContent = fall.reason;
   $('overScore').textContent = score;
   $('overStage').textContent = stage;
-  $('overTier').textContent = maxTier + 'だん';
+  $('overTier').textContent = maxTier + T('だん', '');
   $('overCombo').textContent = maxCombo;
   const isNewRec = score > 0 && score > prevBest;
   $('newRec').classList.toggle('hidden', !isNewRec);
@@ -4181,7 +4222,7 @@ function showOver() {
   if (qualifies) {
     let pos = r.findIndex(e => score > e.score);
     if (pos < 0) pos = r.length;
-    $('rankInLabel').textContent = `${pos + 1}位にランクイン！ なまえを入れてね`;
+    $('rankInLabel').textContent = T(`${pos + 1}位にランクイン！ なまえを入れてね`, `You ranked #${pos + 1}! Enter your name`);
     let lastName = '';
     try { lastName = localStorage.getItem(NAME_KEY) || ''; } catch (e) {}
     $('nameInput').value = lastName;
@@ -4189,12 +4230,13 @@ function showOver() {
   } else {
     hide('nameForm');
   }
+  updateContinueBtn();
   show('overScreen');
 }
 
 function savePending() {
   if (!pendingResult) return null;
-  let name = $('nameInput').value.trim().slice(0, 10) || 'ななしのねこ';
+  let name = $('nameInput').value.trim().slice(0, 10) || T('ななしのねこ', 'Nameless cat');
   try { localStorage.setItem(NAME_KEY, name); } catch (e) {}
   const r = loadRanking();
   const id = Date.now() + '-' + Math.random().toString(36).slice(2, 7);
@@ -4294,7 +4336,7 @@ $('titleBestRow').addEventListener('click', e => {
     '', ...(d.log || [])].join('\n');
   const nat = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
   $('diagTestAds').classList.toggle('hidden', !nat);
-  $('diagTestAds').textContent = localStorage.getItem(TEST_ADS_KEY) === '1' ? '本番の広告にもどす（再起動）' : 'テスト広告にする（再起動）';
+  $('diagTestAds').textContent = localStorage.getItem(TEST_ADS_KEY) === '1' ? T('本番の広告にもどす（再起動）', 'Use real ads (restart)') : T('テスト広告にする（再起動）', 'Use test ads (restart)');
   show('diagScreen');
 });
 tapBtn('diagClose', () => hide('diagScreen'));
@@ -4328,6 +4370,13 @@ tapBtn('retryBtn', () => {
   hide('overScreen'); hide('rankScreen');
   startGame();
 });
+tapBtn('continueBtn', async () => {
+  if (continued || !rewardAd.ready || !rewardAd.show) return;
+  $('continueBtn').disabled = true;
+  const ok = await rewardAd.show();
+  $('continueBtn').disabled = false;
+  if (ok && state === 'over') continueGame(); else updateContinueBtn();
+});
 tapBtn('overRankBtn', () => { renderRanking(); openRanking('overScreen'); });
 tapBtn('overTitleBtn', () => { if (pendingResult) savePending(); goTitle(); });
 // Link put into shared results. Inside the app, location.href is the app's internal
@@ -4343,18 +4392,19 @@ function shareUrl() {
   return location.origin + location.pathname;
 }
 tapBtn('shareBtn', async () => {
-  const text = `🐱ねこだるまおとし🐱\nスコア ${score}点！ STAGE ${stage}（${maxTier}だん）まで到達！\nMAXコンボ ${maxCombo}\n#ねこだるまおとし`;
+  const text = EN ? `🐱Daruma Cat🐱\nScore ${score}! Reached STAGE ${stage} (${maxTier} layers)!\nMax combo ${maxCombo}\n#DarumaCat`
+    : `🐱ねこだるまおとし🐱\nスコア ${score}点！ STAGE ${stage}（${maxTier}だん）まで到達！\nMAXコンボ ${maxCombo}\n#ねこだるまおとし`;
   const url = shareUrl();
   try {
-    if (navigator.share) { await navigator.share({ title: 'ねこだるまおとし', text, url }); return; }
+    if (navigator.share) { await navigator.share({ title: APP_NAME, text, url }); return; }
   } catch (e) { if (e && e.name === 'AbortError') return; }
   try {
     await navigator.clipboard.writeText(text + '\n' + url);
-    $('shareBtn').textContent = 'コピーしたよ！';
+    $('shareBtn').textContent = T('コピーしたよ！', 'Copied!');
   } catch (e) {
-    window.prompt('コピーしてシェアしてね', text + '\n' + url);
+    window.prompt(T('コピーしてシェアしてね', 'Copy and share it'), text + '\n' + url);
   }
-  setTimeout(() => { $('shareBtn').textContent = 'シェア'; }, 1800);
+  setTimeout(() => { $('shareBtn').textContent = T('シェア', 'Share'); }, 1800);
 });
 
 document.addEventListener('visibilitychange', () => {
@@ -4398,7 +4448,11 @@ window.__neko = { get state() { return state; }, get score() { return score; }, 
 const ADMOB = {
   bannerId: 'ca-app-pub-8743645031370957/5149231305', // 画面下のバナー（本番）
   testId: 'ca-app-pub-3940256099942544/2435281174',   // Google のテスト用バナー
+  rewardId: '', // 「広告を見てつづきから」のリワード広告（本番）。空のあいだは、本番ではボタンを出さない
+  rewardTestId: 'ca-app-pub-3940256099942544/1712485313', // Google のテスト用リワード広告
 };
+// ゲームの画面と広告のあいだの受け渡し（ready: 見せられる広告がある / show(): 最後まで見たら true）
+const rewardAd = { ready: false, show: null, onChange: () => {} };
 const TEST_ADS_KEY = 'nekoDaruma.testAds'; // 「アプリの状態」画面で切り替える（自分の端末で画面を確かめる用）
 // 「アプリの状態」画面は TestFlight で調べるときだけ。App Store に出すビルドでは開けず、テスト広告の設定も無視する。
 // Web版はいつでも開ける（アプリの機能はないので、すき間の値などを見るだけ）
@@ -4472,6 +4526,31 @@ const diag = (k, v) => { window.__diag[k] = v; window.__diag.log.push(new Date()
       call('AdMob', 'showBanner', { adId: test ? ADMOB.testId : ADMOB.bannerId, isTesting: test, adSize: 'ADAPTIVE_BANNER', position: 'BOTTOM_CENTER', margin: 0 })
         .catch(e => diag('showBannerError', String(e && e.message || e)));
     };
+    // リワード広告：ゲームオーバーの画面で「広告を見てつづきから」を押したときに見せる。
+    // 見せたあとや読み込みに失敗したときは、次の分を読み込み直す
+    const rewardId = test ? ADMOB.rewardTestId : ADMOB.rewardId;
+    let rewardRetry = 0, earned = false, finish = null;
+    const setRewardReady = v => { rewardAd.ready = v; rewardAd.onChange(); };
+    const prepareReward = () => {
+      if (!rewardId) return;
+      call('AdMob', 'prepareRewardVideoAd', { adId: rewardId, isTesting: test })
+        .then(() => { rewardRetry = 0; diag('reward', 'loaded'); setRewardReady(true); })
+        .catch(e => { diag('rewardError', String(e && e.message || e)); setTimeout(prepareReward, Math.min(300, 15 * 2 ** rewardRetry++) * 1000); });
+    };
+    const rewardDone = ok => {
+      const f = finish; finish = null;
+      setRewardReady(false);
+      if (f) f(ok);
+      prepareReward();
+    };
+    listen('AdMob', 'onRewardedVideoAdReward', () => { earned = true; diag('reward', 'earned'); });
+    listen('AdMob', 'onRewardedVideoAdDismissed', () => rewardDone(earned));
+    listen('AdMob', 'onRewardedVideoAdFailedToShow', e => { diag('rewardShowError', e); rewardDone(false); });
+    rewardAd.show = () => new Promise(resolve => {
+      if (!rewardAd.ready || finish) { resolve(false); return; }
+      earned = false; finish = resolve;
+      call('AdMob', 'showRewardVideoAd', {}).catch(e => { diag('rewardShowError', String(e && e.message || e)); rewardDone(false); });
+    });
     // ATT はアプリが前面に出ているときに聞かないと、確認が出ずに「許可しない」扱いになる
     const askTracking = async () => {
       try {
@@ -4497,7 +4576,7 @@ const diag = (k, v) => { window.__diag[k] = v; window.__diag.log.push(new Date()
         // 同意の状況が分からないときは、規約違反を避けるため本番の広告は出さない。
         // テスト広告（自分の端末で画面を確かめる用）は収益にならないので出す
         await askTracking();
-        if (test) showBanner();
+        if (test) { showBanner(); prepareReward(); }
         return;
       }
       if (info.privacyOptionsRequirementStatus === 'REQUIRED') {
@@ -4508,7 +4587,7 @@ const diag = (k, v) => { window.__diag[k] = v; window.__diag.log.push(new Date()
       }
       // 審査で確認できるよう、同意の結果にかかわらず ATT は必ず聞く（広告を出さない場合も）
       await askTracking();
-      if (info.canRequestAds || test) showBanner();
+      if (info.canRequestAds || test) { showBanner(); prepareReward(); }
     })();
   }
 

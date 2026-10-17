@@ -118,6 +118,14 @@ jobs:
           [ -d "$APP_BUNDLE/Frameworks/UnityAds.framework" ] || { echo "::error::UnityAds.framework がアプリに入っていません"; exit 1; }
           echo "Unity Ads のアダプターと SDK が入っています"
 
+      - name: アプリ名（日本語・英語）が入ったか確認
+        run: |
+          for l in ja en; do
+            f="$APP_BUNDLE/$l.lproj/InfoPlist.strings"
+            [ -f "$f" ] || { echo "::error::$l.lproj/InfoPlist.strings がアプリに入っていません"; exit 1; }
+            echo "$l: $(plutil -extract CFBundleDisplayName raw -o - "$f")"
+          done
+
       - name: TestFlight にアップロード
         if: env.UPLOAD == 'true'
         run: |
