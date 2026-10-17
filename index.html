@@ -196,7 +196,7 @@
   .coll-head small { font-size: 12px; opacity: .7; margin-left: 6px; }
   .grid { display: grid; gap: 6px; }
   .grid.cats { grid-template-columns: repeat(5, 1fr); }
-  .grid.hams { grid-template-columns: repeat(6, 1fr); }
+  .grid.hams { grid-template-columns: repeat(6, 1fr); gap: 4px; }
   .grid.bag { grid-template-columns: repeat(2, 1fr); max-width: 220px; margin: 8px auto 0; }
   .bagbtn {
     position: absolute; z-index: 20; top: calc(var(--sat) + 84px); left: calc(var(--sal) + 10px);
@@ -224,7 +224,7 @@
     display: flex; flex-direction: column; align-items: center; touch-action: manipulation; min-width: 0;
   }
   .slot canvas { width: 100%; max-width: 64px; height: auto; display: block; }
-  .slot span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .slot span { white-space: nowrap; overflow: hidden; max-width: 100%; }
   .slot.locked { background: #f0e8ec; }
   .slot.sel { background: #fff1a8; box-shadow: 0 0 0 3px #ff7a59; }
   .slot.fresh::after { content: ''; position: absolute; top: -4px; right: -4px; width: 12px; height: 12px; background: #ff4d6d; border: 2px solid var(--ink); border-radius: 50%; }
@@ -2397,6 +2397,15 @@ function renderThumb(type, def, owned, sz) {
   return c;
 }
 
+// マスの下の名前が入りきらないときは、入るまで文字を小さくする（「…」で切らない）
+function fitLabels(id) {
+  $(id).querySelectorAll('.slot span').forEach(el => {
+    el.style.fontSize = ''; el.style.letterSpacing = '';
+    if (el.scrollWidth > el.clientWidth) el.style.letterSpacing = '-0.08em';
+    for (let fs = parseFloat(getComputedStyle(el).fontSize); el.scrollWidth > el.clientWidth && fs > 6; ) el.style.fontSize = (fs -= 0.5) + 'px';
+  });
+}
+
 function buildCollection() {
   const mk = (type, list, gridId, detailId, countId) => {
     const grid = $(gridId);
@@ -2434,6 +2443,7 @@ function buildCollection() {
   };
   mk('cat', CATS, 'catGrid', 'catDetail', 'catCount');
   mk('hammer', HAMMERS, 'hamGrid', 'hamDetail', 'hamCount');
+  requestAnimationFrame(() => fitLabels('collScreen'));
 }
 // 肉球バッグ（ゲーム中に左上の🐾ボタンから）：使うとそのステージのあいだだけ効く
 let bagSel = null;
@@ -2477,6 +2487,7 @@ function buildBag() {
   const d = id ? itemDef({ type: bagSel, id }) : null;
   $('bagDetail').innerHTML = d ? `<b>${escapeHTML(bagSel === 'cat' ? catTitle(d) : d.name)}</b><br>${escapeHTML(d.desc)}` : T('ミニゲームをクリアするとチートアイテムがもらえるよ', 'Clear a mini-game to get a cheat item');
   $('bagUse').classList.toggle('hidden', !d);
+  requestAnimationFrame(() => fitLabels('bagScreen'));
 }
 function useBagItem() {
   const type = bagSel, id = type && bag[type];
@@ -3807,6 +3818,9 @@ function drawParticles() {
 
 function outlinedText(text, x, y, size, fill, align = 'center', stroke = INK) {
   ctx.font = `bold ${size}px ${FONT}`;
+  // 画面の幅に入りきらない長い文（英語のときなど）は小さくする
+  const tw = ctx.measureText(text).width, maxW = W - 24;
+  if (tw > maxW) { size *= maxW / tw; ctx.font = `bold ${size}px ${FONT}`; }
   ctx.textAlign = align;
   ctx.textBaseline = 'middle';
   ctx.lineJoin = 'round';
@@ -4170,7 +4184,7 @@ function inGame() { return ['build', 'ready', 'play', 'clear', 'reward', 'mini']
 function anyOverlayOpen() { return ['howScreen', 'rankScreen', 'overScreen', 'pauseScreen', 'collScreen', 'resetScreen', 'miniOffer', 'bagScreen', 'diagScreen'].some(id => !$(id).classList.contains('hidden')); }
 
 // ===================== UI =====================
-function show(id) { $(id).classList.remove('hidden'); }
+function show(id) { const el = $(id); el.classList.remove('hidden'); [el, el.querySelector('.card')].forEach(e => { if (e) e.scrollTop = 0; }); } // 開くたびにいちばん上から
 function hide(id) { $(id).classList.add('hidden'); }
 
 function loadRanking() {
