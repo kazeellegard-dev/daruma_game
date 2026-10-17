@@ -74,6 +74,7 @@ daruma,otoshi,cat,kitty,sweets,candy,timing,hammer,stack,balance,tap,casual,cute
 ・English is now supported
 ・Failed a stage? Watch a short ad once per game to try it again
 ・The app name under the home screen icon is now shorter
+・Tall stacks were too hard, so wobble, wind and stray cats are gentler
 ```
 
 ## 6. スクリーンショット
