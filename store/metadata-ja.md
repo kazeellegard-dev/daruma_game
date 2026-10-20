@@ -140,6 +140,7 @@ KAZE Application サイトに載せる内容は `store/kaze-application/HANDOFF.
 画面の左半分／右半分をタップすると、左右からハンマーでお菓子をたたきます。
 3〜5ステージクリアするごとに、ミニゲームを遊ぶか選ぶ画面が出ます。
 画面下部に Google AdMob のバナー広告を表示しています。
+ステージに失敗したとき、1回のゲームにつき1回だけ「広告を見てつづきから」を選べます。リワード広告を最後まで見ると、そのステージからやり直せます（見なくても遊び続けられます）。
 
 App Tracking Transparency:
 アプリを初めて起動したとき、タイトル画面が表示されてすぐに App Tracking Transparency の許可の確認を表示します。
@@ -149,6 +150,7 @@ EEA・英国・スイスでは、先に Google の GDPR 同意画面が表示さ
 The App Tracking Transparency permission request appears on first launch, right after the title screen is displayed.
 In the EEA, the UK and Switzerland, Google's GDPR consent message is shown first, and the App Tracking Transparency request appears after it is closed (regardless of the choice).
 Ads are loaded only after the App Tracking Transparency request has been answered.
+When a stage is failed, the player can choose "Watch an ad to continue" once per game. After watching the rewarded ad, the player retries that stage. This is optional.
 ```
 
 ## 11. 輸出コンプライアンス
