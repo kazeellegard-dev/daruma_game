@@ -90,3 +90,25 @@ daruma,otoshi,cat,kitty,sweets,candy,timing,hammer,stack,balance,tap,casual,cute
 | サポート URL（必須） | https://kaze-application.kazeellegard.workers.dev/en/apps/neko-daruma/ （英語のページ） |
 | マーケティング URL | https://kaze-application.kazeellegard.workers.dev/ （日本語版と同じ。AdMob が app-ads.txt を確認するので入れておく） |
 | プライバシーポリシー URL（必須・「App 情報」の欄） | https://kazeellegard-dev.github.io/daruma_game/privacy.html （日本語版と同じ） |
+
+## 8. App Review に関する情報（審査メモ・英語）
+
+日本語の審査メモ（`metadata-ja.md` の 10 章）と同じ内容を英語にしたものです。審査メモは言語ごとではなく 1 つなので、こちらを貼ります。
+
+```
+No sign-in is required. Tap "Start" on the title screen to play right away.
+Tap the left or right half of the screen to hit the bottom sweet with the hammer from that side.
+Every 3–5 stages, a screen appears asking whether to play a mini-game.
+
+Language:
+The app is shown in Japanese when the device language is Japanese, and in English otherwise.
+
+Ads (Google AdMob, with Unity Ads through AdMob mediation):
+- A banner ad is shown at the bottom of the screen.
+- When a stage is failed, the player can choose "Watch an ad to continue" once per game. After watching the rewarded ad, the player retries that stage. This is optional; the player can keep playing without it.
+
+App Tracking Transparency:
+- The App Tracking Transparency permission request appears on first launch, right after the title screen is displayed.
+- In the EEA, the UK and Switzerland, Google's GDPR consent message is shown first, and the App Tracking Transparency request appears after it is closed (regardless of the choice).
+- Ads are loaded only after the App Tracking Transparency request has been answered.
+```
