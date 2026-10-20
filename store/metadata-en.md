@@ -82,3 +82,11 @@ daruma,otoshi,cat,kitty,sweets,candy,timing,hammer,stack,balance,tap,casual,cute
 英語のページにスクリーンショットを入れない場合は、日本語のスクリーンショットがそのまま使われます。
 英語の画面で撮り直すときは、Web 版を `?lang=en` を付けて開くと英語で表示できます
 （例：https://kazeellegard-dev.github.io/daruma_game/?lang=en ）。
+
+## 7. URL
+
+| 項目 | URL |
+|---|---|
+| サポート URL（必須） | https://kaze-application.kazeellegard.workers.dev/en/apps/neko-daruma/ （英語のページ） |
+| マーケティング URL | https://kaze-application.kazeellegard.workers.dev/ （日本語版と同じ。AdMob が app-ads.txt を確認するので入れておく） |
+| プライバシーポリシー URL（必須・「App 情報」の欄） | https://kazeellegard-dev.github.io/daruma_game/privacy.html （日本語版と同じ） |
