@@ -79,9 +79,17 @@ daruma,otoshi,cat,kitty,sweets,candy,timing,hammer,stack,balance,tap,casual,cute
 
 ## 6. スクリーンショット
 
-英語のページにスクリーンショットを入れない場合は、日本語のスクリーンショットがそのまま使われます。
-英語の画面で撮り直すときは、Web 版を `?lang=en` を付けて開くと英語で表示できます
-（例：https://kazeellegard-dev.github.io/daruma_game/?lang=en ）。
+英語の画面と英語の見出しで作ったものが `store/screenshots/en/` に入っています（広告は写っていません）。
+英語（米国）のページの各欄に、1 枚目から順に 7 枚入れます。
+
+| フォルダ | サイズ | App Store Connect の欄 |
+|---|---|---|
+| `en/iphone/` | 1320 × 2868 | iPhone 6.9 インチディスプレイ |
+| `en/iphone-6.3/` | 1206 × 2622 | iPhone 6.3 インチディスプレイ |
+| `en/ipad/` | 2064 × 2752 | iPad 13 インチディスプレイ |
+| `en/*-plain/` | 同上 | 文字なし版（お好みで） |
+
+作り直すときは `store/tools/README.md` の手順を `CAPS=en` を付けて実行します。
 
 ## 7. URL
 

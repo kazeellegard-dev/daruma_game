@@ -1,15 +1,16 @@
 const { chromium } = require(process.env.PLAYWRIGHT || 'playwright');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const OUT = process.argv[3] || __dirname + '/shots';
-const PAGE = 'file://' + require('path').resolve(__dirname, '../../index.html');
+const EN = process.env.CAPS === 'en'; // CAPS=en で英語の画面を撮る
+const PAGE = 'file://' + require('path').resolve(__dirname, '../../index.html') + (EN ? '?lang=en' : '?lang=ja');
 require('fs').mkdirSync(OUT, { recursive: true });
 const DEVICES = {
   iphone: { viewport: { width: 440, height: 956 }, deviceScaleFactor: 3, sat: 62, sab: 34 },
   ipad:   { viewport: { width: 1032, height: 1376 }, deviceScaleFactor: 2, sat: 0, sab: 20 },
 };
 const RANK = JSON.stringify([
-  { id: 'a', name: 'ねこすき', score: 18640, stage: 14, tier: 16, combo: 22, date: '2026-10-01T00:00:00Z' },
-  { id: 'b', name: 'たま', score: 12480, stage: 11, tier: 13, combo: 15, date: '2026-10-02T00:00:00Z' },
+  { id: 'a', name: EN ? 'CatLover' : 'ねこすき', score: 18640, stage: 14, tier: 16, combo: 22, date: '2026-10-01T00:00:00Z' },
+  { id: 'b', name: EN ? 'Tama' : 'たま', score: 12480, stage: 11, tier: 13, combo: 15, date: '2026-10-02T00:00:00Z' },
 ]);
 // 見せるのは、ねこ半分・ハンマー3種類だけ（のこりは「？？？」のまま）
 const COLL = JSON.stringify({ cats: ['tora', 'shiro', 'kuro', 'mike', 'siam'], hammers: ['wood', 'pico', 'candy'], cat: 'tora', hammer: 'wood', fresh: [] });
