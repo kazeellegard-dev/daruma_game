@@ -33,7 +33,7 @@ node store/tools/keyart.js universal 1311 738 4 7   # 16:9 → 5244×2952（切�
 ```sh
 PLAYWRIGHT=... node store/tools/video.js /tmp/video/ja          # CAPS=en で英語
 N=$(ls /tmp/video/ja/0*.png | wc -l); OFF=$(python3 -c "print($N/30-0.35)")
-ffmpeg -framerate 30 -i /tmp/video/ja/%04d.png -loop 1 -framerate 30 -t 2.5 -i /tmp/video/ja/end.png \
+ffmpeg -framerate 30 -i /tmp/video/ja/%04d.png -loop 1 -framerate 30 -t 2.0 -i /tmp/video/ja/end.png \
   -filter_complex "[0]format=yuv420p,setsar=1[a];[1]format=yuv420p,setsar=1[b];[a][b]xfade=transition=fade:duration=0.35:offset=$OFF" \
   -c:v libx264 -crf 18 -pix_fmt yuv420p -movflags +faststart promo-ja.mp4
 ```

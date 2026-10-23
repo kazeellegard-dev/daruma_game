@@ -93,7 +93,7 @@ const COLL = JSON.stringify({ cats: ['tora', 'shiro', 'kuro', 'mike', 'saba', 's
   // 7. コレクション画面（ねこ全員）
   await ev(() => { __neko.coll().cat = 'maneki'; document.querySelectorAll('.overlay').forEach(e => e.classList.add('hidden')); });
   await ev(() => document.getElementById('collBtn').click());
-  await run(0.8);
+  await run(0.4);
   // 8. 最後の画面（アプリ名と KAZE Application のロゴ）は別の PNG にする
   const end = await ctx.newPage();
   await end.goto('file://' + require('path').resolve(__dirname, 'endcard.html') + (EN ? '?lang=en' : ''));
