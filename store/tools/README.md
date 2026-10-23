@@ -24,14 +24,18 @@ node store/tools/keyart.js universal 1311 738 4 7   # 16:9 → 5244×2952（切�
 
 引数は「ファイル名・画面の幅・高さ・倍率・ステージ（積み木の段数）」です。お菓子の並びは毎回変わります。
 
-## プレイ動画（X 投稿用）
+## プロモーション動画（X 投稿用）
 
-`video.js` は、ゲームの時計を止めて 1 コマずつ撮る（縦 1080×1920・30fps・約14秒）。
-トラ → クロ（のらねこ）→ ミケ（ねこの大群）→ シャム → ハチワレ → コレクション画面の順。
+`video.js` は、ゲームの時計を止めて 1 コマずつ撮る（縦 1080×1920・30fps）。
+タイトル → 20段の塔をトラでぬく → クロ（のらねこ）→ ミケ（ねこの大群）→ ハチワレ（つよすぎで倒れる）
+→ ねこ・ハンマー・チートねこのゲット → コレクション画面。最後の画面（`endcard.html`）は `end.png` に別に撮る。
 
 ```sh
 PLAYWRIGHT=... node store/tools/video.js /tmp/video/ja          # CAPS=en で英語
-ffmpeg -framerate 30 -i /tmp/video/ja/%04d.png -c:v libx264 -crf 18 -pix_fmt yuv420p -movflags +faststart play-ja.mp4
+N=$(ls /tmp/video/ja/0*.png | wc -l); OFF=$(python3 -c "print($N/30-0.35)")
+ffmpeg -framerate 30 -i /tmp/video/ja/%04d.png -loop 1 -framerate 30 -t 2.5 -i /tmp/video/ja/end.png \
+  -filter_complex "[0]format=yuv420p,setsar=1[a];[1]format=yuv420p,setsar=1[b];[a][b]xfade=transition=fade:duration=0.35:offset=$OFF" \
+  -c:v libx264 -crf 18 -pix_fmt yuv420p -movflags +faststart promo-ja.mp4
 ```
 
 音は入らない（ヘッドレスのブラウザでは録れない）。

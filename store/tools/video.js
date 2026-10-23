@@ -56,33 +56,49 @@ const COLL = JSON.stringify({ cats: ['tora', 'shiro', 'kuro', 'mike', 'saba', 's
   };
 
   // 1. タイトル（トラ）
-  await run(1.0);
-  await p.click('#startBtn', { force: true });
+  await run(0.7);
+  await ev(() => document.getElementById('startBtn').click());
   await ev(() => __neko.setMiniAt(999));
-  // 2. トラでステージ1（3段）→ クリア
-  await stageWith('tora', 1);
-  await knock(3, 0.42);
-  await run(0.7);
-  // 3. クロ：たたいている途中で、のらねこが来る
-  await stageWith('kuro', 2);
-  await knock(2, 0.42);
+  // 2. 高い塔（20段）をトラでテンポよくぬく
+  await stageWith('tora', 18);
+  await knock(5, 0.3);
+  // 3. クロ：のらねこが来て押してくる
+  await stageWith('kuro', 17);
+  await knock(1, 0.3);
   await ev(() => __neko.startIntruder());
-  await run(0.9);
-  await knock(2, 0.42);
-  await run(0.7);
+  await run(1.0);
+  await knock(2, 0.3);
   // 4. ミケ：さかなのほねで、いろいろなねこが走ってくる
-  await stageWith('mike', 2);
-  await knock(1, 0.4);
+  await stageWith('mike', 16);
+  await knock(1, 0.3);
   await ev(() => { __neko.spawnDrop('bone'); __neko.catchDrop(__neko.drops[__neko.drops.length - 1]); });
-  await run(1.3);
-  await knock(3, 0.4);
-  await run(0.6);
-  // 5. シャム → ハチワレ（短く切りかえ）
-  for (const c of ['siam', 'hachi']) { await stageWith(c, 1); await knock(3, 0.36); await run(0.35); }
-  // 6. コレクション画面（ねこ全員）
+  await run(1.0);
+  await knock(2, 0.3);
+  // 5. ハチワレ：つよすぎで叩いてしまい、塔がたおれる
+  await stageWith('hachi', 18);
+  await knock(2, 0.3);
+  for (let i = 0; i < 8 && (await ev(() => __neko.state)) === 'play'; i++) {
+    await ev(() => { __neko.setMeter(1); __neko.strike(-1); });
+    await run(0.25);
+  }
+  await run(1.6);
+  // 6. ごほうび：ねこ・ハンマー・チートねこ（箱があく直前から）
+  for (const it of [{ type: 'cat', id: 'blue' }, { type: 'hammer', id: 'paw' }, { type: 'cat', id: 'niji', cheat: true }]) {
+    await ev(item => {
+      document.querySelectorAll('.overlay').forEach(e => e.classList.add('hidden'));
+      __neko.startGame(); __neko.setStage(3); __neko.nextStage(); __neko.setMiniAt(999); __neko.startReward(item, 'mini'); __neko.reward.t = 1.55;
+    }, it);
+    await run(1.35);
+  }
+  // 7. コレクション画面（ねこ全員）
   await ev(() => { __neko.coll().cat = 'maneki'; document.querySelectorAll('.overlay').forEach(e => e.classList.add('hidden')); });
   await ev(() => document.getElementById('collBtn').click());
-  await run(1.6);
+  await run(0.8);
+  // 8. 最後の画面（アプリ名と KAZE Application のロゴ）は別の PNG にする
+  const end = await ctx.newPage();
+  await end.goto('file://' + require('path').resolve(__dirname, 'endcard.html') + (EN ? '?lang=en' : ''));
+  await end.waitForTimeout(300);
+  await end.screenshot({ path: `${OUT}/end.png` });
   await b.close();
   console.log('frames', n);
 })();
